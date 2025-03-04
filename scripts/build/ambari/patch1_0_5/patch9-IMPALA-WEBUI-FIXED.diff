@@ -1,4 +1,5 @@
-Subject: [PATCH] feature: impala web ui 样式优化
+Subject: [PATCH] feature: impala 样式优化
+feature: impala 样式优化
 ---
 Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/IMPALA/configuration/impala-env.xml
 IDEA additional info:
@@ -7,7 +8,7 @@ Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
 ===================================================================
 diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/IMPALA/configuration/impala-env.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/IMPALA/configuration/impala-env.xml
 --- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/IMPALA/configuration/impala-env.xml	(revision 5d5a51535bed64d375e13cbd98b0f17c753d2bd9)
-+++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/IMPALA/configuration/impala-env.xml	(date 1740366731258)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/IMPALA/configuration/impala-env.xml	(revision 99954c251120b3c402670838905a704547626de8)
 @@ -226,11 +226,13 @@
  IMPALA_BACKEND_PORT={{impala_env['impala_backend_port']}}
  IMPALA_LOG_DIR={{impala_log_dir}}
@@ -30,3 +31,11 @@ diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/IMPAL
  	{% if security_enabled %}
      -kerberos_reinit_interval={{impala_env['kerberos_reinit_interval']}} \
      -principal={{impala_env['impala_state_store_kerberos_principal']}} \
+@@ -265,6 +268,7 @@
+     -state_store_port=${IMPALA_STATE_STORE_PORT} \
+     -state_store_host=${IMPALA_STATE_STORE_HOST} \
+     -be_port=${IMPALA_BACKEND_PORT} \
++    -webserver_doc_root=${IMPALA_HOME} \
+     {% if enable_ranger %}
+     -server_name=impala_cluster  \
+     -ranger_service_type=hive \

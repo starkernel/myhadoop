@@ -1,0 +1,211 @@
+Subject: [PATCH] feature: impala 安装调整
+---
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/IMPALA/package/scripts/impala.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/IMPALA/package/scripts/impala.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/IMPALA/package/scripts/impala.py
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/IMPALA/package/scripts/impala.py	(revision 99954c251120b3c402670838905a704547626de8)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/IMPALA/package/scripts/impala.py	(date 1740994876309)
+@@ -103,6 +103,14 @@
+         mode=0o755,
+     )
+
++    File(
++        os.path.join(params.impala_conf_dir, "impalad-flags.xml"),
++        owner=params.impala_user,
++        group=params.user_group,
++        content=InlineTemplate(params.impala_impaladflags_template),
++        mode=0o755,
++    )
++
+     if params.enable_ranger:
+         XmlConfig(
+             "ranger-hive-audit.xml",
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/IMPALA/package/scripts/sasl2_utils.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/IMPALA/package/scripts/sasl2_utils.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/IMPALA/package/scripts/sasl2_utils.py
+new file mode 100644
+--- /dev/null	(date 1740994876540)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/IMPALA/package/scripts/sasl2_utils.py	(date 1740994876540)
+@@ -0,0 +1,28 @@
++# coding=utf-8
++"""
++sasl2_utils 模块
++
++这个模块提供了初始化 SASL2 配置的公共方法。
++
++Usage:
++    from sasl2_utils import init_sasl2
++    init_sasl2()
++"""
++
++__author__ = "JaneTTR <3832514048@qq.com>"
++__version__ = "1.0.0"
++__license__ = "Apache License, Version 2.0"
++
++from resource_management import Directory, File
++
++
++def init_sasl2():
++    """
++    初始化 SASL2 配置：创建 /etc/sasl2 目录，并写入 impala.conf 配置文件。
++
++    Author: Your Name <your.email@example.com>
++    """
++    Directory("/etc/sasl2", mode=0o755)
++    File("/etc/sasl2/impala.conf",
++         content="pwcheck_method: auxprop\nauxprop_plugin: sasldb\nmech_list: PLAIN\n",
++         mode=0o644)
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/IMPALA/package/scripts/params.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/IMPALA/package/scripts/params.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/IMPALA/package/scripts/params.py
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/IMPALA/package/scripts/params.py	(revision 99954c251120b3c402670838905a704547626de8)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/IMPALA/package/scripts/params.py	(date 1740994876527)
+@@ -190,6 +190,7 @@
+
+ # ADMISSION_CONTROL
+ impala_fairscheduler_template = config["configurations"]["fair-scheduler"]["content"]
++impala_impaladflags_template = config["configurations"]["impalad-flags"]["content"]
+ impala_llamaSite_configurations = config["configurations"]["llama-site"]
+ hive_llamaSite_attributes = config["configurationAttributes"]["llama-site"]
+
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/IMPALA/configuration/impalad-flags.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/IMPALA/configuration/impalad-flags.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/IMPALA/configuration/impalad-flags.xml
+new file mode 100644
+--- /dev/null	(date 1740994876223)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/IMPALA/configuration/impalad-flags.xml	(date 1740994876223)
+@@ -0,0 +1,53 @@
++<?xml version="1.0"?>
++<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
++
++<configuration supports_adding_forbidden="true">
++
++  <!-- /etc/impala/conf -->
++  <property>
++    <name>content</name>
++    <display-name>impalad_flags template</display-name>
++    <description>This is the xml template for impalad_flags file</description>
++    <value>
++# Licensed to the Apache Software Foundation (ASF) under one
++# or more contributor license agreements.  See the NOTICE file
++# distributed with this work for additional information
++# regarding copyright ownership.  The ASF licenses this file
++# to you under the Apache License, Version 2.0 (the
++# "License"); you may not use this file except in compliance
++# with the License.  You may obtain a copy of the License at
++#
++#   http://www.apache.org/licenses/LICENSE-2.0
++#
++# Unless required by applicable law or agreed to in writing,
++# software distributed under the License is distributed on an
++# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
++# KIND, either express or implied.  See the License for the
++# specific language governing permissions and limitations
++# under the License.
++#
++# Specify flags for impalad service.
++
++# -hostname=localhost
++# -catalog_service_host=localhost
++# -state_store_host=localhost
++# -kudu_master_hosts=localhost
++# -log_dir=/var/log/impala
++# -minidump_path=/var/log/impala/minidumps
++# -local_library_dir=/var/lib/impala/udfs
++# -llama_site_path=/opt/impala/conf/llama-site.xml
++# -fair_scheduler_allocation_path=/opt/impala/conf/fair-scheduler.xml
++# -mem_limit=80%
++# -use_local_catalog=true
++-v=1
++-log_filename=impalad
++-max_log_files=10
++-max_log_size=200
++-auth_creds_ok
++    </value>
++    <value-attributes>
++      <type>content</type>
++    </value-attributes>
++    <on-ambari-upgrade add="true"/>
++  </property>
++</configuration>
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/IMPALA/metainfo.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/IMPALA/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/IMPALA/metainfo.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/IMPALA/metainfo.xml	(revision 99954c251120b3c402670838905a704547626de8)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/IMPALA/metainfo.xml	(date 1740994876576)
+@@ -60,6 +60,15 @@
+                         <package>
+                             <name>impala_${stack_version}</name>
+                         </package>
++                        <package>
++                            <name>cyrus-sasl</name>
++                        </package>
++                        <package>
++                            <name>cyrus-sasl-plain</name>
++                        </package>
++                        <package>
++                            <name>cyrus-sasl-devel</name>
++                        </package>
+                     </packages>
+                 </osSpecific>
+             </osSpecifics>
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/IMPALA/package/scripts/impala-statestore.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/IMPALA/package/scripts/impala-statestore.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/IMPALA/package/scripts/impala-statestore.py
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/IMPALA/package/scripts/impala-statestore.py	(revision 99954c251120b3c402670838905a704547626de8)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/IMPALA/package/scripts/impala-statestore.py	(date 1740994876481)
+@@ -20,12 +20,14 @@
+ from resource_management import *
+ from impala_service import impala_service
+ from impala import impala
++from sasl2_utils import init_sasl2
+
+
+ class ImpalaStateStore(Script):
+     def install(self, env):
+         import params
+         self.install_packages(env)
++        init_sasl2()
+         self.configure(env)
+
+     def configure(self, env):
+@@ -53,16 +55,17 @@
+         check_process_status(status_params.impala_statestored_pid)
+
+     def get_log_folder(self):
+-      import params
+-      return params.impala_log_dir
++        import params
++        return params.impala_log_dir
+
+     def get_user(self):
+-      import params
+-      return params.impala_user
++        import params
++        return params.impala_user
+
+     def get_pid_files(self):
+         import status_params
+         return [status_params.impala_statestored_pid]
+
++
+ if __name__ == "__main__":
+     ImpalaStateStore().execute()
