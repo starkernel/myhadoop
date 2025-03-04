@@ -42,6 +42,12 @@ REPOS=(
   "aliyun-central|https://maven.aliyun.com/repository/central"
   "huawei|https://repo.huaweicloud.com/repository/maven"
   "huaweicloudsdk|https://repo.huaweicloud.com/repository/maven/huaweicloudsdk"
+
+  "impala-toolchain|https://native-toolchain.s3.amazonaws.com/build/cdp_components/45689292/maven"
+  "impala-cdp|https://native-toolchain.s3.amazonaws.com/build/cdp_components/45689292/maven"
+  "cdh-releases|https://repository.cloudera.com/artifactory/cdh-releases-rcs"
+  "apache-snapshots|https://repository.apache.org/content/repositories/snapshots/"
+  "cdh-snapshots|https://repository.cloudera.com/content/repositories/snapshots"
 )
 
 # Function to check if a repository exists
