@@ -22,7 +22,9 @@
 - **Ambari 2.8.0**
 - **Bigtop 3.2.0**
 
+
 提供 **开箱即用** 的大数据组件部署方案，简化运维，支持多种主流组件，致力于打造稳定、可靠、高效的大数据生态环境。
+
 
 ---
 
@@ -61,17 +63,9 @@
 ---
 
 ## 🔧 快速上手
+[参考文档](https://doc.janettr.com)
 
-```bash
-# clone 项目后
-
-# 执行
-docker-compose -f docker-compose.yml up -d
-
-# 开始编译
-bash /scripts/build/onekey_build.sh
-
-```
+教你如何安装，如何卸载，并提供了一键安装脚本
 
 ## 效果图
 
