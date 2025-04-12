@@ -16,7 +16,7 @@
 #
 # Author: JaneTTR
 
-set -ex
+#set -ex
 
 echo "############## PRE BUILD AMBARI-METRICS start #############"
 
@@ -24,78 +24,63 @@ echo "############## PRE BUILD AMBARI-METRICS start #############"
 ####      PATCH       ###
 #########################
 
-# 定义一个包含所有补丁文件路径的数组
 patch_files=(
   "/scripts/build/ambari-metrics/patch/patch0-TAR-DOWNLOAD.diff"
-  #  "/scripts/build/ambari-infra/patch/patch1-MIRRO-REPLACE.diff"
 )
 PROJECT_PATH="/opt/modules/ambari-metrics"
 
-# 定义一个函数来应用补丁
 apply_patch() {
   local patch_file=$1
   if patch -p1 --dry-run -R -d "$PROJECT_PATH" <"$patch_file" >/dev/null 2>&1; then
-    echo "补丁：$patch_file 已经应用，跳过"
+    echo "补丁 $(basename "$patch_file") 已应用，跳过"
   else
     if patch -p1 --fuzz=0 --verbose -d "$PROJECT_PATH" <"$patch_file"; then
-      echo "补丁：$patch_file 已经成功执行"
+      echo "补丁 $(basename "$patch_file") 成功执行"
     else
-      echo "补丁：$patch_file 执行失败"
+      echo "补丁 $(basename "$patch_file") 执行失败"
       exit 1
     fi
   fi
 }
 
-# 遍历数组并应用每个补丁文件
 for patch_file in "${patch_files[@]}"; do
   apply_patch "$patch_file"
 done
 
 #########################
-####     DOWNLOAD     ###
+####    CHECK ENV     ###
 #########################
 
-# 定义下载链接数组
-download_urls=(
-  "https://repo.huaweicloud.com/artifactory/apache-local/hbase/2.4.13/hbase-2.4.13-bin.tar.gz"
-  "https://repo.huaweicloud.com/artifactory/apache-local/hadoop/common/hadoop-3.3.4/hadoop-3.3.4.tar.gz"
-  "https://mirrors.huaweicloud.com/grafana/9.3.2/grafana-enterprise-9.3.2.linux-amd64.tar.gz"
-  "https://mirrors.huaweicloud.com/artifactory/apache-local/phoenix/phoenix-5.1.2/phoenix-hbase-2.4-5.1.2-bin.tar.gz"
-)
-
-# 定义下载目录
 DOWNLOAD_DIR="$PROJECT_PATH/ambari-download-tar"
 RPM_PACKAGE="/data/rpm-package/ambari-metrics"
 
-# 创建下载目录（如果不存在）
 mkdir -p "$DOWNLOAD_DIR"
 mkdir -p "$RPM_PACKAGE"
 
-# 下载文件的函数
-download_file() {
-  local url=$1
-  local file_name=$(basename "$url")
-  local file_path="$DOWNLOAD_DIR/$file_name"
-
-  # 检查文件是否已经存在
-  if [ -f "$file_path" ]; then
-    echo "文件 $file_name 已经存在，跳过下载。"
-  else
-    echo "正在下载 $file_name ..."
-    curl -o "$file_path" "$url"
-    if [ $? -eq 0 ]; then
-      echo "文件 $file_name 下载成功。"
-    else
-      echo "文件 $file_name 下载失败。"
-      exit 1
-    fi
-  fi
-}
-
-# 遍历下载链接并下载每个文件
-for url in "${download_urls[@]}"; do
-  download_file "$url"
-done
+# 检查是否已有 tar.gz 文件存在，如果没有则提示用户
+if ! ls "$DOWNLOAD_DIR"/*.tar.gz >/dev/null 2>&1; then
+  echo ""
+  echo "未检测到任何 .tar.gz 环境包，您尚未准备构建依赖。"
+  echo ""
+  echo "请参考以下文档，获取完整的环境包下载指南和修复说明："
+  echo "    https://doc.janettr.com/pages/5f4e4b32-cc79-4266-899a-83f85cf82b25/"
+  echo ""
+  echo "请将下载后的所有环境包文件 (.tar.gz) 放入以下目录："
+  echo "    $DOWNLOAD_DIR"
+  echo ""
+  echo "常见缺失包包括："
+  echo "    - hadoop"
+  echo "    - hbase"
+  echo "    - grafana"
+  echo "    - phoenix"
+  echo ""
+  echo "注意：不建议使用国内镜像源（如清华、阿里、华为等）进行下载，"
+  echo "这些镜像中部分包可能缺失或版本不一致，容易导致构建失败。"
+  echo ""
+  exit 1
+else
+  echo "✅ 检测到环境包已准备，跳过提示。"
+fi
 
 #########################
 ####      BUILD       ###
