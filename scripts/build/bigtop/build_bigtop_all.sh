@@ -51,6 +51,9 @@ bash /scripts/build/bigtop/build1_0_4.sh
 echo "1.0.5 补丁"
 bash /scripts/build/bigtop/build1_0_5.sh
 
+echo "1.0.6 补丁"
+bash /scripts/build/bigtop/build1_0_6.sh
+
 
 # 开启 gcc 高版本
 source /opt/rh/devtoolset-7/enable

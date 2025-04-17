@@ -1,0 +1,31 @@
+Subject: [PATCH] feature: 支持trino 474 版本下载
+---
+Index: bigtop.bom
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/bigtop.bom b/bigtop.bom
+--- a/bigtop.bom	(revision ac19a3a1a1033662d641ce1c9aea2f68a7e30110)
++++ b/bigtop.bom	(date 1744447847835)
+@@ -644,5 +644,20 @@
+                 archive = site
+             }
+         }
++
++        'trino' {
++            name = 'trino'
++            rpm_pkg_suffix = "_" + bigtop.base_version.replace(".", "_")
++            relNotes = 'trino v474'
++            version { base = '474'; pkg = base; release = 1 }
++            tarball {
++                source = "${version.base}.tar.gz"
++                destination = "${name}-${version.base}.tar.gz"
++            }
++            url {
++                site = bigtop.gh_proxy + "https://github.com/JaneTTR-Bigdata/trino/archive/refs/tags/"
++                archive = site
++            }
++        }
+     }
+ }
