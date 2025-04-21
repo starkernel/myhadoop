@@ -1,0 +1,49 @@
+Subject: [PATCH] feature: 支持hudi 和 paimon
+---
+Index: bigtop.bom
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/bigtop.bom b/bigtop.bom
+--- a/bigtop.bom	(revision 57f3a8f63cda8b6bda62cdd224c2c7bf823fb040)
++++ b/bigtop.bom	(date 1745225461410)
+@@ -659,5 +659,38 @@
+                 archive = site
+             }
+         }
++
++        'hudi' {
++            name = 'hudi'
++            rpm_pkg_suffix = "_" + bigtop.base_version.replace(".", "_")
++            relNotes = 'hudi v1.0.1'
++            version { base = '1.0.1'; pkg = base; release = 1 }
++            tarball {
++                /**
++                 * Decompression hudi-release-1.0.1/
++                 */
++                source = "release-${version.base}.tar.gz"
++                destination = "${name}-${version.base}.tar.gz"
++            }
++            url {
++                site = bigtop.gh_proxy + "https://github.com/apache/hudi/archive/refs/tags/"
++                archive = site
++            }
++        }
++
++        'paimon' {
++            name = 'paimon'
++            rpm_pkg_suffix = "_" + bigtop.base_version.replace(".", "_")
++            relNotes = 'paimon v1.1.0'
++            version { base = '1.1.0'; pkg = base; release = 1 }
++            tarball {
++                source = "release-${version.base}.tar.gz"
++                destination = "${name}-${version.base}.tar.gz"
++            }
++            url {
++                site = bigtop.gh_proxy + "https://github.com/apache/paimon/archive/refs/tags/"
++                archive = site
++            }
++        }
+     }
+ }
