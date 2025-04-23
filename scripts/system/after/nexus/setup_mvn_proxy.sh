@@ -48,6 +48,7 @@ REPOS=(
   "cdh-releases|https://repository.cloudera.com/artifactory/cdh-releases-rcs"
   "apache-snapshots|https://repository.apache.org/content/repositories/snapshots/"
   "cdh-snapshots|https://repository.cloudera.com/content/repositories/snapshots"
+  "aliyun-jindodata|https://jindodata-binary.oss-cn-shanghai.aliyuncs.com/mvn-repo/"
 )
 
 # Function to check if a repository exists
