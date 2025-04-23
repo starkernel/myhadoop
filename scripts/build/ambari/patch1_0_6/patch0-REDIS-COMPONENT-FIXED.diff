@@ -1,0 +1,19 @@
+Subject: [PATCH] [fixed]: redis 修复
+---
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/REDIS/package/scripts/redis_slave.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/REDIS/package/scripts/redis_slave.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/REDIS/package/scripts/redis_slave.py
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/REDIS/package/scripts/redis_slave.py	(revision 1ed0bdd69fe6cebf1dfb7a4c6eb0a5a23c7dc7ba)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/REDIS/package/scripts/redis_slave.py	(revision fb82d21843dde8b371705948493a5316cf3f8893)
+@@ -45,7 +45,7 @@
+
+         # 启动 Redis Slave，并显式指定 pidfile
+         Execute(format(
+-            "{client_bin}/redis-server /etc/redis/redis.conf --port {slave_port} --cluster-config-file /etc/redis/cluster_slave.conf --pidfile {slave_redis_pid_file}"),
++            "{client_bin}/redis-server /etc/redis/redis.conf --port {slave_port} --cluster-config-file /etc/redis/cluster_slave.conf --pidfile {slave_redis_pid_file} --masterauth {redis_password}"),
+             user=params.redis_user)
+
+         # 检查并处理集群逻辑，包括初始化集群和扩展
