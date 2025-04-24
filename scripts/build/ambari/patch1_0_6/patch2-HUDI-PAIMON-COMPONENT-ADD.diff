@@ -1,0 +1,1025 @@
+Subject: [PATCH] [feature]: 支持hudi 和 paimon
+---
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/properties/stack_packages.json
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/properties/stack_packages.json b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/properties/stack_packages.json
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/properties/stack_packages.json	(revision a9232930c5e50a22a5d9cbbe9428f38e0bc0359e)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/properties/stack_packages.json	(revision 63f228d43555d16c7dba5cd7f31288f8ba3b0cea)
+@@ -916,6 +916,34 @@
+             "trino-cli"
+           ]
+         }
++      },
++      "PAIMON": {
++        "PAIMON_CLIENT": {
++          "STACK-SELECT-PACKAGE": "paimon-client",
++          "INSTALL": [
++            "paimon-client"
++          ],
++          "PATCH": [
++            "paimon-client"
++          ],
++          "STANDARD": [
++            "paimon-client"
++          ]
++        }
++      },
++      "HUDI": {
++        "HUDI_CLIENT": {
++          "STACK-SELECT-PACKAGE": "hudi-client",
++          "INSTALL": [
++            "hudi-client"
++          ],
++          "PATCH": [
++            "hudi-client"
++          ],
++          "STANDARD": [
++            "hudi-client"
++          ]
++        }
+       }
+     },
+     "conf-select": {
+@@ -1121,6 +1149,27 @@
+           "current_dir": "{0}/current/impala/conf",
+           "component": "impala"
+         }
++      ],
++      "trino": [
++        {
++          "conf_dir": "/etc/trino/conf",
++          "current_dir": "{0}/current/trino/etc",
++          "component": "trino"
++        }
++      ],
++      "hudi": [
++        {
++          "conf_dir": "/etc/hudi/conf",
++          "current_dir": "{0}/current/hudi-client/conf",
++          "component": "hudi-client"
++        }
++      ],
++      "paimon": [
++        {
++          "conf_dir": "/etc/paimon/conf",
++          "current_dir": "{0}/current/paimon-client/conf",
++          "component": "paimon-client"
++        }
+       ]
+     },
+     "conf-select-patching": {
+@@ -1220,6 +1269,22 @@
+         "packages": [
+           "impala"
+         ]
++      },
++      "TRINO": {
++        "packages": [
++          "trino",
++          "trino-cli"
++        ]
++      },
++      "PAIMON": {
++        "packages": [
++          "paimon-client"
++        ]
++      },
++      "HUDI": {
++        "packages": [
++          "hudi-client"
++        ]
+       }
+     },
+     "upgrade-dependencies": {
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUDI/metainfo.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUDI/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUDI/metainfo.xml
+new file mode 100644
+--- /dev/null	(revision 63f228d43555d16c7dba5cd7f31288f8ba3b0cea)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUDI/metainfo.xml	(revision 63f228d43555d16c7dba5cd7f31288f8ba3b0cea)
+@@ -0,0 +1,59 @@
++<?xml version="1.0"?>
++<!--
++   Licensed to the Apache Software Foundation (ASF) under one or more
++   contributor license agreements.  See the NOTICE file distributed with
++   this work for additional information regarding copyright ownership.
++   The ASF licenses this file to You under the Apache License, Version 2.0
++   (the "License"); you may not use this file except in compliance with
++   the License.  You may obtain a copy of the License at
++
++       http://www.apache.org/licenses/LICENSE-2.0
++
++   Unless required by applicable law or agreed to in writing, software
++   distributed under the License is distributed on an "AS IS" BASIS,
++   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++   See the License for the specific language governing permissions and
++   limitations under the License.
++-->
++<metainfo>
++    <schemaVersion>2.0</schemaVersion>
++    <services>
++        <service>
++            <name>HUDI</name>
++            <displayName>Hudi</displayName>
++            <comment>Component HUDI Power By JaneTTR . mail: 3832514048@qq.com ,git:
++                https://gitee.com/tt-bigdata/ambari-env
++            </comment>
++            <version>1.1.0</version>
++
++            <components>
++                <component>
++                    <name>HUDI</name>
++                    <displayName>Hudi Client</displayName>
++                    <category>CLIENT</category>
++                    <cardinality>1+</cardinality>
++                    <versionAdvertised>true</versionAdvertised>
++                    <commandScript>
++                        <script>scripts/hudi_client.py</script>
++                        <scriptType>PYTHON</scriptType>
++                    </commandScript>
++                </component>
++            </components>
++            <osSpecifics>
++                <osSpecific>
++                    <osFamily>any</osFamily>
++                    <packages>
++                        <package>
++                            <name>hudi_${stack_version}</name>
++                        </package>
++                    </packages>
++                </osSpecific>
++            </osSpecifics>
++            <commandScript>
++                <script>scripts/service_check.py</script>
++                <scriptType>PYTHON</scriptType>
++                <timeout>300</timeout>
++            </commandScript>
++        </service>
++    </services>
++</metainfo>
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUDI/package/scripts/hudi.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUDI/package/scripts/hudi.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUDI/package/scripts/hudi.py
+new file mode 100644
+--- /dev/null	(revision 63f228d43555d16c7dba5cd7f31288f8ba3b0cea)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUDI/package/scripts/hudi.py	(revision 63f228d43555d16c7dba5cd7f31288f8ba3b0cea)
+@@ -0,0 +1,29 @@
++"""
++Licensed to the Apache Software Foundation (ASF) under one
++or more contributor license agreements.  See the NOTICE file
++distributed with this work for additional information
++regarding copyright ownership.  The ASF licenses this file
++to you under the Apache License, Version 2.0 (the
++"License"); you may not use this file except in compliance
++with the License.  You may obtain a copy of the License at
++
++    http://www.apache.org/licenses/LICENSE-2.0
++
++Unless required by applicable law or agreed to in writing, software
++distributed under the License is distributed on an "AS IS" BASIS,
++WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++See the License for the specific language governing permissions and
++limitations under the License.
++
++"""
++# Python Imports
++import os
++
++from resource_management import Script, Logger
++
++
++def hudi(type=None):
++    import params
++
++    Logger.info('Hudi client install success!')
++    pass
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUDI/package/scripts/hudi_client.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUDI/package/scripts/hudi_client.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUDI/package/scripts/hudi_client.py
+new file mode 100644
+--- /dev/null	(revision 63f228d43555d16c7dba5cd7f31288f8ba3b0cea)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUDI/package/scripts/hudi_client.py	(revision 63f228d43555d16c7dba5cd7f31288f8ba3b0cea)
+@@ -0,0 +1,41 @@
++#!/usr/bin/env python
++"""
++Licensed to the Apache Software Foundation (ASF) under one
++or more contributor license agreements.  See the NOTICE file
++distributed with this work for additional information
++regarding copyright ownership.  The ASF licenses this file
++to you under the Apache License, Version 2.0 (the
++"License"); you may not use this file except in compliance
++with the License.  You may obtain a copy of the License at
++
++    http://www.apache.org/licenses/LICENSE-2.0
++
++Unless required by applicable law or agreed to in writing, software
++distributed under the License is distributed on an "AS IS" BASIS,
++WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++See the License for the specific language governing permissions and
++limitations under the License.
++
++"""
++
++from resource_management.core.exceptions import ClientComponentHasNoStatus
++from resource_management.libraries.script.script import Script
++from hudi import hudi
++
++
++class HudiClient(Script):
++    def install(self, env):
++        self.install_packages(env)
++        self.configure(env)
++
++    def configure(self, env):
++        import params
++        env.set_params(params)
++        hudi(type="client")
++
++    def status(self, env):
++        raise ClientComponentHasNoStatus()
++
++
++if __name__ == "__main__":
++    HudiClient().execute()
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUDI/package/scripts/params.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUDI/package/scripts/params.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUDI/package/scripts/params.py
+new file mode 100644
+--- /dev/null	(revision 63f228d43555d16c7dba5cd7f31288f8ba3b0cea)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUDI/package/scripts/params.py	(revision 63f228d43555d16c7dba5cd7f31288f8ba3b0cea)
+@@ -0,0 +1,22 @@
++"""
++Licensed to the Apache Software Foundation (ASF) under one
++or more contributor license agreements.  See the NOTICE file
++distributed with this work for additional information
++regarding copyright ownership.  The ASF licenses this file
++to you under the Apache License, Version 2.0 (the
++"License"); you may not use this file except in compliance
++with the License.  You may obtain a copy of the License at
++
++    http://www.apache.org/licenses/LICENSE-2.0
++
++Unless required by applicable law or agreed to in writing, software
++distributed under the License is distributed on an "AS IS" BASIS,
++WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++See the License for the specific language governing permissions and
++limitations under the License.
++
++"""
++from ambari_commons import OSCheck
++from resource_management.libraries.functions.default import default
++
++from params_linux import *
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUDI/package/scripts/params_linux.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUDI/package/scripts/params_linux.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUDI/package/scripts/params_linux.py
+new file mode 100644
+--- /dev/null	(revision 63f228d43555d16c7dba5cd7f31288f8ba3b0cea)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUDI/package/scripts/params_linux.py	(revision 63f228d43555d16c7dba5cd7f31288f8ba3b0cea)
+@@ -0,0 +1,20 @@
++"""
++Licensed to the Apache Software Foundation (ASF) under one
++or more contributor license agreements.  See the NOTICE file
++distributed with this work for additional information
++regarding copyright ownership.  The ASF licenses this file
++to you under the Apache License, Version 2.0 (the
++"License"); you may not use this file except in compliance
++with the License.  You may obtain a copy of the License at
++
++    http://www.apache.org/licenses/LICENSE-2.0
++
++Unless required by applicable law or agreed to in writing, software
++distributed under the License is distributed on an "AS IS" BASIS,
++WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++See the License for the specific language governing permissions and
++limitations under the License.
++
++"""
++
++import os
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUDI/package/scripts/service_check.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUDI/package/scripts/service_check.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUDI/package/scripts/service_check.py
+new file mode 100644
+--- /dev/null	(revision 63f228d43555d16c7dba5cd7f31288f8ba3b0cea)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUDI/package/scripts/service_check.py	(revision 63f228d43555d16c7dba5cd7f31288f8ba3b0cea)
+@@ -0,0 +1,31 @@
++#!/usr/bin/env python
++"""
++Licensed to the Apache Software Foundation (ASF) under one
++or more contributor license agreements.  See the NOTICE file
++distributed with this work for additional information
++regarding copyright ownership.  The ASF licenses this file
++to you under the Apache License, Version 2.0 (the
++"License"); you may not use this file except in compliance
++with the License.  You may obtain a copy of the License at
++
++    http://www.apache.org/licenses/LICENSE-2.0
++
++Unless required by applicable law or agreed to in writing, software
++distributed under the License is distributed on an "AS IS" BASIS,
++WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++See the License for the specific language governing permissions and
++limitations under the License.
++
++"""
++from resource_management import Logger
++from resource_management.core.resources import Execute
++from resource_management.libraries.script.script import Script
++
++
++class HudiServiceCheck(Script):
++    def service_check(self, env):
++        Logger.info("check service success!")
++
++
++if __name__ == "__main__":
++    HudiServiceCheck().execute()
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUDI/role_command_order.json
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUDI/role_command_order.json b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUDI/role_command_order.json
+new file mode 100644
+--- /dev/null	(revision 63f228d43555d16c7dba5cd7f31288f8ba3b0cea)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUDI/role_command_order.json	(revision 63f228d43555d16c7dba5cd7f31288f8ba3b0cea)
+@@ -0,0 +1,10 @@
++{
++  "general_deps": {
++    "_comment": "dependencies for HUDI",
++    "HUDI_SERVICE_CHECK-SERVICE_CHECK": [
++      "FLINK_HISTORYSERVER-START",
++      "SPARK_JOBHISTORYSERVER-START",
++      "SPARK_THRIFTSERVER-START"
++    ]
++  }
++}
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUDI/service_advisor.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUDI/service_advisor.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUDI/service_advisor.py
+new file mode 100644
+--- /dev/null	(revision 63f228d43555d16c7dba5cd7f31288f8ba3b0cea)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUDI/service_advisor.py	(revision 63f228d43555d16c7dba5cd7f31288f8ba3b0cea)
+@@ -0,0 +1,158 @@
++#!/usr/bin/env python
++"""
++Licensed to the Apache Software Foundation (ASF) under one
++or more contributor license agreements.  See the NOTICE file
++distributed with this work for additional information
++regarding copyright ownership.  The ASF licenses this file
++to you under the Apache License, Version 2.0 (the
++"License"); you may not use this file except in compliance
++with the License.  You may obtain a copy of the License at
++
++    http://www.apache.org/licenses/LICENSE-2.0
++
++Unless required by applicable law or agreed to in writing, software
++distributed under the License is distributed on an "AS IS" BASIS,
++WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++See the License for the specific language governing permissions and
++limitations under the License.
++"""
++
++# Python imports
++import imp
++import os
++import traceback
++import re
++import socket
++import fnmatch
++
++from resource_management.core.logger import Logger
++
++SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
++STACKS_DIR = os.path.join(SCRIPT_DIR, '../../../../')
++PARENT_FILE = os.path.join(STACKS_DIR, 'service_advisor.py')
++
++try:
++    with open(PARENT_FILE, 'rb') as fp:
++        service_advisor = imp.load_module('service_advisor', fp, PARENT_FILE, ('.py', 'rb', imp.PY_SOURCE))
++except Exception as e:
++    traceback.print_exc()
++    print "Failed to load parent"
++
++
++class HudiServiceAdvisor(service_advisor.ServiceAdvisor):
++
++    def __init__(self, *args, **kwargs):
++        self.as_super = super(HudiServiceAdvisor, self)
++        self.as_super.__init__(*args, **kwargs)
++
++        # Always call these methods
++        self.modifyMastersWithMultipleInstances()
++        self.modifyCardinalitiesDict()
++        self.modifyHeapSizeProperties()
++        self.modifyNotValuableComponents()
++        self.modifyComponentsNotPreferableOnServer()
++        self.modifyComponentLayoutSchemes()
++
++    def modifyMastersWithMultipleInstances(self):
++        """
++        Modify the set of masters with multiple instances.
++        Must be overriden in child class.
++        """
++        # Nothing to do
++        pass
++
++    def modifyCardinalitiesDict(self):
++        """
++        Modify the dictionary of cardinalities.
++        Must be overriden in child class.
++        """
++        # Nothing to do
++        pass
++
++    def modifyHeapSizeProperties(self):
++        """
++        Modify the dictionary of heap size properties.
++        Must be overriden in child class.
++        """
++        pass
++
++    def modifyNotValuableComponents(self):
++        """
++        Modify the set of components whose host assignment is based on other services.
++        Must be overriden in child class.
++        """
++        # Nothing to do
++        pass
++
++    def modifyComponentsNotPreferableOnServer(self):
++        """
++        Modify the set of components that are not preferable on the server.
++        Must be overriden in child class.
++        """
++        # Nothing to do
++        pass
++
++    def modifyComponentLayoutSchemes(self):
++        """
++        Modify layout scheme dictionaries for components.
++        The scheme dictionary basically maps the number of hosts to
++        host index where component should exist.
++        Must be overriden in child class.
++        """
++        # Nothing to do
++        pass
++
++    def getServiceComponentLayoutValidations(self, services, hosts):
++        """
++        Get a list of errors.
++        Must be overriden in child class.
++        """
++
++        return self.getServiceComponentCardinalityValidations(services, hosts, "HUDI")
++
++    def getServiceConfigurationRecommendations(self, configurations, clusterData, services, hosts):
++        """
++        Entry point.
++        Must be overriden in child class.
++        """
++        # Logger.info("Class: %s, Method: %s. Recommending Service Configurations." %
++        #            (self.__class__.__name__, inspect.stack()[0][3]))
++
++
++    def getServiceConfigurationsValidationItems(self, configurations, recommendedDefaults, services, hosts):
++        """
++        Entry point.
++        Validate configurations for the service. Return a list of errors.
++        The code for this function should be the same for each Service Advisor.
++        """
++        # Logger.info("Class: %s, Method: %s. Validating Configurations." %
++        #            (self.__class__.__name__, inspect.stack()[0][3]))
++
++        validator = HudiValidator()
++        # Calls the methods of the validator using arguments,
++        # method(siteProperties, siteRecommendations, configurations, services, hosts)
++        return validator.validateListOfConfigUsingMethod(configurations, recommendedDefaults, services, hosts,
++                                                         validator.validators)
++
++
++class HudiRecommender(service_advisor.ServiceAdvisor):
++    """
++    Hudi Recommender suggests properties when adding the service for the first time or modifying configs via the UI.
++    """
++
++    def __init__(self, *args, **kwargs):
++        self.as_super = super(HudiRecommender, self)
++        self.as_super.__init__(*args, **kwargs)
++
++
++class HudiValidator(service_advisor.ServiceAdvisor):
++    """
++    Hudi Validator checks the correctness of properties whenever the service is first added or the user attempts to
++    change configs via the UI.
++    """
++
++    def __init__(self, *args, **kwargs):
++        self.as_super = super(HudiValidator, self)
++        self.as_super.__init__(*args, **kwargs)
++
++        self.validators = []
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/PAIMON/metainfo.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/PAIMON/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/PAIMON/metainfo.xml
+new file mode 100644
+--- /dev/null	(revision 63f228d43555d16c7dba5cd7f31288f8ba3b0cea)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/PAIMON/metainfo.xml	(revision 63f228d43555d16c7dba5cd7f31288f8ba3b0cea)
+@@ -0,0 +1,59 @@
++<?xml version="1.0"?>
++<!--
++   Licensed to the Apache Software Foundation (ASF) under one or more
++   contributor license agreements.  See the NOTICE file distributed with
++   this work for additional information regarding copyright ownership.
++   The ASF licenses this file to You under the Apache License, Version 2.0
++   (the "License"); you may not use this file except in compliance with
++   the License.  You may obtain a copy of the License at
++
++       http://www.apache.org/licenses/LICENSE-2.0
++
++   Unless required by applicable law or agreed to in writing, software
++   distributed under the License is distributed on an "AS IS" BASIS,
++   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++   See the License for the specific language governing permissions and
++   limitations under the License.
++-->
++<metainfo>
++    <schemaVersion>2.0</schemaVersion>
++    <services>
++        <service>
++            <name>PAIMON</name>
++            <displayName>Paimon</displayName>
++            <comment>Component PAIMON Power By JaneTTR . mail: 3832514048@qq.com ,git:
++                https://gitee.com/tt-bigdata/ambari-env
++            </comment>
++            <version>1.0.1</version>
++
++            <components>
++                <component>
++                    <name>PAIMON</name>
++                    <displayName>Paimon Client</displayName>
++                    <category>CLIENT</category>
++                    <cardinality>1+</cardinality>
++                    <versionAdvertised>true</versionAdvertised>
++                    <commandScript>
++                        <script>scripts/paimon_client.py</script>
++                        <scriptType>PYTHON</scriptType>
++                    </commandScript>
++                </component>
++            </components>
++            <osSpecifics>
++                <osSpecific>
++                    <osFamily>any</osFamily>
++                    <packages>
++                        <package>
++                            <name>paimon_${stack_version}</name>
++                        </package>
++                    </packages>
++                </osSpecific>
++            </osSpecifics>
++            <commandScript>
++                <script>scripts/service_check.py</script>
++                <scriptType>PYTHON</scriptType>
++                <timeout>300</timeout>
++            </commandScript>
++        </service>
++    </services>
++</metainfo>
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/PAIMON/package/scripts/__init__.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/PAIMON/package/scripts/__init__.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/PAIMON/package/scripts/__init__.py
+new file mode 100644
+--- /dev/null	(revision 63f228d43555d16c7dba5cd7f31288f8ba3b0cea)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/PAIMON/package/scripts/__init__.py	(revision 63f228d43555d16c7dba5cd7f31288f8ba3b0cea)
+@@ -0,0 +1,19 @@
++#!/usr/bin/env python
++"""
++Licensed to the Apache Software Foundation (ASF) under one
++or more contributor license agreements.  See the NOTICE file
++distributed with this work for additional information
++regarding copyright ownership.  The ASF licenses this file
++to you under the Apache License, Version 2.0 (the
++"License"); you may not use this file except in compliance
++with the License.  You may obtain a copy of the License at
++
++    http://www.apache.org/licenses/LICENSE-2.0
++
++Unless required by applicable law or agreed to in writing, software
++distributed under the License is distributed on an "AS IS" BASIS,
++WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++See the License for the specific language governing permissions and
++limitations under the License.
++
++"""
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/PAIMON/package/scripts/paimon.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/PAIMON/package/scripts/paimon.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/PAIMON/package/scripts/paimon.py
+new file mode 100644
+--- /dev/null	(revision 63f228d43555d16c7dba5cd7f31288f8ba3b0cea)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/PAIMON/package/scripts/paimon.py	(revision 63f228d43555d16c7dba5cd7f31288f8ba3b0cea)
+@@ -0,0 +1,29 @@
++"""
++Licensed to the Apache Software Foundation (ASF) under one
++or more contributor license agreements.  See the NOTICE file
++distributed with this work for additional information
++regarding copyright ownership.  The ASF licenses this file
++to you under the Apache License, Version 2.0 (the
++"License"); you may not use this file except in compliance
++with the License.  You may obtain a copy of the License at
++
++    http://www.apache.org/licenses/LICENSE-2.0
++
++Unless required by applicable law or agreed to in writing, software
++distributed under the License is distributed on an "AS IS" BASIS,
++WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++See the License for the specific language governing permissions and
++limitations under the License.
++
++"""
++# Python Imports
++import os
++
++from resource_management import Script, Logger
++
++
++def paimon(type=None):
++    import params
++
++    Logger.info('Paimon client install success!')
++    pass
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/PAIMON/package/scripts/paimon_client.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/PAIMON/package/scripts/paimon_client.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/PAIMON/package/scripts/paimon_client.py
+new file mode 100644
+--- /dev/null	(revision 63f228d43555d16c7dba5cd7f31288f8ba3b0cea)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/PAIMON/package/scripts/paimon_client.py	(revision 63f228d43555d16c7dba5cd7f31288f8ba3b0cea)
+@@ -0,0 +1,41 @@
++#!/usr/bin/env python
++"""
++Licensed to the Apache Software Foundation (ASF) under one
++or more contributor license agreements.  See the NOTICE file
++distributed with this work for additional information
++regarding copyright ownership.  The ASF licenses this file
++to you under the Apache License, Version 2.0 (the
++"License"); you may not use this file except in compliance
++with the License.  You may obtain a copy of the License at
++
++    http://www.apache.org/licenses/LICENSE-2.0
++
++Unless required by applicable law or agreed to in writing, software
++distributed under the License is distributed on an "AS IS" BASIS,
++WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++See the License for the specific language governing permissions and
++limitations under the License.
++
++"""
++
++from resource_management.core.exceptions import ClientComponentHasNoStatus
++from resource_management.libraries.script.script import Script
++from paimon import paimon
++
++
++class PaimonClient(Script):
++    def install(self, env):
++        self.install_packages(env)
++        self.configure(env)
++
++    def configure(self, env):
++        import params
++        env.set_params(params)
++        paimon(type="client")
++
++    def status(self, env):
++        raise ClientComponentHasNoStatus()
++
++
++if __name__ == "__main__":
++    PaimonClient().execute()
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/PAIMON/package/scripts/params.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/PAIMON/package/scripts/params.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/PAIMON/package/scripts/params.py
+new file mode 100644
+--- /dev/null	(revision 63f228d43555d16c7dba5cd7f31288f8ba3b0cea)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/PAIMON/package/scripts/params.py	(revision 63f228d43555d16c7dba5cd7f31288f8ba3b0cea)
+@@ -0,0 +1,22 @@
++"""
++Licensed to the Apache Software Foundation (ASF) under one
++or more contributor license agreements.  See the NOTICE file
++distributed with this work for additional information
++regarding copyright ownership.  The ASF licenses this file
++to you under the Apache License, Version 2.0 (the
++"License"); you may not use this file except in compliance
++with the License.  You may obtain a copy of the License at
++
++    http://www.apache.org/licenses/LICENSE-2.0
++
++Unless required by applicable law or agreed to in writing, software
++distributed under the License is distributed on an "AS IS" BASIS,
++WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++See the License for the specific language governing permissions and
++limitations under the License.
++
++"""
++from ambari_commons import OSCheck
++from resource_management.libraries.functions.default import default
++
++from params_linux import *
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/PAIMON/package/scripts/params_linux.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/PAIMON/package/scripts/params_linux.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/PAIMON/package/scripts/params_linux.py
+new file mode 100644
+--- /dev/null	(revision 63f228d43555d16c7dba5cd7f31288f8ba3b0cea)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/PAIMON/package/scripts/params_linux.py	(revision 63f228d43555d16c7dba5cd7f31288f8ba3b0cea)
+@@ -0,0 +1,20 @@
++"""
++Licensed to the Apache Software Foundation (ASF) under one
++or more contributor license agreements.  See the NOTICE file
++distributed with this work for additional information
++regarding copyright ownership.  The ASF licenses this file
++to you under the Apache License, Version 2.0 (the
++"License"); you may not use this file except in compliance
++with the License.  You may obtain a copy of the License at
++
++    http://www.apache.org/licenses/LICENSE-2.0
++
++Unless required by applicable law or agreed to in writing, software
++distributed under the License is distributed on an "AS IS" BASIS,
++WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++See the License for the specific language governing permissions and
++limitations under the License.
++
++"""
++
++import os
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/PAIMON/package/scripts/service_check.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/PAIMON/package/scripts/service_check.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/PAIMON/package/scripts/service_check.py
+new file mode 100644
+--- /dev/null	(revision 63f228d43555d16c7dba5cd7f31288f8ba3b0cea)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/PAIMON/package/scripts/service_check.py	(revision 63f228d43555d16c7dba5cd7f31288f8ba3b0cea)
+@@ -0,0 +1,31 @@
++#!/usr/bin/env python
++"""
++Licensed to the Apache Software Foundation (ASF) under one
++or more contributor license agreements.  See the NOTICE file
++distributed with this work for additional information
++regarding copyright ownership.  The ASF licenses this file
++to you under the Apache License, Version 2.0 (the
++"License"); you may not use this file except in compliance
++with the License.  You may obtain a copy of the License at
++
++    http://www.apache.org/licenses/LICENSE-2.0
++
++Unless required by applicable law or agreed to in writing, software
++distributed under the License is distributed on an "AS IS" BASIS,
++WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++See the License for the specific language governing permissions and
++limitations under the License.
++
++"""
++from resource_management import Logger
++from resource_management.core.resources import Execute
++from resource_management.libraries.script.script import Script
++
++
++class PaimonServiceCheck(Script):
++    def service_check(self, env):
++        Logger.info("check service success!")
++
++
++if __name__ == "__main__":
++    PaimonServiceCheck().execute()
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/PAIMON/role_command_order.json
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/PAIMON/role_command_order.json b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/PAIMON/role_command_order.json
+new file mode 100644
+--- /dev/null	(revision 63f228d43555d16c7dba5cd7f31288f8ba3b0cea)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/PAIMON/role_command_order.json	(revision 63f228d43555d16c7dba5cd7f31288f8ba3b0cea)
+@@ -0,0 +1,10 @@
++{
++  "general_deps": {
++    "_comment": "dependencies for PAIMON",
++    "PAIMON_SERVICE_CHECK-SERVICE_CHECK": [
++      "FLINK_HISTORYSERVER-START",
++      "SPARK_JOBHISTORYSERVER-START",
++      "SPARK_THRIFTSERVER-START"
++    ]
++  }
++}
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/PAIMON/service_advisor.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/PAIMON/service_advisor.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/PAIMON/service_advisor.py
+new file mode 100644
+--- /dev/null	(revision 63f228d43555d16c7dba5cd7f31288f8ba3b0cea)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/PAIMON/service_advisor.py	(revision 63f228d43555d16c7dba5cd7f31288f8ba3b0cea)
+@@ -0,0 +1,158 @@
++#!/usr/bin/env python
++"""
++Licensed to the Apache Software Foundation (ASF) under one
++or more contributor license agreements.  See the NOTICE file
++distributed with this work for additional information
++regarding copyright ownership.  The ASF licenses this file
++to you under the Apache License, Version 2.0 (the
++"License"); you may not use this file except in compliance
++with the License.  You may obtain a copy of the License at
++
++    http://www.apache.org/licenses/LICENSE-2.0
++
++Unless required by applicable law or agreed to in writing, software
++distributed under the License is distributed on an "AS IS" BASIS,
++WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++See the License for the specific language governing permissions and
++limitations under the License.
++"""
++
++# Python imports
++import imp
++import os
++import traceback
++import re
++import socket
++import fnmatch
++
++from resource_management.core.logger import Logger
++
++SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
++STACKS_DIR = os.path.join(SCRIPT_DIR, '../../../../')
++PARENT_FILE = os.path.join(STACKS_DIR, 'service_advisor.py')
++
++try:
++    with open(PARENT_FILE, 'rb') as fp:
++        service_advisor = imp.load_module('service_advisor', fp, PARENT_FILE, ('.py', 'rb', imp.PY_SOURCE))
++except Exception as e:
++    traceback.print_exc()
++    print "Failed to load parent"
++
++
++class PaimonServiceAdvisor(service_advisor.ServiceAdvisor):
++
++    def __init__(self, *args, **kwargs):
++        self.as_super = super(PaimonServiceAdvisor, self)
++        self.as_super.__init__(*args, **kwargs)
++
++        # Always call these methods
++        self.modifyMastersWithMultipleInstances()
++        self.modifyCardinalitiesDict()
++        self.modifyHeapSizeProperties()
++        self.modifyNotValuableComponents()
++        self.modifyComponentsNotPreferableOnServer()
++        self.modifyComponentLayoutSchemes()
++
++    def modifyMastersWithMultipleInstances(self):
++        """
++        Modify the set of masters with multiple instances.
++        Must be overriden in child class.
++        """
++        # Nothing to do
++        pass
++
++    def modifyCardinalitiesDict(self):
++        """
++        Modify the dictionary of cardinalities.
++        Must be overriden in child class.
++        """
++        # Nothing to do
++        pass
++
++    def modifyHeapSizeProperties(self):
++        """
++        Modify the dictionary of heap size properties.
++        Must be overriden in child class.
++        """
++        pass
++
++    def modifyNotValuableComponents(self):
++        """
++        Modify the set of components whose host assignment is based on other services.
++        Must be overriden in child class.
++        """
++        # Nothing to do
++        pass
++
++    def modifyComponentsNotPreferableOnServer(self):
++        """
++        Modify the set of components that are not preferable on the server.
++        Must be overriden in child class.
++        """
++        # Nothing to do
++        pass
++
++    def modifyComponentLayoutSchemes(self):
++        """
++        Modify layout scheme dictionaries for components.
++        The scheme dictionary basically maps the number of hosts to
++        host index where component should exist.
++        Must be overriden in child class.
++        """
++        # Nothing to do
++        pass
++
++    def getServiceComponentLayoutValidations(self, services, hosts):
++        """
++        Get a list of errors.
++        Must be overriden in child class.
++        """
++
++        return self.getServiceComponentCardinalityValidations(services, hosts, "PAIMON")
++
++    def getServiceConfigurationRecommendations(self, configurations, clusterData, services, hosts):
++        """
++        Entry point.
++        Must be overriden in child class.
++        """
++        # Logger.info("Class: %s, Method: %s. Recommending Service Configurations." %
++        #            (self.__class__.__name__, inspect.stack()[0][3]))
++
++
++    def getServiceConfigurationsValidationItems(self, configurations, recommendedDefaults, services, hosts):
++        """
++        Entry point.
++        Validate configurations for the service. Return a list of errors.
++        The code for this function should be the same for each Service Advisor.
++        """
++        # Logger.info("Class: %s, Method: %s. Validating Configurations." %
++        #            (self.__class__.__name__, inspect.stack()[0][3]))
++
++        validator = PaimonValidator()
++        # Calls the methods of the validator using arguments,
++        # method(siteProperties, siteRecommendations, configurations, services, hosts)
++        return validator.validateListOfConfigUsingMethod(configurations, recommendedDefaults, services, hosts,
++                                                         validator.validators)
++
++
++class PaimonRecommender(service_advisor.ServiceAdvisor):
++    """
++    Paimon Recommender suggests properties when adding the service for the first time or modifying configs via the UI.
++    """
++
++    def __init__(self, *args, **kwargs):
++        self.as_super = super(PaimonRecommender, self)
++        self.as_super.__init__(*args, **kwargs)
++
++
++class PaimonValidator(service_advisor.ServiceAdvisor):
++    """
++    Paimon Validator checks the correctness of properties whenever the service is first added or the user attempts to
++    change configs via the UI.
++    """
++
++    def __init__(self, *args, **kwargs):
++        self.as_super = super(PaimonValidator, self)
++        self.as_super.__init__(*args, **kwargs)
++
++        self.validators = []

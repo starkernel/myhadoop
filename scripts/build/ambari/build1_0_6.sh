@@ -28,6 +28,7 @@ echo "############## PRE BUILD AMBARI1_0_6 start #############"
 patch_files=(
   "/scripts/build/ambari/patch1_0_6/patch0-REDIS-COMPONENT-FIXED.diff"
   "/scripts/build/ambari/patch1_0_6/patch1-TRINO-COMPONENT-ADD.diff"
+  "/scripts/build/ambari/patch1_0_6/patch2-HUDI-PAIMON-COMPONENT-ADD.diff"
 )
 PROJECT_PATH="/opt/modules/ambari"
 RPM_PACKAGE="/data/rpm-package/ambari"
