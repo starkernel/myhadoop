@@ -1,0 +1,68 @@
+Subject: [PATCH] [fixed]: dolphin支持版本追踪，paimon和 hudi打不上tag问题
+---
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/DOLPHINSCHEDULER/metainfo.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/DOLPHINSCHEDULER/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/DOLPHINSCHEDULER/metainfo.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/DOLPHINSCHEDULER/metainfo.xml	(revision 63f228d43555d16c7dba5cd7f31288f8ba3b0cea)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/DOLPHINSCHEDULER/metainfo.xml	(date 1745561828372)
+@@ -29,6 +29,7 @@
+                     <displayName>DS Master</displayName>
+                     <category>MASTER</category>
+                     <cardinality>1+</cardinality>
++                    <versionAdvertised>true</versionAdvertised>
+                     <commandScript>
+                         <script>scripts/dolphin_master_service.py</script>
+                         <scriptType>PYTHON</scriptType>
+@@ -50,6 +51,7 @@
+                     <displayName>DS Worker</displayName>
+                     <category>SLAVE</category>
+                     <cardinality>1+</cardinality>
++                    <versionAdvertised>true</versionAdvertised>
+                     <commandScript>
+                         <script>scripts/dolphin_worker_service.py</script>
+                         <scriptType>PYTHON</scriptType>
+@@ -61,6 +63,7 @@
+                     <displayName>DS Alert</displayName>
+                     <category>SLAVE</category>
+                     <cardinality>1+</cardinality>
++                    <versionAdvertised>true</versionAdvertised>
+                     <commandScript>
+                         <script>scripts/dolphin_alert_service.py</script>
+                         <scriptType>PYTHON</scriptType>
+@@ -73,6 +76,7 @@
+                     <displayName>DS Api</displayName>
+                     <category>SLAVE</category>
+                     <cardinality>1+</cardinality>
++                    <versionAdvertised>true</versionAdvertised>
+                     <commandScript>
+                         <script>scripts/dolphin_api_service.py</script>
+                         <scriptType>PYTHON</scriptType>
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/properties/stack_packages.json
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/properties/stack_packages.json b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/properties/stack_packages.json
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/properties/stack_packages.json	(revision 63f228d43555d16c7dba5cd7f31288f8ba3b0cea)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/properties/stack_packages.json	(date 1745560777447)
+@@ -918,7 +918,7 @@
+         }
+       },
+       "PAIMON": {
+-        "PAIMON_CLIENT": {
++        "PAIMON": {
+           "STACK-SELECT-PACKAGE": "paimon-client",
+           "INSTALL": [
+             "paimon-client"
+@@ -932,7 +932,7 @@
+         }
+       },
+       "HUDI": {
+-        "HUDI_CLIENT": {
++        "HUDI": {
+           "STACK-SELECT-PACKAGE": "hudi-client",
+           "INSTALL": [
+             "hudi-client"
