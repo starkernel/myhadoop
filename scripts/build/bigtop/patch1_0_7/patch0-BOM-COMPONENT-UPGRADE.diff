@@ -1,0 +1,28 @@
+Subject: [PATCH] feature: 升级spark 至 3.5.5 ，flink 1.17.2  下载
+---
+Index: bigtop.bom
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/bigtop.bom b/bigtop.bom
+--- a/bigtop.bom	(revision c0ca060168df0fe26a34b2d6b6a5f94fbb4517bf)
++++ b/bigtop.bom	(revision 029fa47e6d595cfacdebe75babfb6ea2c80fab10)
+@@ -254,7 +254,7 @@
+              * when upgrading spark version.
+              * See comments in [bigtop-packages/src/common/spark/install_spark.sh] for details.
+              */
+-            version { base = '3.2.3'; pkg = base; release = 1 }
++            version { base = '3.5.5'; pkg = base; release = 1 }
+             tarball {
+                 destination = "$name-${version.base}.tar.gz"
+                 source = "$name-${version.base}.tgz"
+@@ -270,7 +270,7 @@
+             name = 'flink'
+             rpm_pkg_suffix = "_" + bigtop.base_version.replace(".", "_")
+             relNotes = 'Apache Flink'
+-            version { base = '1.15.3'; pkg = base; release = 1 }
++            version { base = '1.17.2'; pkg = base; release = 1 }
+             tarball {
+                 destination = "$name-${version.base}.tar.gz"
+                 source = "$name-${version.base}-src.tgz"
