@@ -48,6 +48,9 @@ bash /scripts/build/ambari/build1_0_5.sh
 echo "处理 1.0.6 补丁"
 bash /scripts/build/ambari/build1_0_6.sh
 
+echo "处理 1.0.7 补丁"
+bash /scripts/build/ambari/build1_0_7.sh
+
 
 
 # 开启 gcc 高版本

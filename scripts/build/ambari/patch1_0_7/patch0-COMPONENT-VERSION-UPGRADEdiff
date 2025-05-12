@@ -1,0 +1,36 @@
+Subject: [PATCH] [feature]: 支持spark 3.5.5 及 flink 1.17.2
+---
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/FLINK/metainfo.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/FLINK/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/FLINK/metainfo.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/FLINK/metainfo.xml	(revision b9999ae7fbe0d789a408f4a4ad8d76a4a42f89a8)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/FLINK/metainfo.xml	(revision 61b2475b0080aaf20187b07c4afad24a6de064f0)
+@@ -22,7 +22,7 @@
+       <name>FLINK</name>
+       <displayName>Flink</displayName>
+       <comment>Flink is a framework and distributed processing engine for stateful computations over unbounded and bounded data streams</comment>
+-      <version>1.15.3</version>
++      <version>1.17.2</version>
+       <components>
+         <component>
+           <name>FLINK_HISTORYSERVER</name>
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SPARK/metainfo.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SPARK/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SPARK/metainfo.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SPARK/metainfo.xml	(revision b9999ae7fbe0d789a408f4a4ad8d76a4a42f89a8)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SPARK/metainfo.xml	(revision 61b2475b0080aaf20187b07c4afad24a6de064f0)
+@@ -23,7 +23,7 @@
+       <name>SPARK</name>
+       <displayName>Spark</displayName>
+       <comment>Apache Spark is a unified analytics engine for large-scale data processing.</comment>
+-      <version>3.2.3</version>
++      <version>3.5.5</version>
+       <components>
+         <component>
+           <name>SPARK_JOBHISTORYSERVER</name>
