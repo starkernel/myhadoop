@@ -60,6 +60,7 @@ done
 # 定义一个包含所有补丁文件路径的数组
 patch_files=(
   "/scripts/build/bigtop/patch1_0_7/patch0-BOM-COMPONENT-UPGRADE.diff"
+  "/scripts/build/bigtop/patch1_0_7/patch1-BOM-COMPONENT-ADD.diff"
 )
 RPM_PACKAGE="/data/rpm-package/bigtop"
 

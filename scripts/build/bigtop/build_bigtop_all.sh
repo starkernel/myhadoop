@@ -99,6 +99,11 @@ ALL_COMPONENTS=(
   celeborn-download
   ozone-download
   impala-download
+  # 1.0.6 版本新增
+  hudi-download
+  paimon-download
+  # 1.0.7 版本新增
+  atlas-download
 )
 
 # 编译所有组件

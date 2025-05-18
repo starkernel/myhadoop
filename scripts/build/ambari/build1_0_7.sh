@@ -26,7 +26,8 @@ echo "############## PRE BUILD AMBARI1_0_7 start #############"
 
 # 定义一个包含所有补丁文件路径的数组
 patch_files=(
-  "/scripts/build/ambari/patch1_0_7/patch0-COMPONENT-VERSION-UPGRADEdiff"
+  "/scripts/build/ambari/patch1_0_7/patch0-COMPONENT-VERSION-UPGRADE.diff"
+  "/scripts/build/ambari/patch1_0_7/patch1-ATLAS-COMPONENT-ADD.diff"
 )
 PROJECT_PATH="/opt/modules/ambari"
 RPM_PACKAGE="/data/rpm-package/ambari"
@@ -64,7 +65,5 @@ done
 #########################
 ####      BUILD       ###
 #########################
-
-
 
 echo "############## PRE BUILD AMBARI1_0_7 end #############"

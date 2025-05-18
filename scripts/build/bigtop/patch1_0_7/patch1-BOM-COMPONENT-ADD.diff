@@ -1,0 +1,31 @@
+Subject: [PATCH] feature: 支持2.4.0 的atlas
+---
+Index: bigtop.bom
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/bigtop.bom b/bigtop.bom
+--- a/bigtop.bom	(revision bbeeec14d0cf8368be5d9d559d0437681abda36e)
++++ b/bigtop.bom	(revision 8daad91d22936a2f033acf3acefbe59b169b8737)
+@@ -692,5 +692,20 @@
+                 archive = site
+             }
+         }
++
++        'atlas' {
++            name = 'atlas'
++            rpm_pkg_suffix = "_" + bigtop.base_version.replace(".", "_")
++            relNotes = 'atlas v2.4.0'
++            version { base = '2.4.0'; pkg = base; release = 1 }
++            tarball {
++                source = "release-${version.base}.tar.gz"
++                destination = "${name}-${version.base}.tar.gz"
++            }
++            url {
++                site = bigtop.gh_proxy + "https://github.com/apache/atlas/archive/refs/tags/"
++                archive = site
++            }
++        }
+     }
+ }
