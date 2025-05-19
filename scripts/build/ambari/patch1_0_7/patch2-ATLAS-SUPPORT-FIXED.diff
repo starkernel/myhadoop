@@ -1,0 +1,345 @@
+Subject: [PATCH] [fixed]: 修复 atlas 2.4.0 的logback.xml 的适配
+---
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ATLAS/configuration/atlas-env.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ATLAS/configuration/atlas-env.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ATLAS/configuration/atlas-env.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ATLAS/configuration/atlas-env.xml	(revision fdd8bfbc8646b345e51b10083e3b3072cfe6bc63)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ATLAS/configuration/atlas-env.xml	(date 1747642768091)
+@@ -77,13 +77,13 @@
+     </property>
+     <property>
+         <name>metadata_opts</name>
+-        <value>-Dlog4j.configuration=atlas-log4j.xml</value>
++        <value>-Dlogback.configurationFile=atlas-logback.xml</value>
+         <description>Metadata Server command line options.</description>
+         <on-ambari-upgrade add="false"/>
+     </property>
+     <property>
+         <name>metadata_classpath</name>
+-        <value></value>
++        <value>{{metadata_home}}/conf:{{metadata_home}}/lib/*</value>
+         <description>Metadata Server additional classpath.</description>
+         <on-ambari-upgrade add="false"/>
+     </property>
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ATLAS/configuration/atlas-log4j.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ATLAS/configuration/atlas-log4j.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ATLAS/configuration/atlas-log4j.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ATLAS/configuration/atlas-log4j.xml	(revision fdd8bfbc8646b345e51b10083e3b3072cfe6bc63)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ATLAS/configuration/atlas-log4j.xml	(date 1747644771757)
+@@ -56,8 +56,8 @@
+     </property>
+     <property>
+         <name>content</name>
+-        <display-name>atlas-log4j template</display-name>
+-        <description>Custom log4j.properties</description>
++        <display-name>atlas-logback template</display-name>
++        <description>Custom logback</description>
+         <value><![CDATA[<?xml version="1.0" encoding="UTF-8" ?>
+ <!--
+   ~ Licensed to the Apache Software Foundation (ASF) under one
+@@ -77,140 +77,178 @@
+   ~ limitations under the License.
+   -->
+
+-<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
++<configuration>
+
+-<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+-  <appender name="console" class="org.apache.log4j.ConsoleAppender">
++   <property name="log_dir" value="{{log_dir}}"/>
++   <property name="max_file_size" value="{{atlas_log_max_backup_size}}MB"/>
++   <property name="max_backup_index" value="{{atlas_log_number_of_backup_files}}"/>
++   <property name="atlas_log_level" value="{{atlas_log_level}}"/>
++   <property name="audit_log_level" value="{{audit_log_level}}"/>
++
++   <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+     <param name="Target" value="System.out"/>
+-    <layout class="org.apache.log4j.PatternLayout">
+-      <param name="ConversionPattern" value="%d %-5p - [%t:%x] ~ %m (%C{1}:%L)%n"/>
+-    </layout>
++    <encoder>
++      <pattern>%date [%thread] %level{5} [%file:%line] %msg%n</pattern>
++    </encoder>
++    <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
++      <level>INFO</level>
++    </filter>
++  </appender>
++
++  <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
++    <file>${log_dir}/application.log</file>
++    <append>true</append>
++    <encoder>
++      <pattern>%date [%thread] %level{5} [%file:%line] %msg%n</pattern>
++    </encoder>
++    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
++      <fileNamePattern>${log_dir}/application-%d.log</fileNamePattern>
++
++      <maxHistory>${max_backup_index}</maxHistory>
++      <cleanHistoryOnStart>true</cleanHistoryOnStart>
++    </rollingPolicy>
+   </appender>
+
+-  <appender name="FILE" class="org.apache.log4j.RollingFileAppender">
+-    <param name="File" value="{{log_dir}}/application.log"/>
+-    <param name="Append" value="true"/>
+-    <param name="maxFileSize" value="{{atlas_log_max_backup_size}}MB" />
+-    <param name="maxBackupIndex" value="{{atlas_log_number_of_backup_files}}" />
+-    <layout class="org.apache.log4j.PatternLayout">
+-      <param name="ConversionPattern" value="%d %-5p - [%t:%x] ~ %m (%C{1}:%L)%n"/>
+-    </layout>
++  <appender name="LARGE_MESSAGES" class="ch.qos.logback.core.rolling.RollingFileAppender">
++    <file>${log_dir}/large_messages.log</file>
++    <append>true</append>
++    <encoder>
++      <pattern>%date [%thread] %level{5} [%file:%line] %msg%n</pattern>
++    </encoder>
++    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
++      <fileNamePattern>${log_dir}/large_messages-%d.log</fileNamePattern>
++
++      <maxHistory>${max_backup_index}</maxHistory>
++      <cleanHistoryOnStart>false</cleanHistoryOnStart>
++    </rollingPolicy>
+   </appender>
+
+-  <appender name="LARGE_MESSAGES" class="org.apache.log4j.RollingFileAppender">
+-    <param name="File" value="{{log_dir}}/large_messages.log"/>
+-    <param name="Append" value="true"/>
+-    <param name="MaxFileSize" value="{{atlas_log_max_backup_size}}MB" />
+-    <param name="MaxBackupIndex" value="{{atlas_log_number_of_backup_files}}" />
+-    <layout class="org.apache.log4j.PatternLayout">
+-      <param name="ConversionPattern" value="%d %m%n"/>
+-    </layout>
++  <appender name="AUDIT" class="ch.qos.logback.core.rolling.RollingFileAppender">
++    <file>${log_dir}/audit.log</file>
++    <append>true</append>
++    <encoder>
++      <pattern>%date [%thread] %level{5} [%file:%line] %msg%n</pattern>
++    </encoder>
++    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
++      <fileNamePattern>${log_dir}/audit-%d.log</fileNamePattern>
++
++      <maxHistory>${max_backup_index}</maxHistory>
++      <cleanHistoryOnStart>false</cleanHistoryOnStart>
++    </rollingPolicy>
++  </appender>
++
++  <appender name="TASKS" class="ch.qos.logback.core.rolling.RollingFileAppender">
++    <file>${log_dir}/tasks.log</file>
++    <append>true</append>
++    <encoder>
++      <pattern>%date [%thread] %level{5} [%file:%line] %msg%n</pattern>
++    </encoder>
++    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
++      <fileNamePattern>${log_dir}/tasks-%d.log</fileNamePattern>
++
++      <maxHistory>${max_backup_index}</maxHistory>
++      <cleanHistoryOnStart>false</cleanHistoryOnStart>
++    </rollingPolicy>
++  </appender>
++
++  <appender name="METRICS" class="ch.qos.logback.core.rolling.RollingFileAppender">
++    <file>${log_dir}/metrics.log</file>
++    <append>true</append>
++    <encoder>
++      <pattern>%date [%thread] %level{5} [%file:%line] %msg%n</pattern>
++    </encoder>
++    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
++      <fileNamePattern>${log_dir}/metrics-%d.log</fileNamePattern>
++
++      <maxHistory>${max_backup_index}</maxHistory>
++      <cleanHistoryOnStart>false</cleanHistoryOnStart>
++    </rollingPolicy>
++  </appender>
++
++  <appender name="FAILED" class="ch.qos.logback.core.rolling.RollingFileAppender">
++    <file>${log_dir}/failed.log</file>
++    <append>true</append>
++    <encoder>
++      <pattern>%date [%thread] %level{5} [%file:%line] %msg%n</pattern>
++    </encoder>
++    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
++      <fileNamePattern>${log_dir}/failed-%d.log</fileNamePattern>
++
++      <maxHistory>${max_backup_index}</maxHistory>
++      <cleanHistoryOnStart>false</cleanHistoryOnStart>
++    </rollingPolicy>
+   </appender>
+
+   <!-- Uncomment the following for perf logs -->
+-  <!--
+-  <appender name="perf_appender" class="org.apache.log4j.DailyRollingFileAppender">
+-    <param name="file" value="{{log_dir}}/atlas_perf.log" />
+-    <param name="datePattern" value="'.'yyyy-MM-dd" />
+-    <param name="append" value="true" />
+-    <layout class="org.apache.log4j.PatternLayout">
+-      <param name="ConversionPattern" value="%d|%t|%m%n" />
+-    </layout>
++
++  <appender name="perf_appender" class="ch.qos.logback.core.rolling.RollingFileAppender">
++    <file>${log_dir}/atlas_perf.log</file>
++    <append>true</append>
++    <encoder>
++      <pattern>%date [%thread] %msg%n</pattern>
++    </encoder>
++    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
++      <fileNamePattern>${log_dir}/atlas_perf-%d.log</fileNamePattern>
++
++      <maxHistory>${max_backup_index}</maxHistory>
++      <cleanHistoryOnStart>false</cleanHistoryOnStart>
++    </rollingPolicy>
+   </appender>
+
+-  <logger name="org.apache.atlas.perf" additivity="false">
+-    <level value="debug" />
+-      <appender-ref ref="perf_appender" />
++  <logger name="perf_appender" additivity="false" level="debug">
++    <appender-ref ref="perf_appender"/>
+   </logger>
+-  -->
+-
+-  <appender name="AUDIT" class="org.apache.log4j.RollingFileAppender">
+-    <param name="File" value="{{log_dir}}/audit.log"/>
+-    <param name="Append" value="true"/>
+-    <param name="maxFileSize" value="{{atlas_log_max_backup_size}}MB" />
+-    <param name="maxBackupIndex" value="{{atlas_log_number_of_backup_files}}" />
+-    <layout class="org.apache.log4j.PatternLayout">
+-      <param name="ConversionPattern" value="%d %x %m%n"/>
+-    </layout>
+-  </appender>
+
+-  <appender name="METRICS" class="org.apache.log4j.RollingFileAppender">
+-    <param name="File" value="{{log_dir}}/metric.log"/>
+-    <param name="Append" value="true"/>
+-    <param name="maxFileSize" value="{{atlas_log_max_backup_size}}MB" />
+-    <layout class="org.apache.log4j.PatternLayout">
+-      <param name="ConversionPattern" value="%d %x %m%n"/>
+-    </layout>
+-  </appender>
+
+-  <appender name="FAILED" class="org.apache.log4j.RollingFileAppender">
+-    <param name="File" value="{{log_dir}}/failed.log"/>
+-    <param name="Append" value="true"/>
+-    <param name="maxFileSize" value="{{atlas_log_max_backup_size}}MB" />
+-    <param name="maxBackupIndex" value="{{atlas_log_number_of_backup_files}}" />
+-    <layout class="org.apache.log4j.PatternLayout">
+-      <param name="ConversionPattern" value="%d %m%n"/>
+-    </layout>
+-  </appender>
+-
+-
+-  <logger name="org.apache.atlas" additivity="false">
+-    <level value="{{atlas_log_level}}"/>
++  <logger name="org.apache.atlas" additivity="false" level="info">
+     <appender-ref ref="FILE"/>
+   </logger>
+
+-  <logger name="org.janusgraph" additivity="false">
+-    <level value="warn"/>
++  <logger name="org.janusgraph" additivity="false" level="warn">
+     <appender-ref ref="FILE"/>
+   </logger>
+
+-  <logger name="org.springframework" additivity="false">
+-    <level value="warn"/>
++  <logger name="org.springframework" additivity="false" level="warn">
+     <appender-ref ref="console"/>
+   </logger>
+
+-  <logger name="org.eclipse" additivity="false">
+-    <level value="warn"/>
++  <logger name="org.eclipse" additivity="false" level="warn">
+     <appender-ref ref="console"/>
+   </logger>
+
+-  <logger name="com.sun.jersey" additivity="false">
+-    <level value="warn"/>
++  <logger name="com.sun.jersey" additivity="false" level="warn">
+     <appender-ref ref="console"/>
+   </logger>
+
+   <!-- to avoid logs - The configuration log.flush.interval.messages = 1 was supplied but isn't a known config -->
+-  <logger name="org.apache.kafka.common.config.AbstractConfig" additivity="false">
+-    <level value="error"/>
++  <logger name="org.apache.kafka.common.config.AbstractConfig" additivity="false" level="error">
+     <appender-ref ref="FILE"/>
+   </logger>
+
+-  <logger name="AUDIT" additivity="false">
+-    <level value="{{audit_log_level}}"/>
++  <logger name="AUDIT" additivity="false" level="info">
+     <appender-ref ref="AUDIT"/>
+   </logger>
+
+-  <logger name="LARGE_MESSAGES" additivity="false">
+-    <level value="warn"/>
++  <logger name="LARGE_MESSAGES" additivity="false" level="warn">
+     <appender-ref ref="LARGE_MESSAGES"/>
+   </logger>
+
+-  <logger name="METRICS" additivity="false">
+-    <level value="debug"/>
++  <logger name="METRICS" additivity="false" level="debug">
+     <appender-ref ref="METRICS"/>
+   </logger>
+
+-  <logger name="FAILED" additivity="false">
+-    <level value="info"/>
++  <logger name="FAILED" additivity="false" level="info">
+     <appender-ref ref="FAILED"/>
+   </logger>
+
+-  <root>
+-    <priority value="warn"/>
++  <logger name="TASKS" additivity="false" level="info">
++    <appender-ref ref="TASKS"/>
++  </logger>
++
++  <root level="warn">
+     <appender-ref ref="FILE"/>
+   </root>
+-
+-</log4j:configuration>
++</configuration>
+       ]]></value>
+         <value-attributes>
+             <type>content</type>
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ATLAS/package/scripts/metadata.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ATLAS/package/scripts/metadata.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ATLAS/package/scripts/metadata.py
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ATLAS/package/scripts/metadata.py	(revision fdd8bfbc8646b345e51b10083e3b3072cfe6bc63)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ATLAS/package/scripts/metadata.py	(date 1747636324260)
+@@ -94,7 +94,7 @@
+                 sudo=True,
+                 not_if=war_source == war_target)
+
+-        File(format("{conf_dir}/atlas-log4j.xml"),
++        File(format("{conf_dir}/atlas-logback.xml"),
+              mode=0o644,
+              owner=params.metadata_user,
+              group=params.user_group,
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ATLAS/package/scripts/metadata_server.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ATLAS/package/scripts/metadata_server.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ATLAS/package/scripts/metadata_server.py
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ATLAS/package/scripts/metadata_server.py	(revision fdd8bfbc8646b345e51b10083e3b3072cfe6bc63)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ATLAS/package/scripts/metadata_server.py	(date 1747637428297)
+@@ -73,7 +73,7 @@
+         env.set_params(params)
+         self.configure(env)
+
+-        daemon_cmd = format('source {params.conf_dir}/atlas-env.sh ; {params.metadata_start_script}')
++        daemon_cmd = format('cd {params.metadata_home}; source {params.conf_dir}/atlas-env.sh ; {params.metadata_start_script}')
+         no_op_test = format('ls {params.pid_file} >/dev/null 2>&1 && ps -p `cat {params.pid_file}` >/dev/null 2>&1')
+         atlas_hbase_setup_command = format("cat {atlas_hbase_setup} | hbase shell -n")
+         atlas_kafka_setup_command = format("bash {atlas_kafka_setup}")

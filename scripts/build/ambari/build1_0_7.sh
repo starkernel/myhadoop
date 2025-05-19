@@ -28,6 +28,7 @@ echo "############## PRE BUILD AMBARI1_0_7 start #############"
 patch_files=(
   "/scripts/build/ambari/patch1_0_7/patch0-COMPONENT-VERSION-UPGRADE.diff"
   "/scripts/build/ambari/patch1_0_7/patch1-ATLAS-COMPONENT-ADD.diff"
+  "/scripts/build/ambari/patch1_0_7/patch2-ATLAS-SUPPORT-FIXED.diff"
 )
 PROJECT_PATH="/opt/modules/ambari"
 RPM_PACKAGE="/data/rpm-package/ambari"
