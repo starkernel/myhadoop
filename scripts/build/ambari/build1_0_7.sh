@@ -29,6 +29,7 @@ patch_files=(
   "/scripts/build/ambari/patch1_0_7/patch0-COMPONENT-VERSION-UPGRADE.diff"
   "/scripts/build/ambari/patch1_0_7/patch1-ATLAS-COMPONENT-ADD.diff"
   "/scripts/build/ambari/patch1_0_7/patch2-ATLAS-SUPPORT-FIXED.diff"
+  "/scripts/build/ambari/patch1_0_7/patch3-ATLAS-HIVE-OPTIMIZED.diff"
 )
 PROJECT_PATH="/opt/modules/ambari"
 RPM_PACKAGE="/data/rpm-package/ambari"

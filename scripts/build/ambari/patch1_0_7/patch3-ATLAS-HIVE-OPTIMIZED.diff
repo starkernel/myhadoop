@@ -1,0 +1,196 @@
+Subject: [PATCH] [fixed]: atlas 2.4.0 切换 logback 日志输出
+---
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ATLAS/configuration/atlas-env.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ATLAS/configuration/atlas-env.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ATLAS/configuration/atlas-env.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ATLAS/configuration/atlas-env.xml	(revision d65c7ffad828a11517459f10970c177167124235)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ATLAS/configuration/atlas-env.xml	(date 1747708021344)
+@@ -128,50 +128,49 @@
+         <display-name>atlas-env template</display-name>
+         <description>This is the jinja template for metadata-env.sh file</description>
+         <value>
+-            # The java implementation to use. If JAVA_HOME is not found we expect java and jar to be in path
+-            export JAVA_HOME={{java64_home}}
++# The java implementation to use. If JAVA_HOME is not found we expect java and jar to be in path
++export JAVA_HOME={{java64_home}}
+
+-            # any additional java opts you want to set. This will apply to both client and server operations
+-            {% if security_enabled %}
+-            export ATLAS_OPTS="{{metadata_opts}} -Dzookeeper.sasl.client.username={{zk_principal_user}}
+-            -Djava.security.auth.login.config={{atlas_jaas_file}}"
+-            {% else %}
+-            export ATLAS_OPTS="{{metadata_opts}}"
+-            {% endif %}
++# any additional java opts you want to set. This will apply to both client and server operations
++{% if security_enabled %}
++export ATLAS_OPTS="{{metadata_opts}} -Dzookeeper.sasl.client.username={{zk_principal_user}}
++-Djava.security.auth.login.config={{atlas_jaas_file}}"
++{% else %}
++export ATLAS_OPTS="{{metadata_opts}}"
++{% endif %}
+
+-            # metadata configuration directory
+-            export ATLAS_CONF={{conf_dir}}
++# metadata configuration directory
++export ATLAS_CONF={{conf_dir}}
+
+-            # Where log files are stored. Defatult is logs directory under the base install location
+-            export ATLAS_LOG_DIR={{log_dir}}
++# Where log files are stored. Defatult is logs directory under the base install location
++export ATLAS_LOG_DIR={{log_dir}}
+
+-            # additional classpath entries
+-            export ATLASCPPATH={{metadata_classpath}}
++# additional classpath entries
++export ATLASCPPATH={{metadata_atlascppath}}:$ATLASCPPATH
+
+-            # data dir
+-            export ATLAS_DATA_DIR={{data_dir}}
++# data dir
++export ATLAS_DATA_DIR={{data_dir}}
+
+-            # pid dir
+-            export ATLAS_PID_DIR={{pid_dir}}
++# pid dir
++export ATLAS_PID_DIR={{pid_dir}}
+
+-            # hbase conf dir
+-            export HBASE_CONF_DIR={{hbase_conf_dir}}
++# hbase conf dir
++export HBASE_CONF_DIR={{hbase_conf_dir}}
+
+-            # Where do you want to expand the war file. By Default it is in /server/webapp dir under the base install
+-            dir.
+-            export ATLAS_EXPANDED_WEBAPP_DIR={{expanded_war_dir}}
+-            export ATLAS_SERVER_OPTS="-server -XX:SoftRefLRUPolicyMSPerMB=0 -XX:+CMSClassUnloadingEnabled
+-            -XX:+UseConcMarkSweepGC -XX:+CMSParallelRemarkEnabled -XX:+PrintTenuringDistribution
+-            -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=$ATLAS_LOG_DIR/atlas_server.hprof
+-            -Xloggc:$ATLAS_LOG_DIR/gc-worker.log -verbose:gc -XX:+UseGCLogFileRotation -XX:NumberOfGCLogFiles=10
+-            -XX:GCLogFileSize=1m -XX:+PrintGCDetails -XX:+PrintHeapAtGC -XX:+PrintGCTimeStamps"
+-            {% if java_version == 8 %}
+-            export ATLAS_SERVER_HEAP="-Xms{{atlas_server_xmx}}m -Xmx{{atlas_server_xmx}}m
+-            -XX:MaxNewSize={{atlas_server_max_new_size}}m -XX:MetaspaceSize=100m -XX:MaxMetaspaceSize=512m"
+-            {% else %}
+-            export ATLAS_SERVER_HEAP="-Xms{{atlas_server_xmx}}m -Xmx{{atlas_server_xmx}}m
+-            -XX:MaxNewSize={{atlas_server_max_new_size}}m -XX:MaxPermSize=512m"
+-            {% endif %}
++# Where do you want to expand the war file. By Default it is in /server/webapp dir under the base install dir.
++export ATLAS_EXPANDED_WEBAPP_DIR={{expanded_war_dir}}
++export ATLAS_SERVER_OPTS="-server -XX:SoftRefLRUPolicyMSPerMB=0 -XX:+CMSClassUnloadingEnabled
++-XX:+UseConcMarkSweepGC -XX:+CMSParallelRemarkEnabled -XX:+PrintTenuringDistribution
++-XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=$ATLAS_LOG_DIR/atlas_server.hprof
++-Xloggc:$ATLAS_LOG_DIR/gc-worker.log -verbose:gc -XX:+UseGCLogFileRotation -XX:NumberOfGCLogFiles=10
++-XX:GCLogFileSize=1m -XX:+PrintGCDetails -XX:+PrintHeapAtGC -XX:+PrintGCTimeStamps"
++{% if java_version == 8 %}
++export ATLAS_SERVER_HEAP="-Xms{{atlas_server_xmx}}m -Xmx{{atlas_server_xmx}}m
++-XX:MaxNewSize={{atlas_server_max_new_size}}m -XX:MetaspaceSize=100m -XX:MaxMetaspaceSize=512m"
++{% else %}
++export ATLAS_SERVER_HEAP="-Xms{{atlas_server_xmx}}m -Xmx{{atlas_server_xmx}}m
++-XX:MaxNewSize={{atlas_server_max_new_size}}m -XX:MaxPermSize=512m"
++{% endif %}
+         </value>
+         <value-attributes>
+             <type>content</type>
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HIVE/configuration/hive-env.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HIVE/configuration/hive-env.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HIVE/configuration/hive-env.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HIVE/configuration/hive-env.xml	(revision d65c7ffad828a11517459f10970c177167124235)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HIVE/configuration/hive-env.xml	(date 1747732634072)
+@@ -404,14 +404,33 @@
+ # Hive Configuration Directory can be controlled by:
+ export HIVE_CONF_DIR=${HIVE_CONF_DIR:-{{hive_conf_dir}}}
+
++
++
+ # Folder containing extra libraries required for hive compilation/execution can be controlled by:
+ if [ "${HIVE_AUX_JARS_PATH}" != "" ]; then
+   export HIVE_AUX_JARS_PATH=${HIVE_AUX_JARS_PATH}
+-elif [ -d "{{hive_hcatalog_home}}" ]; then
+-  export HIVE_AUX_JARS_PATH={{hive_hcatalog_home}}/share/hcatalog/hive-hcatalog-core-*.jar
++elif [ -d "{{hive_hcatalog_home}}/share/hcatalog" ]; then
++  export HIVE_AUX_JARS_PATH=$(ls {{hive_hcatalog_home}}/share/hcatalog/hive-hcatalog-core-*.jar 2>/dev/null | tr '\n' ':' | sed 's/:$//')
+ else
+   export HIVE_AUX_JARS_PATH={{hive_hcatalog_home}}/share/hcatalog/hcatalog-core.jar
+ fi
++
++# Add Atlas hive hook-plugin JAR path
++
++{% if enable_atlas_hook %}
++ATLAS_HOOK_JARS=$(ls {{atlas_home}}/hook/hive/atlas-hive-plugin-impl/*.jar 2>/dev/null | tr '\n' ':' | sed 's/:$//')
++if [ -n "$ATLAS_HOOK_JARS" ]; then
++  if [ -n "$HIVE_AUX_JARS_PATH" ]; then
++    export HIVE_AUX_JARS_PATH="$HIVE_AUX_JARS_PATH:$ATLAS_HOOK_JARS"
++  else
++    export HIVE_AUX_JARS_PATH="$ATLAS_HOOK_JARS"
++  fi
++fi
++
++export HIVE_AUX_JARS_PATH=$(echo "$HIVE_AUX_JARS_PATH" | sed 's/^://;s/:$//;s/::\+/:/g')
++{% endif %}
++
++
+ export METASTORE_PORT={{hive_metastore_port}}
+
+ {% if sqla_db_used or lib_dir_available %}
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ATLAS/package/scripts/params.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ATLAS/package/scripts/params.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ATLAS/package/scripts/params.py
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ATLAS/package/scripts/params.py	(revision d65c7ffad828a11517459f10970c177167124235)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ATLAS/package/scripts/params.py	(date 1747708244786)
+@@ -21,7 +21,7 @@
+ import sys
+
+ from ambari_commons import OSCheck
+-from resource_management import get_bare_principal
++from resource_management import get_bare_principal, Logger
+ from resource_management.libraries.functions.version import format_stack_version
+ from resource_management.libraries.script.script import Script
+ from resource_management.libraries.functions.format import format
+@@ -147,6 +147,10 @@
+     metadata_port = http_port
+     metadata_protocol = 'http'
+
++Logger.info(format("========ssl enable: [{ssl_enabled}]==========="))
++Logger.info(format("========metadata_protocol : [{metadata_protocol}] ==========="))
++Logger.info(format("========metadata_port : [{metadata_port}] ==========="))
++
+ metadata_host = config['agentLevelParams']['hostname']
+
+ atlas_hosts = sorted(default('/clusterHostInfo/atlas_server_hosts', []))
+@@ -192,6 +196,9 @@
+
+ metadata_opts = config['configurations']['atlas-env']['metadata_opts']
+ metadata_classpath = config['configurations']['atlas-env']['metadata_classpath']
++metadata_atlascppath = format(format(metadata_classpath))
++Logger.info(format("======== metadata_atlascppath: [{metadata_atlascppath}]==========="))
++
+ data_dir = format("{stack_root}/current/atlas-server/data")
+ expanded_war_dir = os.environ[
+     'METADATA_EXPANDED_WEBAPP_DIR'] if 'METADATA_EXPANDED_WEBAPP_DIR' in os.environ else format(
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HIVE/package/scripts/params.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HIVE/package/scripts/params.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HIVE/package/scripts/params.py
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HIVE/package/scripts/params.py	(revision d65c7ffad828a11517459f10970c177167124235)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HIVE/package/scripts/params.py	(date 1747713056682)
+@@ -504,6 +504,9 @@
+ hive_atlas_application_properties = default('/configurations/hive-atlas-application.properties', {})
+ enable_atlas_hook = default('/configurations/hive-env/hive.atlas.hook', False)
+ atlas_hook_filename = default('/configurations/atlas-env/metadata_conf_file', 'atlas-application.properties')
++
++atlas_home=format('{stack_root}/current/atlas-server')
++
+ #endregion
+
+ ########## HCAT
