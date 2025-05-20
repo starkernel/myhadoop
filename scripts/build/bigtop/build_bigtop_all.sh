@@ -104,6 +104,7 @@ ALL_COMPONENTS=(
   paimon-download
   # 1.0.7 版本新增
   atlas-download
+  superset-download
 )
 
 # 编译所有组件

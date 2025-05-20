@@ -1,0 +1,31 @@
+Subject: [PATCH] feature: 支持 superset 4.1.2 下载
+---
+Index: bigtop.bom
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/bigtop.bom b/bigtop.bom
+--- a/bigtop.bom	(revision 936d8e52964b1502c67211cdf0561c54b8e4a38b)
++++ b/bigtop.bom	(revision 8c5b0862cbe6947ffff11424f88966ddfa80d47d)
+@@ -707,5 +707,20 @@
+                 archive = site
+             }
+         }
++
++        'superset' {
++            name = 'superset'
++            rpm_pkg_suffix = "_" + bigtop.base_version.replace(".", "_")
++            relNotes = 'superset v4.1.2'
++            version { base = '4.1.2'; pkg = base; release = 1 }
++            tarball {
++                source = "${version.base}.tar.gz"
++                destination = "${name}-${version.base}.tar.gz"
++            }
++            url {
++                site = bigtop.gh_proxy + "https://github.com/apache/superset/archive/refs/tags/"
++                archive = site
++            }
++        }
+     }
+ }
