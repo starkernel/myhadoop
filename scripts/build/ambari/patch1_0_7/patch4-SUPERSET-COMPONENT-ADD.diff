@@ -1,0 +1,1748 @@
+Subject: [PATCH] feature: 新增支持 superset 4.1.2
+---
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SUPERSET/package/scripts/params.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SUPERSET/package/scripts/params.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SUPERSET/package/scripts/params.py
+new file mode 100644
+--- /dev/null	(date 1747970402783)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SUPERSET/package/scripts/params.py	(date 1747970402783)
+@@ -0,0 +1,99 @@
++#!/usr/bin/env python
++# coding=utf-8
++"""
++Licensed to the Apache Software Foundation (ASF) under one
++or more contributor license agreements.  See the NOTICE file
++distributed with this work for additional information
++regarding copyright ownership.  The ASF licenses this file
++to you under the Apache License, Version 2.0 (the
++"License"); you may not use this file except in compliance
++with the License.  You may obtain a copy of the License at
++
++    http://www.apache.org/licenses/LICENSE-2.0
++
++Unless required by applicable law or agreed to in writing, software
++distributed under the License is distributed on an "AS IS" BASIS,
++WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++See the License for the specific language governing permissions and
++limitations under the License.
++
++"""
++
++from ambari_commons import OSCheck
++from resource_management.libraries.functions import conf_select
++from resource_management.libraries.functions import stack_select
++from resource_management.libraries.resources.hdfs_resource import HdfsResource
++from resource_management.libraries.functions import get_kinit_path
++from resource_management.libraries.script.script import Script
++from resource_management.libraries.functions import format
++from resource_management.libraries.functions.get_not_managed_resources import (
++    get_not_managed_resources,
++)
++from resource_management.libraries.functions.default import default
++
++import status_params
++
++# server configurations
++config = Script.get_config()
++stack_root = Script.get_stack_root()
++stack_name = default("/clusterLevelParams/stack_name", None)
++user_group = config["configurations"]["cluster-env"]["user_group"]
++
++# stack version
++stack_version = default("/commandParams/version", None)
++
++hostname = config["agentLevelParams"]["hostname"]
++
++# status params
++status_pid_dir = status_params.superset_pid_dir
++
++superset_home_dir = format("{stack_root}/current/superset")
++# superset_bin_dir = format("{superset_home_dir}/bin")
++superset_env_dir = format("{superset_home_dir}/virtual_env")
++superset_bin_dir = format("{superset_env_dir}/bin")
++superset_lib_dir = format("{superset_home_dir}/lib")
++superset_log_dir = config["configurations"]["superset-env"]["superset_log_dir"]
++superset_pid_dir = status_params.superset_pid_dir
++superset_config_dir = "/etc/superset/conf"
++superset_admin_user = config["configurations"]["superset-env"]["superset_admin_user"]
++superset_admin_password = config["configurations"]["superset-env"][
++    "superset_admin_password"
++]
++superset_admin_firstname = config["configurations"]["superset-env"][
++    "superset_admin_firstname"
++]
++superset_admin_lastname = config["configurations"]["superset-env"][
++    "superset_admin_lastname"
++]
++superset_admin_email = config["configurations"]["superset-env"]["superset_admin_email"]
++superset_env_sh_template = config["configurations"]["superset-env"]["content"]
++superset_user = config["configurations"]["superset-env"]["superset_user"]
++superset_flask_app = config["configurations"]["superset-env"]["superset_flask_app"]
++superset_protocol = "http"
++superset_bind_address = config["configurations"]["superset"]["SUPERSET_BIND_ADDRESS"]
++superset_port = config["configurations"]["superset"]["SUPERSET_PORT"]
++superset_timeout = config["configurations"]["superset"]["SUPERSET_TIMEOUT"]
++superset_workers = config["configurations"]["superset"]["SUPERSET_WORKERS"]
++superset_hosts = default("/clusterHostInfo/superset_hosts", None)
++
++# superset database configs
++superset_db_type = config["configurations"]["superset"]["SUPERSET_DATABASE_TYPE"]
++superset_db_name = config["configurations"]["superset"]["SUPERSET_DATABASE_NAME"]
++superset_db_password = config["configurations"]["superset"][
++    "SUPERSET_DATABASE_PASSWORD"
++]
++superset_db_user = config["configurations"]["superset"]["SUPERSET_DATABASE_USER"]
++superset_db_port = config["configurations"]["superset"]["SUPERSET_DATABASE_PORT"]
++superset_db_host = config["configurations"]["superset"]["SUPERSET_DATABASE_HOSTNAME"]
++
++superset_db_uri = None
++if superset_db_type == "sqlite":
++    superset_db_uri = format("sqlite:///{superset_config_dir}/{superset_db_name}.db")
++elif superset_db_type == "postgresql":
++    superset_db_uri = format(
++        "postgresql://{superset_db_user}:{superset_db_password}@{superset_db_host}:{superset_db_port}/{superset_db_name}"
++    )
++elif superset_db_type == "mysql":
++    superset_db_uri = format(
++        "mysql+pymysql://{superset_db_user}:{superset_db_password}@{superset_db_host}:{superset_db_port}/{superset_db_name}?charset=utf8mb4"
++    )
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SUPERSET/package/scripts/service_check.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SUPERSET/package/scripts/service_check.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SUPERSET/package/scripts/service_check.py
+new file mode 100644
+--- /dev/null	(date 1735023256000)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SUPERSET/package/scripts/service_check.py	(date 1735023256000)
+@@ -0,0 +1,43 @@
++#!/usr/bin/env python
++"""
++Licensed to the Apache Software Foundation (ASF) under one
++or more contributor license agreements.  See the NOTICE file
++distributed with this work for additional information
++regarding copyright ownership.  The ASF licenses this file
++to you under the Apache License, Version 2.0 (the
++"License"); you may not use this file except in compliance
++with the License.  You may obtain a copy of the License at
++
++    http://www.apache.org/licenses/LICENSE-2.0
++
++Unless required by applicable law or agreed to in writing, software
++distributed under the License is distributed on an "AS IS" BASIS,
++WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++See the License for the specific language governing permissions and
++limitations under the License.
++
++"""
++
++from resource_management.libraries.script.script import Script
++from resource_management.libraries.functions.format import format
++from resource_management.core.resources.system import Execute
++
++
++class ServiceCheck(Script):
++    def service_check(self, env):
++        import params
++
++        env.set_params(params)
++        for superset_host in params.config["clusterHostInfo"]["superset_hosts"]:
++            Execute(
++                format(
++                    "curl -s -o /dev/null -w'%{{http_code}}' --negotiate -u: -k {superset_host}:{params.superset_port}/health | grep 200"
++                ),
++                tries=10,
++                try_sleep=3,
++                logoutput=True,
++            )
++
++
++if __name__ == "__main__":
++    ServiceCheck().execute()
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SUPERSET/package/scripts/superset.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SUPERSET/package/scripts/superset.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SUPERSET/package/scripts/superset.py
+new file mode 100644
+--- /dev/null	(date 1747970386378)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SUPERSET/package/scripts/superset.py	(date 1747970386378)
+@@ -0,0 +1,231 @@
++# coding=utf-8
++"""
++Licensed to the Apache Software Foundation (ASF) under one
++or more contributor license agreements.  See the NOTICE file
++distributed with this work for additional information
++regarding copyright ownership.  The ASF licenses this file
++to you under the Apache License, Version 2.0 (the
++"License"); you may not use this file except in compliance
++with the License.  You may obtain a copy of the License at
++
++    http://www.apache.org/licenses/LICENSE-2.0
++
++Unless required by applicable law or agreed to in writing, software
++distributed under the License is distributed on an "AS IS" BASIS,
++WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++See the License for the specific language governing permissions and
++limitations under the License.
++
++"""
++import json
++import os
++
++from resource_management import Script
++from resource_management.core.logger import Logger
++from resource_management.core.resources import File
++from resource_management.core.resources.system import Directory
++from resource_management.core.resources.system import Execute
++from resource_management.core.source import InlineTemplate
++from resource_management.core.source import Template
++from resource_management.libraries.functions import StackFeature
++from resource_management.libraries.functions import stack_select
++from resource_management.libraries.functions.check_process_status import (
++    check_process_status,
++)
++from resource_management.libraries.functions.format import format
++from resource_management.libraries.functions.show_logs import show_logs
++from resource_management.libraries.functions.stack_features import check_stack_feature
++from resource_management.libraries.resources.properties_file import PropertiesFile
++
++
++class Superset(Script):
++    def get_component_name(self):
++        return format("superset")
++
++    def install(self, env):
++        import params
++
++        env.set_params(params)
++        self.install_packages(env)
++        Logger.info("install superset server successfully!")
++
++    def configure(self, env, upgrade_type=None):
++        import params
++
++        Directory(
++            [
++                params.superset_pid_dir,
++                params.superset_log_dir,
++                params.superset_config_dir,
++                params.superset_home_dir,
++            ],
++            mode=0o755,
++            cd_access="a",
++            owner=params.superset_user,
++            group=params.user_group,
++            create_parents=True,
++            recursive_ownership=True,
++        )
++
++        File(
++            format("{params.superset_config_dir}/superset-env.sh"),
++            mode=0o755,
++            owner=params.superset_user,
++            group=params.user_group,
++            content=InlineTemplate(params.superset_env_sh_template),
++        )
++
++        File(
++            os.path.join(params.superset_bin_dir, "superset.sh"),
++            owner=params.superset_user,
++            group=params.user_group,
++            mode=0o755,
++            content=Template("superset.sh"),
++        )
++
++        superset_config = mutable_config_dict(
++            params.config["configurations"]["superset"]
++        )
++
++        if params.superset_db_uri:
++            superset_config["SQLALCHEMY_DATABASE_URI"] = params.superset_db_uri
++
++        PropertiesFile(
++            "superset_config.py",
++            dir=params.superset_config_dir,
++            properties=quote_string_values(superset_config),
++            owner=params.superset_user,
++            group=params.user_group,
++        )
++
++        if not os.path.exists(format("{params.superset_pid_dir}/superset-init.lock")):
++            Logger.info(
++                "Lock file path: {}/{}".format(
++                    params.superset_pid_dir, "superset-init.lock"
++                )
++            )
++            Logger.info("Executing superset initialization steps")
++            # Initialize DB and create admin user.
++            Execute(
++                format(
++                    "source {params.superset_env_dir}/bin/activate;\
++                    source {params.superset_config_dir}/superset-env.sh;\
++                    {params.superset_bin_dir}/superset db upgrade"
++                ),
++                user=params.superset_user,
++            )
++            Execute(
++                format(
++                    "source {params.superset_env_dir}/bin/activate;\
++                    source {params.superset_config_dir}/superset-env.sh ;\
++                    {params.superset_bin_dir}/superset fab create-admin \
++                    --username '{params.superset_admin_user}' \
++                    --password '{params.superset_admin_password!p}' \
++                    --firstname '{params.superset_admin_firstname}' \
++                    --lastname '{params.superset_admin_lastname}' \
++                    --email '{params.superset_admin_email}'"
++                ),
++                user=params.superset_user,
++            )
++            Execute(
++                format(
++                    "source {params.superset_env_dir}/bin/activate;\
++                    source {params.superset_config_dir}/superset-env.sh ; \
++                    {params.superset_bin_dir}/superset init"
++                ),
++                user=params.superset_user,
++            )
++
++            File(
++                format("{params.superset_pid_dir}/superset-init.lock"),
++                mode=0o644,
++                owner=params.superset_user,
++                group=params.user_group,
++                content="",
++            )
++
++    def pre_upgrade_restart(self, env, upgrade_type=None):
++        Logger.info("Executing superset Upgrade pre-restart")
++        import params
++
++        env.set_params(params)
++
++        if params.stack_version and check_stack_feature(
++                StackFeature.ROLLING_UPGRADE, params.stack_version
++        ):
++            stack_select.select_packages(params.version)
++
++    def start(self, env, upgrade_type=None):
++        import params
++
++        env.set_params(params)
++        self.configure(env, upgrade_type=upgrade_type)
++        daemon_cmd = self.get_daemon_cmd(params, "start")
++        try:
++            Execute(daemon_cmd, user=params.superset_user)
++        except:
++            show_logs(params.superset_log_dir, params.superset_user)
++            raise
++
++    def stop(self, env, upgrade_type=None):
++        import params
++
++        env.set_params(params)
++        self.configure(env, upgrade_type=upgrade_type)
++        daemon_cmd = self.get_daemon_cmd(params, "stop")
++        try:
++            Execute(daemon_cmd, user=params.superset_user)
++        except:
++            show_logs(params.superset_log_dir, params.superset_user)
++            raise
++
++    def status(self, env):
++        import status_params
++
++        env.set_params(status_params)
++        pid_file = status_params.superset_pid_dir + "/superset.pid"
++        check_process_status(pid_file)
++
++    def get_log_folder(self):
++        import params
++
++        return params.superset_log_dir
++
++    def get_user(self):
++        import params
++
++        return params.superset_user
++
++    def get_daemon_cmd(self, params=None, command=None):
++        return format(
++            "source {params.superset_env_dir}/bin/activate;\
++             source {params.superset_config_dir}/superset-env.sh ; \
++             {params.superset_bin_dir}/superset.sh {command}"
++        )
++
++
++def mutable_config_dict(config):
++    rv = {}
++    for key, value in config.items():
++        rv[key] = value
++    return rv
++
++def quote_string_values(config):
++    rv = {}
++    for key, value in config.items():
++        if key.lower() == "languages":
++            rv[key] = value
++        else:
++            rv[key] = quote_string_value(value)
++    return rv
++
++
++def quote_string_value(value):
++    if value.lower() == "true" or value.lower() == "false" or value.isdigit():
++        return value
++    else:
++        return "'{0}'".format(value)
++
++
++if __name__ == "__main__":
++    Superset().execute()
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SUPERSET/package/scripts/status_params.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SUPERSET/package/scripts/status_params.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SUPERSET/package/scripts/status_params.py
+new file mode 100644
+--- /dev/null	(date 1735023256000)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SUPERSET/package/scripts/status_params.py	(date 1735023256000)
+@@ -0,0 +1,25 @@
++#!/usr/bin/env python
++"""
++Licensed to the Apache Software Foundation (ASF) under one
++or more contributor license agreements.  See the NOTICE file
++distributed with this work for additional information
++regarding copyright ownership.  The ASF licenses this file
++to you under the Apache License, Version 2.0 (the
++"License"); you may not use this file except in compliance
++with the License.  You may obtain a copy of the License at
++
++    http://www.apache.org/licenses/LICENSE-2.0
++
++Unless required by applicable law or agreed to in writing, software
++distributed under the License is distributed on an "AS IS" BASIS,
++WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++See the License for the specific language governing permissions and
++limitations under the License.
++
++"""
++
++from resource_management.libraries.script.script import Script
++
++config = Script.get_config()
++
++superset_pid_dir = config["configurations"]["superset-env"]["superset_pid_dir"]
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SUPERSET/package/templates/superset.sh
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SUPERSET/package/templates/superset.sh b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SUPERSET/package/templates/superset.sh
+new file mode 100644
+--- /dev/null	(date 1735023256000)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SUPERSET/package/templates/superset.sh	(date 1735023256000)
+@@ -0,0 +1,132 @@
++#!/bin/bash
++#
++# Licensed to the Apache Software Foundation (ASF) under one
++# or more contributor license agreements.  See the NOTICE file
++# distributed with this work for additional information
++# regarding copyright ownership.  The ASF licenses this file
++# to you under the Apache License, Version 2.0 (the
++# "License"); you may not use this file except in compliance
++# with the License.  You may obtain a copy of the License at
++#
++#     http://www.apache.org/licenses/LICENSE-2.0
++#
++# Unless required by applicable law or agreed to in writing,
++# software distributed under the License is distributed on an
++# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
++# KIND, either express or implied.  See the License for the
++# specific language governing permissions and limitations
++# under the License.
++#
++
++## Runs superset as a daemon
++## Environment Variables used by this script -
++## SUPERSET_CONFIG_DIR - directory having superset config files
++## SUPERSET_LOG_DIR - directory used to store superset logs
++## SUPERSET_PID_DIR - directory used to store pid file
++
++usage="Usage: superset.sh (start|stop|status)"
++
++if [ $# -le 0 ]; then
++  echo $usage
++  exit 1
++fi
++
++command=$1
++
++BIN_DIR="${SUPERSET_BIN_DIR:-/usr/bigtop/current/superset/bin}"
++CONF_DIR="${SUPERSET_CONFIG_DIR:-/etc/superset/conf}"
++LOG_DIR="${SUPERSET_LOG_DIR:-/var/log/superset}"
++PID_DIR="${SUPERSET_PID_DIR:-/var/run/superset}"
++
++GROUP="${SUPERSET_GROUP:-hadoop}"
++USER="${SUPERSET_USER:-superset}"
++
++BIND_ADDRESS="${SUPERSET_BIND_ADDRESS:-0.0.0.0}"
++PORT="${SUPERSET_PORT:-9088}"
++
++PID_FILE="${PID_DIR}/${SUPERSET_PID_FILE:-superset.pid}"
++ACCESS_LOG_FILE="${LOG_DIR}/${SUPERSET_ACCESS_LOG_FILE:-superset-access.log}"
++ERROR_LOG_FILE="${LOG_DIR}/${SUPERSET_ERROR_LOG_FILE:-superset-error.log}"
++LOG_LEVEL="${SUPERSET_LOG_LEVEL:-info}"
++WORKERS="${SUPERSET_WORKERS:-4}"
++WORKER_CLASS="${SUPERSET_WORKER_CLASS:-gthread}"
++THREADS="${SUPERSET_THREADS:-20}"
++GUNICORN_TIMEOUT="${SUPERSET_TIMEOUT:-60}"
++GUNICORN_KEEPALIVE="${SUPERSET_KEEPALIVE:-2}"
++WORKER_MAX_REQUESTS="${SUPERSET_MAX_REQUESTS:-0}"
++WORKER_MAX_REQUESTS_JITTER="${SUPERSET_MAX_REQUESTS_JITTER:-0}"
++SERVER_LIMIT_REQUEST_LINE="${SUPERSET_SERVER_LIMIT_REQUEST_LINE:-0}"
++SERVER_LIMIT_REQUEST_FIELD_SIZE="${SUPERSET_SERVER_LIMIT_REQUEST_FIELD_SIZE:-0}"
++
++FLASK_APP="${SUPERSET_FLASK_APP:-superset.app:create_app()}"
++
++# pid=$PID_DIR/superset.pid
++
++case $command in
++  (start)
++
++    if [ -f ${PID_FILE} ]; then
++      if kill -0 `cat ${PID_FILE}| head -n 1` > /dev/null 2>&1; then
++        echo Superset node running as process `cat ${PID_FILE} | head -n 1`.  Stop it first.
++        exit 1
++      fi
++    fi
++
++    ${SUPERSET_BIN_DIR}/gunicorn \
++      --daemon \
++      --reload \
++      --group "${GROUP}" \
++      --user "${USER}" \
++      --bind "${BIND_ADDRESS}:${PORT}" \
++      --pid "${PID_FILE}" \
++      --access-logfile "${ACCESS_LOG_FILE}" \
++      --error-logfile "${ERROR_LOG_FILE}" \
++      --log-level "${LOG_LEVEL}" \
++      --workers ${WORKERS} \
++      --worker-class ${WORKER_CLASS} \
++      --threads ${THREADS} \
++      --timeout ${GUNICORN_TIMEOUT} \
++      --keep-alive ${GUNICORN_KEEPALIVE} \
++      --max-requests ${WORKER_MAX_REQUESTS} \
++      --max-requests-jitter ${WORKER_MAX_REQUESTS_JITTER} \
++      --limit-request-line ${SERVER_LIMIT_REQUEST_LINE} \
++      --limit-request-field_size ${SERVER_LIMIT_REQUEST_FIELD_SIZE} \
++      "${FLASK_APP}"
++
++    echo "Started Superset"
++    ;;
++
++  (stop)
++
++    if [ -f ${PID_FILE} ]; then
++      TARGET_PID=`cat ${PID_FILE} | head -n 1`
++      if kill -0 $TARGET_PID > /dev/null 2>&1; then
++        echo Stopping process `cat ${PID_FILE} | head -n 1`...
++        kill $TARGET_PID
++      else
++        echo No superset node to stop
++      fi
++      rm -f ${PID_FILE}
++    else
++      echo No superset node to stop
++    fi
++    ;;
++
++   (status)
++    if [ -f ${PID_FILE} ]; then
++      if kill -0 `cat ${PID_FILE} | head -n 1` > /dev/null 2>&1; then
++        echo RUNNING
++        exit 0
++      else
++        echo STOPPED
++      fi
++    else
++      echo STOPPED
++    fi
++    ;;
++
++  (*)
++    echo $usage
++    exit 1
++    ;;
++esac
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SUPERSET/alerts.json
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SUPERSET/alerts.json b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SUPERSET/alerts.json
+new file mode 100644
+--- /dev/null	(date 1747968136950)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SUPERSET/alerts.json	(date 1747968136950)
+@@ -0,0 +1,36 @@
++{
++  "SUPERSET": {
++    "service": [],
++    "SUPERSET": [
++      {
++        "name": "superset_webui",
++        "label": "Superset Web UI",
++        "description": "This host-level alert is triggered if the Superset Web UI is unreachable.",
++        "interval": 1,
++        "scope": "ANY",
++        "source": {
++          "type": "WEB",
++          "uri": {
++              "http": "{{superset/SUPERSET_PORT}}",
++              "https": "{{superset/SUPERSET_PORT}}",
++              "https_property": "http",
++              "https_property_value": "https",
++              "connection_timeout": 5.0,
++              "default_port": 9088
++          },
++          "reporting": {
++              "ok": {
++                  "text": "HTTP {0} response in {2:.3f}s"
++              },
++              "warning":{
++                  "text": "HTTP {0} response from {1} in {2:.3f}s ({3})"
++              },
++              "critical": {
++                  "text": "Connection failed to {1} ({3})"
++              }
++          }
++        }
++      }
++    ]
++  }
++}
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SUPERSET/quicklinks/quicklinks.json
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SUPERSET/quicklinks/quicklinks.json b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SUPERSET/quicklinks/quicklinks.json
+new file mode 100644
+--- /dev/null	(date 1735023256000)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SUPERSET/quicklinks/quicklinks.json	(date 1735023256000)
+@@ -0,0 +1,24 @@
++{
++  "name": "default",
++  "description": "default quick links configuration",
++  "configuration": {
++    "protocol": {
++      "type": "HTTP_ONLY"
++    },
++    "links": [
++      {
++        "name": "superset-application-ui",
++        "label": "Superset Application UI",
++        "component_name": "SUPERSET",
++        "requires_user_name": "false",
++        "url": "%@://%@:%@",
++        "port": {
++          "http_property": "SUPERSET_PORT",
++          "http_default_port": "9088",
++          "regex": "^(\\d+)$",
++          "site": "superset"
++        }
++      }
++    ]
++  }
++}
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SUPERSET/metainfo.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SUPERSET/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SUPERSET/metainfo.xml
+new file mode 100644
+--- /dev/null	(date 1747964108039)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SUPERSET/metainfo.xml	(date 1747964108039)
+@@ -0,0 +1,92 @@
++<?xml version="1.0"?>
++<!--
++   Licensed to the Apache Software Foundation (ASF) under one or more
++   contributor license agreements.  See the NOTICE file distributed with
++   this work for additional information regarding copyright ownership.
++   The ASF licenses this file to You under the Apache License, Version 2.0
++   (the "License"); you may not use this file except in compliance with
++   the License.  You may obtain a copy of the License at
++
++       http://www.apache.org/licenses/LICENSE-2.0
++
++   Unless required by applicable law or agreed to in writing, software
++   distributed under the License is distributed on an "AS IS" BASIS,
++   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++   See the License for the specific language governing permissions and
++   limitations under the License.
++-->
++<metainfo>
++  <schemaVersion>2.0</schemaVersion>
++  <services>
++    <service>
++      <name>SUPERSET</name>
++      <displayName>Superset</displayName>
++      <comment>Component SUPERSET Integrated By JaneTTR . For commercial use, please contact mail: 3832514048@qq.com</comment>
++      <version>4.1.2</version>
++      <components>
++        <component>
++          <name>SUPERSET</name>
++          <displayName>Superset Server</displayName>
++          <category>MASTER</category>
++          <cardinality>1+</cardinality>
++          <versionAdvertised>false</versionAdvertised>
++          <commandScript>
++            <script>scripts/superset.py</script>
++            <scriptType>PYTHON</scriptType>
++            <timeout>600</timeout>
++          </commandScript>
++          <configuration-dependencies>
++            <config-type>superset</config-type>
++          </configuration-dependencies>
++        </component>
++      </components>
++
++      <themes>
++        <theme>
++          <fileName>theme.json</fileName>
++          <default>true</default>
++        </theme>
++        <theme>
++          <fileName>database.json</fileName>
++          <default>true</default>
++        </theme>
++      </themes>
++
++      <osSpecifics>
++        <osSpecific>
++          <osFamily>redhat7,redhat8,redhat9,openeuler22</osFamily>
++          <packages>
++            <package>
++              <name>superset_${stack_version}</name>
++            </package>
++          </packages>
++        </osSpecific>
++        <osSpecific>
++          <osFamily>debian7,ubuntu12,ubuntu14,ubuntu16</osFamily>
++          <packages>
++            <package>
++              <name>superset-${stack_version}</name>
++            </package>
++          </packages>
++        </osSpecific>
++      </osSpecifics>
++      <commandScript>
++        <script>scripts/service_check.py</script>
++        <scriptType>PYTHON</scriptType>
++        <timeout>300</timeout>
++      </commandScript>
++      <configuration-dependencies>
++        <config-type>superset-env</config-type>
++        <config-type>superset</config-type>
++      </configuration-dependencies>
++
++      <quickLinksConfigurations>
++        <quickLinksConfiguration>
++          <fileName>quicklinks.json</fileName>
++          <default>true</default>
++        </quickLinksConfiguration>
++      </quickLinksConfigurations>
++
++    </service>
++  </services>
++</metainfo>
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SUPERSET/configuration/superset-env.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SUPERSET/configuration/superset-env.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SUPERSET/configuration/superset-env.xml
+new file mode 100644
+--- /dev/null	(date 1747964037189)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SUPERSET/configuration/superset-env.xml	(date 1747964037189)
+@@ -0,0 +1,150 @@
++<?xml version="1.0"?>
++<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
++<!--
++/**
++ * Licensed to the Apache Software Foundation (ASF) under one
++ * or more contributor license agreements.  See the NOTICE file
++ * distributed with this work for additional information
++ * regarding copyright ownership.  The ASF licenses this file
++ * to you under the Apache License, Version 2.0 (the
++ * "License"); you may not use this file except in compliance
++ * with the License.  You may obtain a copy of the License at
++ *
++ *     http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++-->
++<configuration supports_adding_forbidden="true">
++  <property>
++    <name>superset_log_dir</name>
++    <value>/var/log/superset</value>
++    <display-name>Superset log dir</display-name>
++    <description>Superset log directory.</description>
++    <value-attributes>
++      <type>directory</type>
++    </value-attributes>
++    <on-ambari-upgrade add="true"/>
++  </property>
++
++  <property>
++    <name>superset_pid_dir</name>
++    <value>/var/run/superset</value>
++    <display-name>Superset pid dir</display-name>
++    <description>Superset pid directory.</description>
++    <value-attributes>
++      <type>directory</type>
++    </value-attributes>
++    <on-ambari-upgrade add="true"/>
++  </property>
++
++  <property>
++    <name>superset_admin_user</name>
++    <value>admin</value>
++    <display-name>Superset Admin Username</display-name>
++    <description>
++      Superset Username. This value cannot be modified by Ambari
++      except on initial install. Please make sure the username change in
++      Superset is reflected in Ambari.
++    </description>
++    <value-attributes>
++      <type>db_user</type>
++      <overridable>false</overridable>
++    </value-attributes>
++    <on-ambari-upgrade add="true"/>
++  </property>
++
++  <property>
++    <name>superset_admin_password</name>
++    <value>admin</value>
++    <property-type>PASSWORD</property-type>
++    <display-name>Superset Admin Password</display-name>
++    <description>
++      Superset password. This value cannot be modified by Ambari
++      except on initial install. Please make sure the password change in
++      Superset is reflected back in Ambari.
++    </description>
++    <value-attributes>
++      <overridable>false</overridable>
++      <type>password</type>
++    </value-attributes>
++    <on-ambari-upgrade add="true"/>
++  </property>
++
++  <property>
++    <name>superset_admin_firstname</name>
++    <value>Admin</value>
++    <on-ambari-upgrade add="true"/>
++  </property>
++
++  <property>
++    <name>superset_admin_lastname</name>
++    <value>Admin</value>
++    <on-ambari-upgrade add="true"/>
++  </property>
++
++  <property>
++    <name>superset_admin_email</name>
++    <value>admin@admin.com</value>
++    <on-ambari-upgrade add="true"/>
++  </property>
++
++  <property>
++    <name>superset_user</name>
++    <display-name>Superset User</display-name>
++    <value>superset</value>
++    <property-type>USER</property-type>
++    <description></description>
++    <value-attributes>
++      <type>user</type>
++      <overridable>false</overridable>
++      <user-groups>
++        <property>
++          <type>cluster-env</type>
++          <name>user_group</name>
++        </property>
++      </user-groups>
++    </value-attributes>
++    <on-ambari-upgrade add="false"/>
++  </property>
++
++  <property>
++    <name>superset_flask_app</name>
++    <display-name>Superset Flask App</display-name>
++    <value>superset.app:create_app()</value>
++    <on-ambari-upgrade add="false"/>
++  </property>
++
++  <property>
++    <name>content</name>
++    <description>superset-env template</description>
++    <value>
++export LC_ALL=en_US.UTF-8
++export LANG=en_US.UTF-8
++
++export FLASK_APP="{{superset_flask_app}}"
++
++export SUPERSET_BIN_DIR={{superset_bin_dir}}
++
++export SUPERSET_CONFIG_DIR={{superset_config_dir}}
++export SUPERSET_CONFIG_PATH={{superset_config_dir}}/superset_config.py
++
++export SUPERSET_LOG_DIR={{superset_log_dir}}
++
++export SUPERSET_PID_DIR={{superset_pid_dir}}
++
++export SUPERSET_BIND_ADDRESS={{superset_bind_address}}
++export SUPERSET_PORT={{superset_port}}
++export SUPERSET_TIMEOUT={{superset_timeout}}
++export SUPERSET_WORKERS={{superset_workers}}
++    </value>
++    <value-attributes>
++      <type>content</type>
++    </value-attributes>
++    <on-ambari-upgrade add="true"/>
++  </property>
++</configuration>
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SUPERSET/configuration/superset.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SUPERSET/configuration/superset.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SUPERSET/configuration/superset.xml
+new file mode 100644
+--- /dev/null	(date 1747970475056)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SUPERSET/configuration/superset.xml	(date 1747970475056)
+@@ -0,0 +1,249 @@
++<?xml version="1.0"?>
++<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
++<!--
++/**
++ * Licensed to the Apache Software Foundation (ASF) under one
++ * or more contributor license agreements.  See the NOTICE file
++ * distributed with this work for additional information
++ * regarding copyright ownership.  The ASF licenses this file
++ * to you under the Apache License, Version 2.0 (the
++ * "License"); you may not use this file except in compliance
++ * with the License.  You may obtain a copy of the License at
++ *
++ *     http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++-->
++<configuration>
++    <property>
++        <name>ROW_LIMIT</name>
++        <value>5000</value>
++        <value-attributes>
++            <type>int</type>
++            <minimum>0</minimum>
++        </value-attributes>
++        <description></description>
++        <on-ambari-upgrade add="false"/>
++    </property>
++    <property>
++        <name>SUPERSET_BIND_ADDRESS</name>
++        <value>0.0.0.0</value>
++        <description></description>
++        <on-ambari-upgrade add="false"/>
++    </property>
++    <property>
++        <name>SUPERSET_PORT</name>
++        <value>18088</value>
++        <description></description>
++        <on-ambari-upgrade add="false"/>
++    </property>
++    <property>
++        <name>SUPERSET_WORKERS</name>
++        <value>4</value>
++        <value-attributes>
++            <type>int</type>
++            <minimum>0</minimum>
++        </value-attributes>
++        <description></description>
++        <on-ambari-upgrade add="false"/>
++    </property>
++    <property>
++        <name>SUPERSET_TIMEOUT</name>
++        <value>60</value>
++        <description></description>
++        <on-ambari-upgrade add="false"/>
++    </property>
++    <property require-input="true">
++        <name>SUPERSET_DATABASE_TYPE</name>
++        <display-name>Superset Database type</display-name>
++        <value>postgresql</value>
++        <value-attributes>
++            <overridable>false</overridable>
++            <type>value-list</type>
++            <entries>
++                <entry>
++                    <value>postgresql</value>
++                    <label>POSTGRESQL</label>
++                </entry>
++                <entry>
++                    <value>mysql</value>
++                    <label>MYSQL</label>
++                </entry>
++                <entry>
++                    <value>sqlite</value>
++                    <label>SQLITE</label>
++                </entry>
++            </entries>
++        </value-attributes>
++        <description>Type of the Database. Note that sqlite db will be installed on the node where superset is
++            installed.
++            Use mysql or postgred when installing superset on multiple nodes.
++            mysql installed by ambari is only for development and not suitable for production use cases due to it being
++            not HA.
++        </description>
++        <on-ambari-upgrade add="false"/>
++    </property>
++    <property>
++        <name>SUPERSET_DATABASE_NAME</name>
++        <value>superset</value>
++        <display-name>Superset Database name</display-name>
++        <description>Superset Database name</description>
++        <on-ambari-upgrade add="false"/>
++    </property>
++    <property>
++        <name>SUPERSET_DATABASE_PASSWORD</name>
++        <value></value>
++        <property-type>PASSWORD</property-type>
++        <display-name>Superset Database password</display-name>
++        <description>Password for the database.</description>
++        <value-attributes>
++            <type>password</type>
++            <empty-value-valid>true</empty-value-valid>
++        </value-attributes>
++        <on-ambari-upgrade add="false"/>
++    </property>
++    <property>
++        <name>SUPERSET_DATABASE_USER</name>
++        <value>superset</value>
++        <display-name>Superset Database user</display-name>
++        <description>Superset Database user</description>
++        <value-attributes>
++            <empty-value-valid>true</empty-value-valid>
++        </value-attributes>
++        <on-ambari-upgrade add="false"/>
++    </property>
++    <property>
++        <name>SUPERSET_DATABASE_PORT</name>
++        <value></value>
++        <display-name>Superset Database port</display-name>
++        <description>Superset Database port</description>
++        <value-attributes>
++            <empty-value-valid>true</empty-value-valid>
++        </value-attributes>
++        <depends-on>
++            <property>
++                <type>superset</type>
++                <name>SUPERSET_DATABASE_TYPE</name>
++            </property>
++        </depends-on>
++        <on-ambari-upgrade add="false"/>
++    </property>
++    <property>
++        <name>SUPERSET_DATABASE_NAME</name>
++        <value>superset</value>
++        <display-name>Superset Database name</display-name>
++        <description>Superset Database name</description>
++        <on-ambari-upgrade add="false"/>
++    </property>
++    <property>
++        <name>SUPERSET_DATABASE_HOSTNAME</name>
++        <value></value>
++        <display-name>Database hostname</display-name>
++        <description>Database hostname</description>
++        <on-ambari-upgrade add="false"/>
++    </property>
++    <property>
++        <name>WTF_CSRF_ENABLED</name>
++        <value>True</value>
++        <description></description>
++        <on-ambari-upgrade add="false"/>
++    </property>
++    <property>
++        <name>ENABLE_PROXY_FIX</name>
++        <value>True</value>
++        <description>When using Superset beind a Proxy server set this to True.</description>
++        <on-ambari-upgrade add="false"/>
++    </property>
++    <property>
++        <name>MAPBOX_API_KEY</name>
++        <value></value>
++        <value-attributes>
++            <empty-value-valid>true</empty-value-valid>
++        </value-attributes>
++        <description>API key to enable Mapbox visualizations</description>
++        <on-ambari-upgrade add="false"/>
++    </property>
++    <property>
++        <name>SECRET_KEY</name>
++        <value></value>
++        <value-attributes>
++            <type>password</type>
++        </value-attributes>
++        <description>
++            Secret Key used to encrypt user passwords. A Long Random String is recommended.
++            You can generate a strong secure key with following command:
++            openssl rand -base64 42
++        </description>
++        <on-ambari-upgrade add="false"/>
++    </property>
++    <property>
++        <name>FLASK_DEBUG</name>
++        <display-name>Flask Debug</display-name>
++        <value>False</value>
++        <value-attributes>
++            <overridable>false</overridable>
++            <type>value-list</type>
++            <entries>
++                <entry>
++                    <value>False</value>
++                    <label>FALSE</label>
++                </entry>
++                <entry>
++                    <value>True</value>
++                    <label>TRUE</label>
++                </entry>
++            </entries>
++        </value-attributes>
++        <description>Enable debug or not for this flask app.
++        </description>
++        <on-ambari-upgrade add="false"/>
++    </property>
++    <property>
++        <name>DATA_DIR</name>
++        <value>/var/lib/superset</value>
++        <description>
++            Directory for Superset to store database files and runtime data. Ensure the Superset process user has read
++            and write permissions to this directory. It is recommended to use standard system paths such as
++            /var/lib/superset instead of a user home directory for better security and maintainability.
++        </description>
++        <on-ambari-upgrade add="false"/>
++    </property>
++    <property>
++        <name>BABEL_DEFAULT_LOCALE</name>
++        <value>zh</value>
++        <description>
++            Default language locale for Superset interface. Set to "zh" to display the user interface in Simplified
++            Chinese by default.
++        </description>
++        <on-ambari-upgrade add="false"/>
++    </property>
++    <property>
++        <name>BABEL_DEFAULT_FOLDER</name>
++        <value>translations</value>
++        <description>
++            The folder containing translation files for Superset internationalization. Default is "translations" in the
++            Superset installation directory.
++        </description>
++        <on-ambari-upgrade add="false"/>
++    </property>
++    <property>
++        <name>LANGUAGES</name>
++        <value>{
++            "en": {"flag": "us", "name": "English"},
++            "zh": {"flag": "cn", "name": "简体中文"}
++            }
++        </value>
++        <description>
++            Supported language options for the Superset user interface. Each entry defines a locale key, a flag icon,
++            and a display name. This configuration enables users to select between English and Simplified Chinese in the
++            interface.
++        </description>
++        <on-ambari-upgrade add="false"/>
++    </property>
++
++</configuration>
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SUPERSET/service_advisor.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SUPERSET/service_advisor.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SUPERSET/service_advisor.py
+new file mode 100644
+--- /dev/null	(date 1735023256000)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SUPERSET/service_advisor.py	(date 1735023256000)
+@@ -0,0 +1,169 @@
++#!/usr/bin/env ambari-python-wrap
++"""
++Licensed to the Apache Software Foundation (ASF) under one
++or more contributor license agreements.  See the NOTICE file
++distributed with this work for additional information
++regarding copyright ownership.  The ASF licenses this file
++to you under the Apache License, Version 2.0 (the
++"License"); you may not use this file except in compliance
++with the License.  You may obtain a copy of the License at
++
++    http://www.apache.org/licenses/LICENSE-2.0
++
++Unless required by applicable law or agreed to in writing, software
++distributed under the License is distributed on an "AS IS" BASIS,
++WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++See the License for the specific language governing permissions and
++limitations under the License.
++"""
++
++import imp
++import os
++import socket
++import traceback
++
++from resource_management.core.logger import Logger
++
++SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
++STACKS_DIR = os.path.join(SCRIPT_DIR, "../../../../../stacks/")
++PARENT_FILE = os.path.join(STACKS_DIR, "service_advisor.py")
++
++try:
++    if "BASE_SERVICE_ADVISOR" in os.environ:
++        PARENT_FILE = os.environ["BASE_SERVICE_ADVISOR"]
++    with open(PARENT_FILE, "rb") as fp:
++        service_advisor = imp.load_module(
++            "service_advisor", fp, PARENT_FILE, (".py", "rb", imp.PY_SOURCE)
++        )
++except Exception as e:
++    traceback.print_exc()
++    print("Failed to load parent")
++
++
++class SupersetServiceAdvisor(service_advisor.ServiceAdvisor):
++    def __init__(self, *args, **kwargs):
++        self.as_super = super(SupersetServiceAdvisor, self)
++        self.as_super.__init__(*args, **kwargs)
++
++        self.initialize_logger("SupersetServiceAdvisor")
++
++        # Always call these methods
++        self.modifyMastersWithMultipleInstances()
++        self.modifyCardinalitiesDict()
++        self.modifyHeapSizeProperties()
++        self.modifyNotValuableComponents()
++        self.modifyComponentsNotPreferableOnServer()
++        self.modifyComponentLayoutSchemes()
++
++    def modifyMastersWithMultipleInstances(self):
++        """
++        Modify the set of masters with multiple instances.
++        Must be overriden in child class.
++        """
++        # Nothing to do
++        pass
++
++    def modifyCardinalitiesDict(self):
++        """
++        Modify the dictionary of cardinalities.
++        Must be overriden in child class.
++        """
++        # Nothing to do
++        pass
++
++    def modifyHeapSizeProperties(self):
++        """
++        Modify the dictionary of heap size properties.
++        Must be overriden in child class.
++        """
++        pass
++
++    def modifyNotValuableComponents(self):
++        """
++        Modify the set of components whose host assignment is based on other services.
++        Must be overriden in child class.
++        """
++        # Nothing to do
++        pass
++
++    def modifyComponentsNotPreferableOnServer(self):
++        """
++        Modify the set of components that are not preferable on the server.
++        Must be overriden in child class.
++        """
++        # Nothing to do
++        pass
++
++    def modifyComponentLayoutSchemes(self):
++        """
++        Modify layout scheme dictionaries for components.
++        The scheme dictionary basically maps the number of hosts to
++        host index where component should exist.
++        Must be overriden in child class.
++        """
++        pass
++
++    def getServiceComponentLayoutValidations(self, services, hosts):
++        """
++        Get a list of errors.
++        Must be overriden in child class.
++        """
++
++        return self.getServiceComponentCardinalityValidations(
++            services, hosts, "SUPERSET"
++        )
++
++    def getServiceConfigurationRecommendations(
++        self, configurations, clusterData, services, hosts
++    ):
++        self.logger.info(
++            "Class: %s, Method: %s. Recommending Service Configurations."
++            % (self.__class__.__name__, inspect.stack()[0][3])
++        )
++
++        recommender = SupersetRecommender()
++        recommender.recommendSupersetConfigurationsFromHDP30(
++            configurations, clusterData, services, hosts
++        )
++
++    def getServiceConfigurationsValidationItems(
++        self, configurations, recommendedDefaults, services, hosts
++    ):
++        """
++        Entry point.
++        Validate configurations for the service. Return a list of errors.
++        The code for this function should be the same for each Service Advisor.
++        """
++        self.logger.info(
++            "Class: %s, Method: %s. Validating Configurations."
++            % (self.__class__.__name__, inspect.stack()[0][3])
++        )
++        return []
++
++
++class SupersetRecommender(service_advisor.ServiceAdvisor):
++    """
++    Superset Recommender suggests properties when adding the service for the first time or modifying configs via the UI.
++    """
++
++    def __init__(self, *args, **kwargs):
++        self.as_super = super(SupersetRecommender, self)
++        self.as_super.__init__(*args, **kwargs)
++
++    def recommendSupersetConfigurationsFromHDP30(
++        self, configurations, clusterData, services, hosts
++    ):
++        # superset is in list of services to be installed
++        if "superset" in services["configurations"]:
++            # Recommendations for Superset
++            superset_database_type = services["configurations"]["superset"][
++                "properties"
++            ]["SUPERSET_DATABASE_TYPE"]
++            putSupersetProperty = self.putProperty(configurations, "superset", services)
++
++            if superset_database_type == "mysql":
++                putSupersetProperty("SUPERSET_DATABASE_PORT", "3306")
++            elif superset_database_type == "postgresql":
++                putSupersetProperty("SUPERSET_DATABASE_PORT", "5432")
++            elif superset_database_type == "sqlite":
++                putSupersetProperty("SUPERSET_DATABASE_PORT", "")
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SUPERSET/kerberos.json
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SUPERSET/kerberos.json b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SUPERSET/kerberos.json
+new file mode 100644
+--- /dev/null	(date 1735023256000)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SUPERSET/kerberos.json	(date 1735023256000)
+@@ -0,0 +1,47 @@
++{
++  "services": [
++    {
++      "name": "SUPERSET",
++      "identities": [
++        {
++          "name": "superset",
++          "principal": {
++            "value": "${superset-env/superset_user}${principal_suffix}@${realm}",
++            "type": "user",
++            "configuration": "superset/KERBEROS_PRINCIPAL",
++            "local_username": "${superset-env/superset_user}"
++          },
++          "keytab": {
++            "file": "${keytab_dir}/superset.headless.keytab",
++            "owner": {
++              "name": "${superset-env/superset_user}",
++              "access": "r"
++            },
++            "group": {
++              "name": "${cluster-env/user_group}",
++              "access": "r"
++            },
++            "configuration": "superset/KERBEROS_KEYTAB"
++          }
++        },
++        {
++          "name": "superset_smokeuser",
++          "reference": "/smokeuser"
++        }
++      ],
++      "components": [
++        {
++          "name": "SUPERSET"
++        }
++      ],
++      "configurations": [
++        {
++          "superset": {
++            "ENABLE_KERBEROS_AUTHENTICATION": "True",
++            "KERBEROS_REINIT_TIME_SEC": "3600"
++          }
++        }
++      ]
++    }
++  ]
++}
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/properties/stack_packages.json
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/properties/stack_packages.json b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/properties/stack_packages.json
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/properties/stack_packages.json	(revision 4ecd5c1d3a268999bc95bd34f2ca810f0cc86489)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/properties/stack_packages.json	(date 1747964432682)
+@@ -970,6 +970,20 @@
+             "atlas-server"
+           ]
+         }
++      },
++      "SUPERSET": {
++        "SUPERSET": {
++          "STACK-SELECT-PACKAGE": "superset",
++          "INSTALL": [
++            "superset"
++          ],
++          "PATCH": [
++            "superset"
++          ],
++          "STANDARD": [
++            "superset"
++          ]
++        }
+       }
+     },
+     "conf-select": {
+@@ -1203,6 +1217,13 @@
+           "current_dir": "{0}/current/atlas-client/conf",
+           "component": "atlas-client"
+         }
++      ],
++      "superset": [
++        {
++          "conf_dir": "/etc/superset/conf",
++          "current_dir": "{0}/current/superset/conf",
++          "component": "superset"
++        }
+       ]
+     },
+     "conf-select-patching": {
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SUPERSET/role_command_order.json
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SUPERSET/role_command_order.json b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SUPERSET/role_command_order.json
+new file mode 100644
+--- /dev/null	(date 1735023256000)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SUPERSET/role_command_order.json	(date 1735023256000)
+@@ -0,0 +1,6 @@
++{
++  "general_deps" : {
++    "_comment" : "dependencies for SUPERSET",
++    "SUPERSET_SERVICE_CHECK-SERVICE_CHECK" : ["SUPERSET-START"]
++  }
++}
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SUPERSET/themes/theme.json
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SUPERSET/themes/theme.json b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SUPERSET/themes/theme.json
+new file mode 100644
+--- /dev/null	(date 1735023256000)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SUPERSET/themes/theme.json	(date 1735023256000)
+@@ -0,0 +1,130 @@
++{
++  "name": "default",
++  "description": "Default theme for Superset service",
++  "configuration": {
++    "layouts": [
++      {
++        "name": "default",
++        "tabs": [
++          {
++            "name": "superset_metadata_storage",
++            "display-name": "SUPERSET META DATA STORAGE CONFIG",
++            "layout": {
++              "tab-columns": "1",
++              "tab-rows": "1",
++              "sections": [
++                {
++                  "name": "section-superset-metadata-storage",
++                  "display-name": "",
++                  "row-index": "0",
++                  "column-index": "0",
++                  "row-span": "1",
++                  "column-span": "1",
++                  "section-columns": "1",
++                  "section-rows": "1",
++                  "subsections": [
++                    {
++                      "name": "subsection-superset-metadata-storage-row1-col1",
++                      "display-name": "SUPERSET META DATA STORAGE",
++                      "row-index": "0",
++                      "column-index": "0",
++                      "row-span": "1",
++                      "column-span": "1"
++                    }
++                  ]
++                }
++              ]
++            }
++          }
++        ]
++      }
++    ],
++    "placement": {
++      "configuration-layout": "default",
++      "configs": [
++        {
++          "config": "superset/SUPERSET_DATABASE_NAME",
++          "subsection-name": "subsection-superset-metadata-storage-row1-col1"
++        },
++        {
++          "config": "superset/SUPERSET_DATABASE_TYPE",
++          "subsection-name": "subsection-superset-metadata-storage-row1-col1"
++        },
++        {
++          "config": "superset/SUPERSET_DATABASE_USER",
++          "subsection-name": "subsection-superset-metadata-storage-row1-col1"
++        },
++        {
++          "config": "superset/SUPERSET_DATABASE_PASSWORD",
++          "subsection-name": "subsection-superset-metadata-storage-row1-col1"
++        },
++        {
++          "config": "superset/SUPERSET_DATABASE_HOSTNAME",
++          "subsection-name": "subsection-superset-metadata-storage-row1-col1"
++        },
++        {
++          "config": "superset/SUPERSET_DATABASE_PORT",
++          "subsection-name": "subsection-superset-metadata-storage-row1-col1"
++        },
++        {
++          "config": "superset/SECRET_KEY",
++          "subsection-name": "subsection-superset-metadata-storage-row1-col1"
++        },
++        {
++          "config": "superset/FLASK_DEBUG",
++          "subsection-name": "subsection-superset-metadata-storage-row1-col1"
++        }
++      ]
++    },
++    "widgets": [
++      {
++        "config": "superset/SUPERSET_DATABASE_NAME",
++        "widget": {
++          "type": "text-field"
++        }
++      },
++      {
++        "config": "superset/SUPERSET_DATABASE_TYPE",
++        "widget": {
++          "type": "combo"
++        }
++      },
++      {
++        "config": "superset/SUPERSET_DATABASE_USER",
++        "widget": {
++          "type": "text-field"
++        }
++      },
++      {
++        "config": "superset/SUPERSET_DATABASE_PASSWORD",
++        "widget": {
++          "type": "password"
++        }
++      },
++      {
++        "config": "superset/SUPERSET_DATABASE_HOSTNAME",
++        "widget": {
++          "type": "text-field"
++        }
++      },
++      {
++        "config": "superset/SUPERSET_DATABASE_PORT",
++        "widget": {
++          "type": "text-field"
++        }
++      },
++      {
++        "config": "superset/SECRET_KEY",
++        "widget": {
++          "type": "password"
++        }
++      },
++      {
++        "config": "superset/FLASK_DEBUG",
++        "widget": {
++          "type": "combo"
++        }
++      }
++    ]
++  }
++}
+\ No newline at end of file
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SUPERSET/themes/database.json
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SUPERSET/themes/database.json b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SUPERSET/themes/database.json
+new file mode 100644
+--- /dev/null	(date 1735023256000)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SUPERSET/themes/database.json	(date 1735023256000)
+@@ -0,0 +1,119 @@
++{
++  "name": "database",
++  "configuration": {
++    "placement": {
++      "configs": [
++        {
++          "config": "superset/SUPERSET_DATABASE_NAME",
++          "subsection-name": "subsection-superset-metadata-storage-row1-col1"
++        },
++        {
++          "config": "superset/SUPERSET_DATABASE_TYPE",
++          "subsection-name": "subsection-superset-metadata-storage-row1-col1"
++        },
++        {
++          "config": "superset/SUPERSET_DATABASE_USER",
++          "subsection-name": "subsection-superset-metadata-storage-row1-col1"
++        },
++        {
++          "config": "superset/SUPERSET_DATABASE_PASSWORD",
++          "subsection-name": "subsection-superset-metadata-storage-row1-col1"
++        },
++        {
++          "config": "superset/SUPERSET_DATABASE_HOSTNAME",
++          "subsection-name": "subsection-superset-metadata-storage-row1-col1"
++        },
++        {
++          "config": "superset/SUPERSET_DATABASE_PORT",
++          "subsection-name": "subsection-superset-metadata-storage-row1-col1"
++        },
++        {
++          "config": "superset/SECRET_KEY",
++          "subsection-name": "subsection-superset-metadata-storage-row1-col1"
++        }
++      ],
++      "configuration-layout": "database"
++    },
++    "widgets": [
++      {
++        "config": "superset/SUPERSET_DATABASE_NAME",
++        "widget": {
++          "type": "text-field"
++        }
++      },
++      {
++        "config": "superset/SUPERSET_DATABASE_TYPE",
++        "widget": {
++          "type": "combo"
++        }
++      },
++      {
++        "config": "superset/SUPERSET_DATABASE_USER",
++        "widget": {
++          "type": "text-field"
++        }
++      },
++      {
++        "config": "superset/SUPERSET_DATABASE_PASSWORD",
++        "widget": {
++          "type": "password"
++        }
++      },
++      {
++        "config": "superset/SUPERSET_DATABASE_HOSTNAME",
++        "widget": {
++          "type": "text-field"
++        }
++      },
++      {
++        "config": "superset/SUPERSET_DATABASE_PORT",
++        "widget": {
++          "type": "text-field"
++        }
++      },
++      {
++        "config": "superset/SECRET_KEY",
++        "widget": {
++          "type": "password"
++        }
++      }
++    ],
++    "layouts": [
++      {
++        "name": "database",
++        "tabs": [
++          {
++            "name": "superset_database",
++            "display-name": "Superset",
++            "layout": {
++              "tab-columns": "1",
++              "tab-rows": "1",
++              "sections": [
++                {
++                  "name": "section-superset-metadata-storage",
++                  "display-name": "",
++                  "row-index": "0",
++                  "column-index": "0",
++                  "row-span": "1",
++                  "column-span": "1",
++                  "section-columns": "1",
++                  "section-rows": "1",
++                  "subsections": [
++                    {
++                      "name": "subsection-superset-metadata-storage-row1-col1",
++                      "display-name": "SUPERSET META DATA STORAGE",
++                      "row-index": "0",
++                      "column-index": "0",
++                      "row-span": "1",
++                      "column-span": "1"
++                    }
++                  ]
++                }
++              ]
++            }
++          }
++        ]
++      }
++    ]
++  }
++}
