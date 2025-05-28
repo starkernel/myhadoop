@@ -1,5 +1,4 @@
 #!/bin/bash
-
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements. See the NOTICE file distributed with
 # this work for additional information regarding copyright ownership.
@@ -19,16 +18,38 @@
 
 set -e
 
-echo "############## INSTALL start #############"
+echo "############## PRE BUILD_AMBARI_ALL start #############"
 
-source /scripts/install/ssh/install_no_pass.sh
+PROJECT_PATH="/opt/modules/ambari3"   # 你的目标项目路径
+PATCH_SCRIPT="/scripts/util/apply_patch.sh"  # 工具脚本路径
 
-source /scripts/install/ssh/install_ntp_sync.sh
+patch_files=(
+  "/scripts/build/ambari3-el7/patch2_0_0/patch0-COMPONENT-VERSION-UPGRADE.diff"
+  # 后续可继续添加补丁文件路径
+)
 
-source /scripts/install/ssh/install_yum_repo.sh
+for patch_file in "${patch_files[@]}"; do
+  "$PATCH_SCRIPT" "$PROJECT_PATH" "$patch_file"
+done
 
-source /scripts/install/ssh/install_mariadb.sh
 
-source /scripts/install/ambari/install_ambari.sh
 
-echo "############## INSTALL end #############"
+# 开启 gcc 高版本
+source /opt/rh/devtoolset-7/enable
+cd "$PROJECT_PATH"
+
+
+mvn -T 16 -B  install \
+package \
+rpm:rpm \
+-Drat.skip=true \
+-Dcheckstyle.skip=true \
+-DskipTests \
+-Dspotbugs.skip=true \
+-Preplaceurl
+
+
+find "$PROJECT_PATH" -iname '*.rpm' -exec cp -rv {} "$RPM_PACKAGE" \;
+
+
+echo "############## PRE BUILD_AMBARI_ALL end #############"

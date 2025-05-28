@@ -21,6 +21,7 @@ echo "############## SETUP GITHUB_CODE_DOWNLOAD start #############"
 # 目标目录和分支版本
 declare -A REPOS=(
   ["/opt/modules/ambari"]="branch-2.8.0 https://ghfast.top/https://github.com/apache/ambari.git"
+  ["/opt/modules/ambari3"]="branch-3.0.0 https://ghfast.top/https://github.com/apache/ambari.git"
   ["/opt/modules/ambari-metrics"]="dependabot/maven/ambari-metrics-common/com.google.guava-guava-32.0.0-jre https://ghfast.top/https://github.com/apache/ambari-metrics.git"
   ["/opt/modules/bigtop"]="release-3.2.0 https://ghfast.top/https://github.com/apache/bigtop.git"
   ["/opt/modules/ambari-infra"]="master https://ghfast.top/https://github.com/apache/ambari-infra.git"
