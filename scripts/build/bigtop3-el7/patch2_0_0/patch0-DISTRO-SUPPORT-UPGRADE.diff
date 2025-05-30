@@ -1,0 +1,62 @@
+Subject: [PATCH] feature: ambari3.0 的 bigtop-select
+---
+Index: bigtop-packages/src/common/bigtop-select/distro-select
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/bigtop-packages/src/common/bigtop-select/distro-select b/bigtop-packages/src/common/bigtop-select/distro-select
+--- a/bigtop-packages/src/common/bigtop-select/distro-select	(revision 8c5b0862cbe6947ffff11424f88966ddfa80d47d)
++++ b/bigtop-packages/src/common/bigtop-select/distro-select	(date 1748484831216)
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python2
++#!/usr/bin/env ambari-python-wrap
+ #
+ # Licensed to the Apache Software Foundation (ASF) under one
+ # or more contributor license agreements.  See the NOTICE file
+@@ -252,7 +252,7 @@
+     if packages == None:
+         packages = leaves
+
+-    packages.sort()
++    packages = sorted(packages)
+     for pkg in packages:
+         linkname = current + "/" + pkg
+         if os.path.isdir(linkname):
+@@ -265,12 +265,11 @@
+ # Print the avaialable package names
+ def printPackages():
+     packages = leaves.keys()
+-    packages.sort()
++    packages = sorted(packages)
+     print("Packages:")
+     for pkg in packages:
+         print(" " + pkg)
+-    groups = aliases.keys()
+-    groups.sort()
++    groups = sorted(aliases.keys())
+     print("Aliases:")
+     for pkg in groups:
+         print(" " + pkg)
+@@ -297,8 +296,7 @@
+                 print("ERROR: Unexpected file/directory found in %s: %s" % (root, f))
+                 sys.exit(1)
+
+-    keys = result.keys()
+-    keys.sort()
++    keys = sorted(result.keys())
+     for k in keys:
+         print(result[k])
+
+@@ -320,9 +318,9 @@
+         sys.exit(1)
+
+     if not os.path.isdir(current):
+-        os.mkdir(current, 0755)
++        os.mkdir(current, 0o755)
+
+-    packages.sort()
++    packages = sorted(packages)
+     for pkg in packages:
+         linkname = current + "/" + pkg
+         if os.path.islink(linkname) and rpm_mode:
