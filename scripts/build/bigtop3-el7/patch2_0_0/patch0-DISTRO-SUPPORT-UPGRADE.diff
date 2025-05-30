@@ -1,4 +1,5 @@
-Subject: [PATCH] feature: ambari3.0 的 bigtop-select
+Subject: [PATCH] Merge branch 'master' of https://gitee.com/tt-bigdata/bigtop-3.2.0
+feature: 支持3.0.0 的ambari
 ---
 Index: bigtop-packages/src/common/bigtop-select/distro-select
 IDEA additional info:
@@ -7,14 +8,14 @@ Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
 ===================================================================
 diff --git a/bigtop-packages/src/common/bigtop-select/distro-select b/bigtop-packages/src/common/bigtop-select/distro-select
 --- a/bigtop-packages/src/common/bigtop-select/distro-select	(revision 8c5b0862cbe6947ffff11424f88966ddfa80d47d)
-+++ b/bigtop-packages/src/common/bigtop-select/distro-select	(date 1748484831216)
++++ b/bigtop-packages/src/common/bigtop-select/distro-select	(revision 6d4637f61eaf9c9620670b156c97e975e3cea91c)
 @@ -1,4 +1,4 @@
 -#!/usr/bin/env python2
 +#!/usr/bin/env ambari-python-wrap
  #
  # Licensed to the Apache Software Foundation (ASF) under one
  # or more contributor license agreements.  See the NOTICE file
-@@ -252,7 +252,7 @@
+@@ -252,7 +253,7 @@
      if packages == None:
          packages = leaves
 
@@ -23,7 +24,7 @@ diff --git a/bigtop-packages/src/common/bigtop-select/distro-select b/bigtop-pac
      for pkg in packages:
          linkname = current + "/" + pkg
          if os.path.isdir(linkname):
-@@ -265,12 +265,11 @@
+@@ -265,12 +266,11 @@
  # Print the avaialable package names
  def printPackages():
      packages = leaves.keys()
@@ -38,7 +39,7 @@ diff --git a/bigtop-packages/src/common/bigtop-select/distro-select b/bigtop-pac
      print("Aliases:")
      for pkg in groups:
          print(" " + pkg)
-@@ -297,8 +296,7 @@
+@@ -297,8 +297,7 @@
                  print("ERROR: Unexpected file/directory found in %s: %s" % (root, f))
                  sys.exit(1)
 
@@ -48,7 +49,7 @@ diff --git a/bigtop-packages/src/common/bigtop-select/distro-select b/bigtop-pac
      for k in keys:
          print(result[k])
 
-@@ -320,9 +318,9 @@
+@@ -320,9 +319,9 @@
          sys.exit(1)
 
      if not os.path.isdir(current):
@@ -60,3 +61,112 @@ diff --git a/bigtop-packages/src/common/bigtop-select/distro-select b/bigtop-pac
      for pkg in packages:
          linkname = current + "/" + pkg
          if os.path.islink(linkname) and rpm_mode:
+
+
+
+
+Subject: [PATCH] feature: 支持3.0.0 的ambari
+feature: 支持3.0.0 的ambari
+---
+Index: bigtop-packages/src/common/bigtop-select/distro-select
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/bigtop-packages/src/common/bigtop-select/distro-select b/bigtop-packages/src/common/bigtop-select/distro-select
+--- a/bigtop-packages/src/common/bigtop-select/distro-select	(revision 6d4637f61eaf9c9620670b156c97e975e3cea91c)
++++ b/bigtop-packages/src/common/bigtop-select/distro-select	(revision 1e99ed49fc9e3fea77fef6943f0d8ee9d05dd76c)
+@@ -16,8 +16,8 @@
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+ #
+-import optparse
+ import copy
++import optparse
+ import os
+ import re
+ import sys
+@@ -93,42 +93,43 @@
+     'redis-master': 'redis',
+     'redis-slave': 'redis',
+     'redis-client': 'redis',
+-    "dolphinscheduler" : "dolphinscheduler",
+-    "dolphin-master" : "dolphinscheduler/master-server",
+-    "dolphin-worker" : "dolphinscheduler/worker-server",
+-    "dolphin-api" : "dolphinscheduler/api-server",
+-    "dolphin-alert" : "dolphinscheduler/alert-server",
+-    "doris" : "doris",
+-    "doris-fe" : "doris/doris-fe",
+-    "doris-be" : "doris/doris-be",
+-    "doris-hdfs_broker" : "doris/doris-hdfs_broker",
+-    "nightingale" : "nightingale",
+-    "categraf" : "categraf",
+-    "victoriametrics":"victoriametrics",
+-    "cloudbeaver":"cloudbeaver",
++    "dolphinscheduler": "dolphinscheduler",
++    "dolphin-master": "dolphinscheduler/master-server",
++    "dolphin-worker": "dolphinscheduler/worker-server",
++    "dolphin-api": "dolphinscheduler/api-server",
++    "dolphin-alert": "dolphinscheduler/alert-server",
++    "doris": "doris",
++    "doris-fe": "doris/doris-fe",
++    "doris-be": "doris/doris-be",
++    "doris-hdfs_broker": "doris/doris-hdfs_broker",
++    "nightingale": "nightingale",
++    "categraf": "categraf",
++    "victoriametrics": "victoriametrics",
++    "cloudbeaver": "cloudbeaver",
+     "celeborn": "celeborn",
+     "celeborn-master": "celeborn",
+     "celeborn-worker": "celeborn",
+     "celeborn-client": "celeborn",
+-    "ozone" : "ozone",
+-    "ozone-om" : "ozone",
+-    "ozone-scm" : "ozone",
+-    "ozone-datanode" : "ozone",
+-    "ozone-recon" : "ozone",
+-    "ozone-s3g" : "ozone",
+-    "ozone-client" : "ozone",
++    "ozone": "ozone",
++    "ozone-om": "ozone",
++    "ozone-scm": "ozone",
++    "ozone-datanode": "ozone",
++    "ozone-recon": "ozone",
++    "ozone-s3g": "ozone",
++    "ozone-client": "ozone",
+     "impala": "impala",
+     "impala-client": "impala",
+     "impala-shell": "impala/shell",
+-    "trino" : "trino",
+-    "trino-cli" : "trino-cli",
+-    "paimon-client":"paimon",
+-    "hudi-client":"hudi",
++    "trino": "trino",
++    "trino-cli": "trino-cli",
++    "paimon-client": "paimon",
++    "hudi-client": "hudi",
+     "atlas-server": "atlas",
+     "atlas-client": "atlas",
+-    "superset":"superset"
++    "superset": "superset"
+ }
+
++
+ # Define the aliases and the list of leaves they correspond to
+ aliases = {
+     "all": leaves.keys(),
+@@ -226,10 +227,10 @@
+     "ranger-kms": "ranger-kms/ranger-kms",
+     "ranger-usersync-start": "ranger-usersync/ranger-usersync-start",
+     "ranger-usersync-stop": "ranger-usersync/ranger-usersync-stop",
+-    "impala-shell" : "impala-shell/impala-shell",
+-    "trino" : "trino-cli/trino",
+-    "atlas-start" : "atlas-server/bin/metadata-start.sh",
+-    "atlas-stop" : "atlas-server/bin/metadata-stop.sh"
++    "impala-shell": "impala-shell/impala-shell",
++    "trino": "trino-cli/trino",
++    "atlas-start": "atlas-server/bin/metadata-start.sh",
++    "atlas-stop": "atlas-server/bin/metadata-stop.sh"
+ }
+
+
