@@ -9,6 +9,7 @@
   </a>
   <br>
   <img src="https://img.shields.io/badge/Ambari-2.8.0-orange" alt="Ambari 2.8.0">
+  <img src="https://img.shields.io/badge/Ambari-3.0.0-yellow" alt="Ambari 3.0.0">
   <img src="https://img.shields.io/badge/Bigtop-3.2.0-green" alt="Bigtop 3.2.0">
 </p>
 
@@ -17,8 +18,16 @@
 
 ## 🚨 写在前面 · Ambari3.0.0我们已经满血适配！👀
 
+- 你敢说不全？
+  ![img.png](./.docs/img2.png)
+- 你敢说不能一键部署？900多行代码？
+  ![img_1.png](./.docs/img_1.png)
+- 你敢说你不会安装？
+  ![img_2.png](./.docs/img_2.png)
+- 你敢说自己想编译了？
+  ![img_4.png](./.docs/img_4.png)
 
-
+不！你不敢。你要的我都有。
 ---
 
 ## 📚 项目简介
