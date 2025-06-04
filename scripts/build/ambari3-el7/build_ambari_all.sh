@@ -22,6 +22,7 @@ echo "############## PRE BUILD_AMBARI_ALL start #############"
 
 PROJECT_PATH="/opt/modules/ambari3"   # 你的目标项目路径
 PATCH_SCRIPT="/scripts/util/apply_patch.sh"  # 工具脚本路径
+RPM_PACKAGE="/data/rpm-package/ambari3" # 目标路径
 
 patch_files=(
   "/scripts/build/ambari3-el7/patch2_0_0/patch0-COMPONENT-VERSION-UPGRADE.diff"
