@@ -138,7 +138,7 @@ init_rocky8() {
   rm -rf /etc/yum.repos.d/Rocky* /etc/yum.repos.d/epel* /etc/yum.repos.d/ambari-bigtop*
   dnf clean all && dnf clean packages
   echo "执行 Rocky 8 初始化脚本"
-  dnf -y install passwd sudo net-tools unzip wget git || true
+  dnf -y install openssh-server passwd sudo net-tools unzip wget git patch rpm-build python3 || true
   #yum -y install wget|| true
   # 这里不装 scl 相关包，因为 Rocky 8 通常不需要
   rm -rf /etc/yum.repos.d/Rocky*
@@ -175,15 +175,26 @@ rm_init_repos
 if [ ! -f "$FLAG_FILE" ]; then
   echo 'root:root' | chpasswd
   ssh-keygen -A
+
+  # 确保 sshd_config 存在并允许 root 登录
   if [ ! -f "/etc/ssh/sshd_config" ]; then
     touch /etc/ssh/sshd_config
   fi
-  sed -i 's/#PermitRootLogin yes/PermitRootLogin yes/' /etc/ssh/sshd_config
-  grep -qxF 'alias ll="ls -al"' /etc/profile || sed -i '$ a alias ll="ls -al"' /etc/profile
-  source /etc/profile
+  grep -q '^PermitRootLogin' /etc/ssh/sshd_config \
+    && sed -i 's/^PermitRootLogin.*/PermitRootLogin yes/' /etc/ssh/sshd_config \
+    || echo 'PermitRootLogin yes' >> /etc/ssh/sshd_config
+
+  # 全局 alias 配置（注意加 color）
+  grep -qxF "alias ll='ls -alF --color=auto'" /etc/profile || echo "alias ll='ls -alF --color=auto'" >> /etc/profile
+  grep -qxF "alias ls='ls --color=auto'" /etc/profile || echo "alias ls='ls --color=auto'" >> /etc/profile
+
+  # 确保新 shell 生效
+  grep -qxF "source /etc/profile" /root/.bashrc || echo "source /etc/profile" >> /root/.bashrc
+
   touch "$FLAG_FILE"
-  echo "source /etc/profile" >>/root/.bashrc
 else
   echo "yum 已经完成初始化"
 fi
+
+
 echo "############## INIT YUM end #############"
