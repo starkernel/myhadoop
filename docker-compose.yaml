@@ -12,6 +12,7 @@ services:
     environment:
       - NEXUS_SECURITY_RANDOMPASSWORD=false
       - NEXUS_ADMIN_PASSWORD=admin123
+      - INSTALL4J_ADD_VM_PARAMS=-Xms4g -Xmx8g
     restart: always
     entrypoint: /scripts/system/before/nexus/add_proxy.sh
     healthcheck:
@@ -141,29 +142,31 @@ services:
     networks:
       ambari-env-network:
         ipv4_address: 172.20.0.7
-  centos5:
-    image: centos:7.9.2009
-    container_name: centos5
-    hostname: centos5
+  rocky8:
+    image: rockylinux/rockylinux:8.10
+    container_name: rocky8
+    hostname: rocky8
     ports:
-      - "22226:22"
-      - "46379:6379"
-      - "46380:6380"
-      - "46381:6381"
-      - "46382:6382"
-      - "46383:6383"
-      - "46384:6384"
-      - "42181:2181"
-      - "42345:12345"
+      - "85:80"
+      - "22223:22"
+      - "28080:8080"
+      - "16379:6379"
+      - "16380:6380"
+      - "16381:6381"
+      - "16382:6382"
+      - "16383:6383"
+      - "16384:6384"
+      - "12181:2181"
+      - "12345:12345"
     tty: true
     privileged: true
     volumes:
       - ./scripts:/scripts
-      - ./common/etc/yum.repos.d:/etc/yum.repos.d
+      - ./common/etc/yum.repos.d/rocky8:/etc/yum.repos.d
       - ./common/conf:/opt/modules/conf
       - ./common/data/mvn:/root/.m2
-      - /var/run/docker.sock:/var/run/docker.sock
-    #    entrypoint: /scripts/slave.sh
+      - ./common/data/rpm-package:/data/rpm-package
+    entrypoint: /scripts/master_rocky8.sh
     depends_on:
       nexus:
         condition: service_healthy

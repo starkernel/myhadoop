@@ -1,0 +1,24 @@
+[rocky-baseos]
+name=Rocky Linux $releasever - BaseOS
+baseurl=http://172.20.0.2:8081/repository/rocky8-mirrors/$releasever/BaseOS/$basearch/os/
+gpgcheck=0
+enabled=1
+
+[rocky-appstream]
+name=Rocky Linux $releasever - AppStream
+baseurl=http://172.20.0.2:8081/repository/rocky8-mirrors/$releasever/AppStream/$basearch/os/
+gpgcheck=0
+enabled=1
+
+[rocky-extras]
+name=Rocky Linux $releasever - Extras
+baseurl=http://172.20.0.2:8081/repository/rocky8-mirrors/$releasever/extras/$basearch/os/
+gpgcheck=0
+enabled=1
+
+[rocky-epel]
+name=EPEL for Rocky Linux $releasever - $basearch
+baseurl=http://172.20.0.2:8081/repository/rocky8-epel/epel/$releasever/Everything/$basearch/
+gpgcheck=0
+enabled=1
+
