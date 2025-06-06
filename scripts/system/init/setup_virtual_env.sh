@@ -46,7 +46,6 @@ yum install -y \
     readline-devel \
     tk-devel \
     gdbm-devel \
-    db4-devel \
     libpcap-devel \
     xz-devel \
     curl \

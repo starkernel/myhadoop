@@ -15,7 +15,6 @@
 # limitations under the License.
 #
 # Author: JaneTTR
-#!/bin/bash
 set -ex
 echo "############## INIT YUM start #############"
 FLAG_FILE="/var/lib/init/.lock"
@@ -142,6 +141,9 @@ init_rocky8() {
     lzo-devel \
     openssl-devel \
     procps-ng iproute net-tools vim less which lsof curl wget tar \
+    gcc gcc-c++ make cmake openssl-devel snappy-devel zlib-devel bzip2-devel \
+    libtirpc-devel krb5-devel libxml2-devel protobuf-devel \
+    patch which lsof cyrus-sasl-devel\
   || true
 
   # yum -y install wget || true

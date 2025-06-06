@@ -19,7 +19,7 @@
 set -ex
 
 # init env
-source /scripts/system/init/init_env.sh
+source /scripts/system/init/ubuntu2204/init_env.sh
 
 # setup jdk
 source /scripts/system/init/setup_jdk.sh
@@ -37,10 +37,7 @@ source /scripts/system/init/setup_ivy_ant.sh
 source /scripts/system/init/setup_github_code.sh
 
 #处理r环境
-#source /scripts/system/init/setup_r_env.sh
-
-#处理虚拟环境
-source /scripts/system/init/setup_virtual_env.sh
+#source /scripts/system/init/ubuntu2204/setup_r_env.sh
 
 # 将本机ip写入到
 source /scripts/util/write_ip.sh

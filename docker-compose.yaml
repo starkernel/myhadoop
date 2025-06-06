@@ -173,6 +173,38 @@ services:
     networks:
       ambari-env-network:
         ipv4_address: 172.20.0.8
+  ubuntu22:
+    image: ubuntu:22.04
+    container_name: ubuntu22
+    hostname: ubuntu22
+#    ports:
+#      - "85:80"
+#      - "22223:22"
+#      - "28080:8080"
+#      - "16379:6379"
+#      - "16380:6380"
+#      - "16381:6381"
+#      - "16382:6382"
+#      - "16383:6383"
+#      - "16384:6384"
+#      - "12181:2181"
+#      - "12345:12345"
+    tty: true
+    privileged: true
+    volumes:
+      - ./scripts:/scripts
+      - ./common/etc/apt/ubuntu2204/sources.list.d:/etc/apt/sources.list.d
+      - ./common/conf:/opt/modules/conf
+      - ./common/data/mvn:/root/.m2
+      - ./common/data/rpm-package:/data/rpm-package
+    entrypoint: /scripts/master_ubuntu22.sh
+    depends_on:
+      nexus:
+        condition: service_healthy
+    networks:
+      ambari-env-network:
+        ipv4_address: 172.20.0.9
+
   mysql:
     image: mysql:8.0
     container_name: mysql8

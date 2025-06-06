@@ -50,6 +50,9 @@ bash /scripts/system/after/nexus/setup_yum_proxy.sh
 # 设置yum 仓库
 bash /scripts/system/after/nexus/setup_npm_proxy.sh
 
+# 设置apt 仓库
+bash /scripts/system/after/nexus/setup_apt_proxy.sh
+
 # 将本机ip写入到
 cat /etc/hosts | grep -v '^#' | grep -v '127.0.0.1' | grep -E '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+' | awk '{print $1}' >> /scripts/system/before/nexus/.lock
 
