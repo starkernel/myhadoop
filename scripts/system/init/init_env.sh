@@ -93,36 +93,14 @@ baseurl=http://$1:8081/repository/rocky8-epel/epel/\$releasever/Everything/\$bas
 gpgcheck=0
 enabled=1
 
+[rocky-powertools]
+name=Rocky Linux \$releasever - PowerTools
+baseurl=http://$1:8081/repository/rocky8-mirrors/\$releasever/PowerTools/\$basearch/os/
+gpgcheck=0
+enabled=1
+
 EOF
 }
-#
-#write_repo_rocky8() {
-#  cat >/etc/yum.repos.d/yum-public.repo <<EOF
-#[rocky-baseos]
-#name=Rocky Linux \$releasever - BaseOS
-#baseurl=https://mirrors.aliyun.com/rockylinux/\$releasever/BaseOS/\$basearch/os/
-#gpgcheck=0
-#enabled=1
-#
-#[rocky-appstream]
-#name=Rocky Linux \$releasever - AppStream
-#baseurl=https://mirrors.aliyun.com/rockylinux/\$releasever/AppStream/\$basearch/os/
-#gpgcheck=0
-#enabled=1
-#
-#[rocky-extras]
-#name=Rocky Linux \$releasever - Extras
-#baseurl=https://mirrors.aliyun.com/rockylinux/\$releasever/extras/\$basearch/os/
-#gpgcheck=0
-#enabled=1
-#
-#[rocky-epel]
-#name=EPEL for Rocky Linux \$releasever - \$basearch
-#baseurl=https://mirrors.aliyun.com/epel/\$releasever/Everything/\$basearch/
-#gpgcheck=0
-#enabled=1
-#EOF
-#}
 
 
 # ========== 各系统初始化操作函数 ==========
@@ -137,12 +115,41 @@ init_centos7() {
 init_rocky8() {
   rm -rf /etc/yum.repos.d/Rocky* /etc/yum.repos.d/epel* /etc/yum.repos.d/ambari-bigtop*
   dnf clean all && dnf clean packages
+
   echo "执行 Rocky 8 初始化脚本"
-  dnf -y install openssh-server passwd sudo net-tools unzip wget git patch rpm-build python3 || true
-  #yum -y install wget|| true
+
+  dnf -y install \
+    openssh-server \
+    passwd \
+    sudo \
+    net-tools \
+    unzip \
+    wget \
+    git \
+    patch \
+    rpm-build \
+    python3 \
+    autoconf \
+    automake \
+    gcc \
+    make \
+    libtool \
+    vim \
+    cppunit-devel \
+    fuse \
+    fuse-devel \
+    fuse-libs \
+    lzo-devel \
+    openssl-devel \
+    procps-ng iproute net-tools vim less which lsof curl wget tar \
+  || true
+
+  # yum -y install wget || true
   # 这里不装 scl 相关包，因为 Rocky 8 通常不需要
+
   rm -rf /etc/yum.repos.d/Rocky*
 }
+
 
 # ========== 主流程 ==========
 rm_init_repos() {

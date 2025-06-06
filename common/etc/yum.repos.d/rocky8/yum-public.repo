@@ -22,3 +22,9 @@ baseurl=http://172.20.0.2:8081/repository/rocky8-epel/epel/$releasever/Everythin
 gpgcheck=0
 enabled=1
 
+[rocky-powertools]
+name=Rocky Linux $releasever - PowerTools
+baseurl=http://172.20.0.2:8081/repository/rocky8-mirrors/$releasever/PowerTools/$basearch/os/
+gpgcheck=0
+enabled=1
+
