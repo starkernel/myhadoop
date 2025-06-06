@@ -196,7 +196,7 @@ services:
       - ./common/etc/apt/ubuntu2204/sources.list.d:/etc/apt/sources.list.d
       - ./common/conf:/opt/modules/conf
       - ./common/data/mvn:/root/.m2
-      - ./common/data/rpm-package:/data/rpm-package
+      - ./common/data/deb-package:/data/deb-package
     entrypoint: /scripts/master_ubuntu22.sh
     depends_on:
       nexus:

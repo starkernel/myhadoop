@@ -22,9 +22,9 @@ echo "############## PRE BUILD_AMBARI_ALL start #############"
 
 PROJECT_PATH="/opt/modules/ambari3"   # 你的目标项目路径
 PATCH_SCRIPT="/scripts/util/apply_patch.sh"  # 工具脚本路径
-RPM_PACKAGE="/data/rpm-package/ambari3-apt" # 目标路径
+DEB_PACKAGE="/data/deb-package/ambari3" # 目标路径
 
-mkdir -p $RPM_PACKAGE
+mkdir -p $DEB_PACKAGE
 
 
 cd "$PROJECT_PATH"
