@@ -144,6 +144,7 @@ init_rocky8() {
     gcc gcc-c++ make cmake openssl-devel snappy-devel zlib-devel bzip2-devel \
     libtirpc-devel krb5-devel libxml2-devel protobuf-devel \
     patch which lsof cyrus-sasl-devel\
+    xmlto asciidoc docbook2X \
   || true
 
   # yum -y install wget || true
