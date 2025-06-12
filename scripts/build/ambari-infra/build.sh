@@ -29,6 +29,7 @@ patch_files=(
   "/scripts/build/ambari-infra/patch/patch0-COMPILE-DETAIL.diff"
   "/scripts/build/ambari-infra/patch/patch1-MIRRO-REPLACE.diff"
   "/scripts/build/ambari-infra/patch/patch2-SOLR-COMPILE-FIXED.diff"
+  "/scripts/build/ambari-infra/patch/patch3-SOLR-PLUGIN-FIXED.diff"
 )
 PROJECT_PATH="/opt/modules/ambari-infra"
 RPM_PACKAGE="/data/rpm-package/ambari-infra"
