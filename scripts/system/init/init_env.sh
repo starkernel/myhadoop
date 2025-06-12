@@ -118,33 +118,49 @@ init_rocky8() {
   echo "执行 Rocky 8 初始化脚本"
 
   dnf -y install \
-    openssh-server \
-    passwd \
-    sudo \
-    net-tools \
-    unzip \
-    wget \
-    git \
-    patch \
-    rpm-build \
-    python3 \
-    autoconf \
-    automake \
-    gcc \
-    make \
-    libtool \
-    vim \
-    cppunit-devel \
-    fuse \
-    fuse-devel \
-    fuse-libs \
-    lzo-devel \
-    openssl-devel \
-    procps-ng iproute net-tools vim less which lsof curl wget tar \
-    gcc gcc-c++ make cmake openssl-devel snappy-devel zlib-devel bzip2-devel \
-    libtirpc-devel krb5-devel libxml2-devel protobuf-devel \
-    patch which lsof cyrus-sasl-devel\
-    xmlto asciidoc docbook2X \
+      asciidoc \
+      autoconf \
+      automake \
+      bzip2-devel \
+      cmake \
+      cppunit-devel \
+      cyrus-sasl-devel \
+      curl \
+      docbook2X \
+      fuse \
+      fuse-devel \
+      fuse-libs \
+      gcc \
+      gcc-c++ \
+      git \
+      iproute \
+      krb5-devel \
+      less \
+      libtirpc-devel \
+      libtool \
+      libxml2-devel \
+      lsof \
+      lzo-devel \
+      make \
+      net-tools \
+      openssh-server \
+      openssl-devel \
+      patch \
+      procps-ng \
+      protobuf-devel \
+      python3 \
+      redhat-lsb-core \
+      rpm-build \
+      rsync \
+      snappy-devel \
+      sudo \
+      tar \
+      unzip \
+      vim \
+      wget \
+      which \
+      xmlto \
+      zlib-devel \
   || true
 
   # yum -y install wget || true
