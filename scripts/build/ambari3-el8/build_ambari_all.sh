@@ -29,6 +29,7 @@ rm -rf "$PROJECT_PATH"/* && git checkout .
 
 patch_files=(
   "/scripts/build/ambari3-el8/patch2_0_0/patch0-ALL-IN-ONE.diff"
+  "/scripts/build/ambari3-el8/patch2_0_0/patch1-START-LOGBACK-LOGGER.diff"
   # 后续可继续添加补丁文件路径
 )
 
