@@ -28,8 +28,7 @@ cd "$PROJECT_PATH"
 rm -rf "$PROJECT_PATH"/* && git checkout .
 
 patch_files=(
-  "/scripts/build/ambari3-el8/patch2_0_0/patch0-COMPONENT-VERSION-UPGRADE.diff"
-  "/scripts/build/ambari3-el8/patch2_0_0/patch1-COMPONENT-RPM-BAN.diff"
+  "/scripts/build/ambari3-el8/patch2_0_0/patch0-ALL-IN-ONE.diff"
   # 后续可继续添加补丁文件路径
 )
 
@@ -44,14 +43,11 @@ export PATH=$JAVA_HOME/bin:$PATH
 
 java -version
 
-mvn -T 16 -B  install \
-package \
+mvn package install \
 rpm:rpm \
 -Drat.skip=true \
 -Dcheckstyle.skip=true \
--DskipTests \
--Dspotbugs.skip=true \
--Preplaceurl
+-DskipTests
 
 
 
