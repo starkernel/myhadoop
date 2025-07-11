@@ -75,7 +75,9 @@ init_ubuntu22() {
     dh-make \
     lintian \
     fakeroot \
-    locales
+    locales \
+    libcppunit-dev pkg-config m4 autoconf-archive \
+    liblzo2-dev libzip-dev sharutils libfuse-dev
   rm -rf /var/lib/apt/lists/*
 }
 
