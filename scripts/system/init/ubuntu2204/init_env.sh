@@ -68,8 +68,14 @@ init_ubuntu22() {
     protobuf-compiler \
     python3 \
     python3-pip \
-    tar
-
+    tar \
+    debhelper \
+    devscripts \
+    build-essential \
+    dh-make \
+    lintian \
+    fakeroot \
+    locales
   rm -rf /var/lib/apt/lists/*
 }
 

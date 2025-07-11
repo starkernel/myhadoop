@@ -1,0 +1,156 @@
+Subject: [PATCH] feature: 增加logback 日志
+---
+Index: ambari-server/conf/unix/logback.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/conf/unix/logback.xml b/ambari-server/conf/unix/logback.xml
+new file mode 100644
+--- /dev/null	(revision f85547ff162dec0ea8c5d1c0fe14ec36621c06bc)
++++ b/ambari-server/conf/unix/logback.xml	(revision f85547ff162dec0ea8c5d1c0fe14ec36621c06bc)
+@@ -0,0 +1,123 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<configuration>
++
++    <!-- 日志路径变量 -->
++    <property name="AMBARI_LOG_DIR" value="/var/log/ambari-server"/>
++    <property name="AMBARI_LOG_FILE" value="${AMBARI_LOG_DIR}/ambari-server.log"/>
++    <property name="CONFIG_CHANGES_FILE" value="${AMBARI_LOG_DIR}/ambari-config-changes.log"/>
++    <property name="ALERTS_FILE" value="${AMBARI_LOG_DIR}/ambari-alerts.log"/>
++    <property name="ECLIPSELINK_FILE" value="${AMBARI_LOG_DIR}/ambari-eclipselink.log"/>
++    <property name="AUDIT_FILE" value="${AMBARI_LOG_DIR}/ambari-audit.log"/>
++    <property name="DBCHECK_FILE" value="${AMBARI_LOG_DIR}/ambari-server-check-database.log"/>
++
++    <!-- 主日志文件：每天一个文件，保留60天 -->
++    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
++        <file>${AMBARI_LOG_FILE}</file>
++        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
++            <fileNamePattern>${AMBARI_LOG_FILE}.%d{yyyy-MM-dd}.gz</fileNamePattern>
++            <maxHistory>60</maxHistory>
++        </rollingPolicy>
++        <encoder>
++            <pattern>%date{ISO8601} %-5level [%thread] %logger{36}:%line - %msg%n</pattern>
++        </encoder>
++    </appender>
++
++    <!-- 配置变更日志：每天一个文件，保留30天 -->
++    <appender name="CONFIGCHANGE" class="ch.qos.logback.core.rolling.RollingFileAppender">
++        <file>${CONFIG_CHANGES_FILE}</file>
++        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
++            <fileNamePattern>${CONFIG_CHANGES_FILE}.%d{yyyy-MM-dd}.gz</fileNamePattern>
++            <maxHistory>30</maxHistory>
++        </rollingPolicy>
++        <encoder>
++            <pattern>%date{ISO8601} %-5level - %msg%n</pattern>
++        </encoder>
++    </appender>
++
++    <!-- 告警日志：每天一个文件，保留30天 -->
++    <appender name="ALERTS" class="ch.qos.logback.core.rolling.RollingFileAppender">
++        <file>${ALERTS_FILE}</file>
++        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
++            <fileNamePattern>${ALERTS_FILE}.%d{yyyy-MM-dd}.gz</fileNamePattern>
++            <maxHistory>30</maxHistory>
++        </rollingPolicy>
++        <encoder>
++            <pattern>%date{ISO8601} %msg%n</pattern>
++        </encoder>
++    </appender>
++
++    <!-- 数据库检查日志：每天一个文件，保留30天 -->
++    <appender name="DBCHECK" class="ch.qos.logback.core.rolling.RollingFileAppender">
++        <file>${DBCHECK_FILE}</file>
++        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
++            <fileNamePattern>${DBCHECK_FILE}.%d{yyyy-MM-dd}.gz</fileNamePattern>
++            <maxHistory>30</maxHistory>
++        </rollingPolicy>
++        <encoder>
++            <pattern>%date{ISO8601} %-5level - %msg%n</pattern>
++        </encoder>
++    </appender>
++
++    <!-- EclipseLink 日志：每天一个文件，保留10天 -->
++    <appender name="ECLIPSELINK" class="ch.qos.logback.core.rolling.RollingFileAppender">
++        <file>${ECLIPSELINK_FILE}</file>
++        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
++            <fileNamePattern>${ECLIPSELINK_FILE}.%d{yyyy-MM-dd}.gz</fileNamePattern>
++            <maxHistory>10</maxHistory>
++        </rollingPolicy>
++        <encoder>
++            <pattern>%msg%n</pattern>
++        </encoder>
++    </appender>
++
++    <!-- 审计日志：每天一个文件，保留13天 -->
++    <appender name="AUDIT" class="ch.qos.logback.core.rolling.RollingFileAppender">
++        <file>${AUDIT_FILE}</file>
++        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
++            <fileNamePattern>${AUDIT_FILE}.%d{yyyy-MM-dd}.gz</fileNamePattern>
++            <maxHistory>13</maxHistory>
++        </rollingPolicy>
++        <encoder>
++            <pattern>%msg%n</pattern>
++        </encoder>
++    </appender>
++
++    <!-- 主日志级别，默认只保留INFO及以上 -->
++    <root level="INFO">
++        <appender-ref ref="FILE"/>
++    </root>
++
++    <!-- 特殊分类日志分别单独输出 -->
++    <logger name="configchange" level="INFO" additivity="false">
++        <appender-ref ref="CONFIGCHANGE"/>
++    </logger>
++    <logger name="alerts" level="INFO" additivity="false">
++        <appender-ref ref="ALERTS"/>
++    </logger>
++    <logger name="org.apache.ambari.server.checks.DatabaseConsistencyChecker" level="INFO" additivity="false">
++        <appender-ref ref="DBCHECK"/>
++    </logger>
++    <logger name="org.apache.ambari.server.checks.DatabaseConsistencyCheckHelper" level="INFO" additivity="false">
++        <appender-ref ref="DBCHECK"/>
++    </logger>
++    <logger name="eclipselink" level="INFO" additivity="false">
++        <appender-ref ref="ECLIPSELINK"/>
++    </logger>
++    <logger name="audit" level="INFO" additivity="false">
++        <appender-ref ref="AUDIT"/>
++    </logger>
++
++    <!-- Jetty、Jersey 相关日志只输出 WARN 及以上 -->
++    <logger name="org.eclipse.jetty" level="WARN"/>
++    <logger name="com.sun.jersey" level="WARN"/>
++    <logger name="org.glassfish.jersey" level="WARN"/>
++    <logger name="org.apache.hadoop.yarn.client" level="WARN"/>
++    <logger name="org.apache.ambari.server.security.authorization" level="WARN"/>
++    <logger name="org.apache.ambari.server.security.authorization.AuthorizationHelper" level="INFO"/>
++    <logger name="org.apache.ambari.server.security.authorization.AmbariLdapBindAuthenticator" level="INFO"/>
++
++    <!-- 如需调试，可把上面level设为DEBUG，但生产建议INFO/WARN -->
++    <logger name="org.apache.ambari.server" level="INFO" additivity="true">
++        <appender-ref ref="FILE"/>
++    </logger>
++</configuration>
+Index: ambari-server/src/main/assemblies/server.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/assemblies/server.xml b/ambari-server/src/main/assemblies/server.xml
+--- a/ambari-server/src/main/assemblies/server.xml	(revision b58e24235f5bbdfbe10a8ae8ad9d1a1108fd5d57)
++++ b/ambari-server/src/main/assemblies/server.xml	(revision f85547ff162dec0ea8c5d1c0fe14ec36621c06bc)
+@@ -289,6 +289,12 @@
+     </file>
+     <file>
+       <fileMode>755</fileMode>
++      <!--增加logback日志-->
++      <source>conf/unix/logback.xml</source>
++      <outputDirectory>/etc/ambari-server/conf</outputDirectory>
++    </file>
++    <file>
++      <fileMode>755</fileMode>
+       <source>conf/unix/metrics.properties</source>
+       <outputDirectory>/etc/ambari-server/conf</outputDirectory>
+     </file>
