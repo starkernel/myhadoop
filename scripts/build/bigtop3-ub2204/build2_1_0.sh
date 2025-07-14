@@ -60,6 +60,7 @@ done
 # 定义一个包含所有补丁文件路径的数组
 patch_files=(
   "/scripts/build/bigtop3-ub2204/patch2_1_0/patch0-BASE-FIXED.diff"
+  "/scripts/build/bigtop3-ub2204/patch2_1_0/patch1-HADOOP-DEB-SUP.diff"
 )
 RPM_PACKAGE="/data/deb-package/bigtop"
 

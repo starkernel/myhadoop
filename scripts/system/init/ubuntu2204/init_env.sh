@@ -77,7 +77,8 @@ init_ubuntu22() {
     fakeroot \
     locales \
     libcppunit-dev pkg-config m4 autoconf-archive \
-    liblzo2-dev libzip-dev sharutils libfuse-dev
+    liblzo2-dev libzip-dev sharutils libfuse-dev \
+    libsasl2-dev libgsasl-dev
   rm -rf /var/lib/apt/lists/*
 }
 

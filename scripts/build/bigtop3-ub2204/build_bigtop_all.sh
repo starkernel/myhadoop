@@ -70,15 +70,15 @@ cd "$PROJECT_PATH"
 # 定义所有组件列表，并标注版本历史
 ALL_COMPONENTS=(
   # 1.0.0 版本
-  bigtop-groovy-pkg
-  bigtop-jsvc-pkg
-  bigtop-select-pkg
-  bigtop-utils-pkg
+#  bigtop-groovy-pkg
+#  bigtop-jsvc-pkg
+#  bigtop-select-pkg
+#  bigtop-utils-pkg
 #  zookeeper-pkg
-#  hadoop-rpm
-#  flink-rpm
-#  hbase-rpm
-#  hive-rpm
+#  hadoop-pkg
+  flink-rpm
+  hbase-rpm
+  hive-rpm
 #  kafka-rpm
 #  spark-rpm
 #  solr-rpm
