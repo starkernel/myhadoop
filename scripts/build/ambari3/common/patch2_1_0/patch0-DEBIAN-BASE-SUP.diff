@@ -1,71 +1,164 @@
-Subject: [PATCH] feature: 支持ubuntu22 基础使用
+Subject: [PATCH] feature: 支持ubuntu22
 ---
-Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/PAIMON/metainfo.xml
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HBASE/metainfo.xml
 IDEA additional info:
 Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
 <+>UTF-8
 ===================================================================
-diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/PAIMON/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/PAIMON/metainfo.xml
---- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/PAIMON/metainfo.xml	(revision f85547ff162dec0ea8c5d1c0fe14ec36621c06bc)
-+++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/PAIMON/metainfo.xml	(date 1752754884605)
-@@ -41,10 +41,18 @@
-             </components>
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HBASE/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HBASE/metainfo.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HBASE/metainfo.xml	(revision f85547ff162dec0ea8c5d1c0fe14ec36621c06bc)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HBASE/metainfo.xml	(date 1752755756975)
+@@ -227,6 +227,18 @@
+             </package>
+           </packages>
+         </osSpecific>
++        <osSpecific>
++          <osFamily>ubuntu22</osFamily>
++          <packages>
++            <package>
++              <name>hbase-${stack_version}</name>
++            </package>
++            <package>
++              <name>phoenix-${stack_version}</name>
++              <condition>should_install_phoenix</condition>
++            </package>
++          </packages>
++        </osSpecific>
+       </osSpecifics>
+ 
+       <themes>
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/repos/repoinfo.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/repos/repoinfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/repos/repoinfo.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/repos/repoinfo.xml	(revision f85547ff162dec0ea8c5d1c0fe14ec36621c06bc)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/repos/repoinfo.xml	(date 1752755756972)
+@@ -30,4 +30,11 @@
+       <reponame>bigtop</reponame>
+     </repo>
+   </os>
++  <os family="ubuntu22">
++    <repo>
++      <baseurl>http://your-repo/</baseurl>
++      <repoid>BIGTOP-3.2.0</repoid>
++      <reponame>bigtop</reponame>
++    </repo>
++  </os>
+ </reposinfo>
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/configuration/cluster-env.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/configuration/cluster-env.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/configuration/cluster-env.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/configuration/cluster-env.xml	(revision f85547ff162dec0ea8c5d1c0fe14ec36621c06bc)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/configuration/cluster-env.xml	(date 1752755756971)
+@@ -162,7 +162,8 @@
+     </property>
+     <property>
+         <name>repo_ubuntu_template</name>
+-        <value>{{package_type}} {{base_url}} {{components}}</value>
++<!--        <value>{{package_type}} {{base_url}} {{components}}</value>-->
++        <value>{{package_type}} [trusted=yes] {{base_url}} ./</value>
+         <description>Template of repositories for ubuntu.</description>
+         <on-ambari-upgrade add="true"/>
+     </property>
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/VICTORIAMETRICS/metainfo.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/VICTORIAMETRICS/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/VICTORIAMETRICS/metainfo.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/VICTORIAMETRICS/metainfo.xml	(revision f85547ff162dec0ea8c5d1c0fe14ec36621c06bc)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/VICTORIAMETRICS/metainfo.xml	(date 1752755756984)
+@@ -33,7 +33,7 @@
+ 
              <osSpecifics>
                  <osSpecific>
 -                    <osFamily>any</osFamily>
 +                    <osFamily>redhat7,redhat8</osFamily>
                      <packages>
                          <package>
-                             <name>paimon_${stack_version}</name>
-+                        </package>
-+                    </packages>
-+                </osSpecific>
+                             <name>victoriametrics_${stack_version}</name>
+@@ -41,6 +41,16 @@
+                     </packages>
+                 </osSpecific>
+             </osSpecifics>
++            <osSpecifics>
 +                <osSpecific>
 +                    <osFamily>ubuntu22</osFamily>
 +                    <packages>
 +                        <package>
-+                            <name>paimon-${stack_version}</name>
-                         </package>
-                     </packages>
-                 </osSpecific>
-Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/OZONE/metainfo.xml
++                            <name>victoriametrics-${stack_version}</name>
++                        </package>
++                    </packages>
++                </osSpecific>
++            </osSpecifics>
+ 
+             <quickLinksConfigurations>
+                 <quickLinksConfiguration>
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SOLR/metainfo.xml
 IDEA additional info:
 Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
 <+>UTF-8
 ===================================================================
-diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/OZONE/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/OZONE/metainfo.xml
---- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/OZONE/metainfo.xml	(revision f85547ff162dec0ea8c5d1c0fe14ec36621c06bc)
-+++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/OZONE/metainfo.xml	(date 1752754884623)
-@@ -122,7 +122,7 @@
-
-             <osSpecifics>
-                 <osSpecific>
--                    <osFamily>any</osFamily>
-+                    <osFamily>redhat7,redhat8</osFamily>
-                     <packages>
-                         <package>
-                             <name>ozone_${stack_version}</name>
-@@ -132,6 +132,20 @@
-                         </package>
-                         <package>
-                             <name>snappy-devel</name>
-+                        </package>
-+                    </packages>
-+                </osSpecific>
-+                <osSpecific>
-+                    <osFamily>ubuntu22</osFamily>
-+                    <packages>
-+                        <package>
-+                            <name>ozone-${stack_version}</name>
-+                        </package>
-+                        <package>
-+                            <name>libsnappy1v5</name>
-+                        </package>
-+                        <package>
-+                            <name>libsnappy-dev</name>
-                         </package>
-                     </packages>
-                 </osSpecific>
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SOLR/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SOLR/metainfo.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SOLR/metainfo.xml	(revision f85547ff162dec0ea8c5d1c0fe14ec36621c06bc)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SOLR/metainfo.xml	(date 1752755756981)
+@@ -71,6 +71,14 @@
+             </package>
+           </packages>
+         </osSpecific>
++        <osSpecific>
++          <osFamily>ubuntu22</osFamily>
++          <packages>
++            <package>
++              <name>solr-${stack_version}</name>
++            </package>
++          </packages>
++        </osSpecific>
+       </osSpecifics>
+ 
+       <commandScript>
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ZEPPELIN/metainfo.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ZEPPELIN/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ZEPPELIN/metainfo.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ZEPPELIN/metainfo.xml	(revision f85547ff162dec0ea8c5d1c0fe14ec36621c06bc)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ZEPPELIN/metainfo.xml	(date 1752755756985)
+@@ -72,6 +72,14 @@
+             </package>
+           </packages>
+         </osSpecific>
++        <osSpecific>
++          <osFamily>ubuntu22</osFamily>
++          <packages>
++            <package>
++              <name>zeppelin-${stack_version}</name>
++            </package>
++          </packages>
++        </osSpecific>
+       </osSpecifics>
+ 
+       <commandScript>
+Index: ambari-agent/src/main/package/dependencies.properties
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>ISO-8859-1
+===================================================================
+diff --git a/ambari-agent/src/main/package/dependencies.properties b/ambari-agent/src/main/package/dependencies.properties
+--- a/ambari-agent/src/main/package/dependencies.properties	(revision f85547ff162dec0ea8c5d1c0fe14ec36621c06bc)
++++ b/ambari-agent/src/main/package/dependencies.properties	(date 1752755756971)
+@@ -29,4 +29,4 @@
+ # however should be encouraged manually in pom.xml.
+ 
+ rpm.dependency.list=openssl,\nRequires: python3-rpm,\nRequires: zlib,\nRequires: net-tools,\nRequires: python3-distro
+-deb.dependency.list=openssl, net-tools, python (>= 2.6)
++deb.dependency.list=openssl, net-tools, python3
 Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/NIGHTINGALE/metainfo.xml
 IDEA additional info:
 Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
@@ -73,9 +166,9 @@ Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
 ===================================================================
 diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/NIGHTINGALE/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/NIGHTINGALE/metainfo.xml
 --- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/NIGHTINGALE/metainfo.xml	(revision f85547ff162dec0ea8c5d1c0fe14ec36621c06bc)
-+++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/NIGHTINGALE/metainfo.xml	(date 1752754706850)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/NIGHTINGALE/metainfo.xml	(date 1752755756979)
 @@ -88,13 +88,24 @@
-
+ 
              <osSpecifics>
                  <osSpecific>
 -                    <osFamily>any</osFamily>
@@ -100,15 +193,15 @@ diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/NIGHT
                          </package>
                      </packages>
                  </osSpecific>
-Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/LIVY/metainfo.xml
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/FLINK/metainfo.xml
 IDEA additional info:
 Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
 <+>UTF-8
 ===================================================================
-diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/LIVY/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/LIVY/metainfo.xml
---- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/LIVY/metainfo.xml	(revision f85547ff162dec0ea8c5d1c0fe14ec36621c06bc)
-+++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/LIVY/metainfo.xml	(date 1752754676620)
-@@ -110,6 +110,20 @@
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/FLINK/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/FLINK/metainfo.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/FLINK/metainfo.xml	(revision f85547ff162dec0ea8c5d1c0fe14ec36621c06bc)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/FLINK/metainfo.xml	(date 1752755756975)
+@@ -112,6 +112,14 @@
              </package>
            </packages>
          </osSpecific>
@@ -116,53 +209,123 @@ diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/LIVY/
 +          <osFamily>ubuntu22</osFamily>
 +          <packages>
 +            <package>
-+              <name>spark-${stack_version}-core</name>
-+            </package>
-+            <package>
-+              <name>spark-${stack_version}-python</name>
-+            </package>
-+            <package>
-+              <name>livy-${stack_version}</name>
++              <name>flink-${stack_version}</name>
 +            </package>
 +          </packages>
 +        </osSpecific>
        </osSpecifics>
-
-       <themes>
-Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/KERBEROS/metainfo.xml
+ 
+       <quickLinksConfigurations>
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/YARN/metainfo.xml
 IDEA additional info:
 Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
 <+>UTF-8
 ===================================================================
-diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/KERBEROS/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/KERBEROS/metainfo.xml
---- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/KERBEROS/metainfo.xml	(revision f85547ff162dec0ea8c5d1c0fe14ec36621c06bc)
-+++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/KERBEROS/metainfo.xml	(date 1752754629619)
-@@ -91,7 +91,7 @@
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/YARN/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/YARN/metainfo.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/YARN/metainfo.xml	(revision f85547ff162dec0ea8c5d1c0fe14ec36621c06bc)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/YARN/metainfo.xml	(date 1752755756984)
+@@ -156,6 +156,20 @@
+             </package>
+           </packages>
          </osSpecific>
-
-         <osSpecific>
--          <osFamily>debian7,ubuntu12,ubuntu14,ubuntu16</osFamily>
++        <osSpecific>
 +          <osFamily>ubuntu22</osFamily>
++          <packages>
++            <package>
++              <name>hadoop-${stack_version}-yarn</name>
++            </package>
++            <package>
++              <name>hadoop-${stack_version}-mapreduce</name>
++            </package>
++            <package>
++              <name>hadoop-${stack_version}-hdfs</name>
++            </package>
++          </packages>
++        </osSpecific>
+       </osSpecifics>
+ 
+       <commandScript>
+@@ -294,6 +308,14 @@
            <packages>
              <package>
-               <name>krb5-user</name>
-Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/KAFKA/metainfo.xml
+               <name>hadoop_${stack_version}-mapreduce</name>
++            </package>
++          </packages>
++        </osSpecific>
++        <osSpecific>
++          <osFamily>ubuntu22</osFamily>
++          <packages>
++            <package>
++              <name>hadoop-${stack_version}-mapreduce</name>
+             </package>
+           </packages>
+         </osSpecific>
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TEZ/metainfo.xml
 IDEA additional info:
 Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
 <+>UTF-8
 ===================================================================
-diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/KAFKA/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/KAFKA/metainfo.xml
---- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/KAFKA/metainfo.xml	(revision f85547ff162dec0ea8c5d1c0fe14ec36621c06bc)
-+++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/KAFKA/metainfo.xml	(date 1752742220157)
-@@ -97,7 +97,7 @@
-                     </packages>
-                 </osSpecific>
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TEZ/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TEZ/metainfo.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TEZ/metainfo.xml	(revision f85547ff162dec0ea8c5d1c0fe14ec36621c06bc)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TEZ/metainfo.xml	(date 1752755756983)
+@@ -82,6 +82,14 @@
+             </package>
+           </packages>
+         </osSpecific>
++        <osSpecific>
++          <osFamily>ubuntu22</osFamily>
++          <packages>
++            <package>
++              <name>tez-${stack_version}</name>
++            </package>
++          </packages>
++        </osSpecific>
+       </osSpecifics>
+ 
+       <commandScript>
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/metainfo.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/metainfo.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/metainfo.xml	(revision f85547ff162dec0ea8c5d1c0fe14ec36621c06bc)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/metainfo.xml	(date 1752755756980)
+@@ -143,7 +143,7 @@
+ 
+             <osSpecifics>
                  <osSpecific>
--                    <osFamily>debian7,debian9,ubuntu12,ubuntu14,ubuntu16,ubuntu18</osFamily>
-+                    <osFamily>ubuntu22</osFamily>
+-                    <osFamily>any</osFamily>
++                    <osFamily>redhat7,redhat8</osFamily>
                      <packages>
                          <package>
-                             <name>kafka-${stack_version}</name>
+                             <name>ranger_${stack_version}-admin</name>
+@@ -153,6 +153,25 @@
+                         </package>
+                         <package>
+                             <name>ranger_${stack_version}-tagsync</name>
++                            <condition>should_install_ranger_tagsync</condition>
++                        </package>
++                        <package>
++                            <name>ambari-infra-solr-client</name>
++                            <condition>should_install_infra_solr_client</condition>
++                        </package>
++                    </packages>
++                </osSpecific>
++                <osSpecific>
++                    <osFamily>ubuntu22</osFamily>
++                    <packages>
++                        <package>
++                            <name>ranger-${stack_version}-admin</name>
++                        </package>
++                        <package>
++                            <name>ranger-${stack_version}-usersync</name>
++                        </package>
++                        <package>
++                            <name>ranger-${stack_version}-tagsync</name>
+                             <condition>should_install_ranger_tagsync</condition>
+                         </package>
+                         <package>
 Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/IMPALA/metainfo.xml
 IDEA additional info:
 Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
@@ -170,7 +333,7 @@ Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
 ===================================================================
 diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/IMPALA/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/IMPALA/metainfo.xml
 --- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/IMPALA/metainfo.xml	(revision f85547ff162dec0ea8c5d1c0fe14ec36621c06bc)
-+++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/IMPALA/metainfo.xml	(date 1752754577407)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/IMPALA/metainfo.xml	(date 1752755756977)
 @@ -55,7 +55,7 @@
              </components>
              <osSpecifics>
@@ -204,174 +367,66 @@ diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/IMPAL
                          </package>
                      </packages>
                  </osSpecific>
-Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HIVE/metainfo.xml
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/KAFKA/metainfo.xml
 IDEA additional info:
 Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
 <+>UTF-8
 ===================================================================
-diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HIVE/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HIVE/metainfo.xml
---- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HIVE/metainfo.xml	(revision f85547ff162dec0ea8c5d1c0fe14ec36621c06bc)
-+++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HIVE/metainfo.xml	(date 1752754428911)
-@@ -299,6 +299,25 @@
-             </package>
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/KAFKA/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/KAFKA/metainfo.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/KAFKA/metainfo.xml	(revision f85547ff162dec0ea8c5d1c0fe14ec36621c06bc)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/KAFKA/metainfo.xml	(date 1752755756978)
+@@ -97,7 +97,7 @@
+                     </packages>
+                 </osSpecific>
+                 <osSpecific>
+-                    <osFamily>debian7,debian9,ubuntu12,ubuntu14,ubuntu16,ubuntu18</osFamily>
++                    <osFamily>ubuntu22</osFamily>
+                     <packages>
+                         <package>
+                             <name>kafka-${stack_version}</name>
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SUPERSET/metainfo.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SUPERSET/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SUPERSET/metainfo.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SUPERSET/metainfo.xml	(revision f85547ff162dec0ea8c5d1c0fe14ec36621c06bc)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SUPERSET/metainfo.xml	(date 1752755756983)
+@@ -62,7 +62,7 @@
            </packages>
          </osSpecific>
-+        <osSpecific>
+         <osSpecific>
+-          <osFamily>debian7,ubuntu12,ubuntu14,ubuntu16</osFamily>
 +          <osFamily>ubuntu22</osFamily>
-+          <packages>
-+            <package>
-+              <name>hive-${stack_version}</name>
-+            </package>
-+            <package>
-+              <name>hive-${stack_version}-hcatalog</name>
-+            </package>
-+            <package>
-+              <name>hive-${stack_version}-webhcat</name>
-+            </package>
-+            <package>
-+              <name>mariadb-server</name>
-+              <skipUpgrade>true</skipUpgrade>
-+              <condition>should_install_mysql</condition>
-+            </package>
-+          </packages>
-+        </osSpecific>
-       </osSpecifics>
-
-       <commandScript>
-Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HDFS/metainfo.xml
+           <packages>
+             <package>
+               <name>superset-${stack_version}</name>
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ATLAS/metainfo.xml
 IDEA additional info:
 Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
 <+>UTF-8
 ===================================================================
-diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HDFS/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HDFS/metainfo.xml
---- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HDFS/metainfo.xml	(revision f85547ff162dec0ea8c5d1c0fe14ec36621c06bc)
-+++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HDFS/metainfo.xml	(date 1752754428891)
-@@ -299,6 +299,29 @@
-             </package>
-           </packages>
-         </osSpecific>
-+        <osSpecific>
-+          <osFamily>ubuntu22</osFamily>
-+          <packages>
-+            <package>
-+              <name>hadoop-${stack_version}</name>
-+            </package>
-+            <package>
-+              <name>hadoop-${stack_version}-client</name>
-+            </package>
-+            <package>
-+              <name>snappy</name>
-+            </package>
-+            <package>
-+              <name>libsnappy-dev</name>
-+            </package>
-+            <package>
-+              <name>hadoop-${stack_version}-libhdfs</name>
-+            </package>
-+            <package>
-+              <name>libtirpc-dev</name>
-+            </package>
-+          </packages>
-+        </osSpecific>
-       </osSpecifics>
-
-
-Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HBASE/metainfo.xml
-IDEA additional info:
-Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
-<+>UTF-8
-===================================================================
-diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HBASE/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HBASE/metainfo.xml
---- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HBASE/metainfo.xml	(revision f85547ff162dec0ea8c5d1c0fe14ec36621c06bc)
-+++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HBASE/metainfo.xml	(date 1752754166367)
-@@ -227,6 +227,18 @@
-             </package>
-           </packages>
-         </osSpecific>
-+        <osSpecific>
-+          <osFamily>ubuntu22</osFamily>
-+          <packages>
-+            <package>
-+              <name>hbase-${stack_version}</name>
-+            </package>
-+            <package>
-+              <name>phoenix-${stack_version}</name>
-+              <condition>should_install_phoenix</condition>
-+            </package>
-+          </packages>
-+        </osSpecific>
-       </osSpecifics>
-
-       <themes>
-Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/configuration/cluster-env.xml
-IDEA additional info:
-Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
-<+>UTF-8
-===================================================================
-diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/configuration/cluster-env.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/configuration/cluster-env.xml
---- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/configuration/cluster-env.xml	(revision f85547ff162dec0ea8c5d1c0fe14ec36621c06bc)
-+++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/configuration/cluster-env.xml	(date 1752742155191)
-@@ -162,7 +162,8 @@
-     </property>
-     <property>
-         <name>repo_ubuntu_template</name>
--        <value>{{package_type}} {{base_url}} {{components}}</value>
-+<!--        <value>{{package_type}} {{base_url}} {{components}}</value>-->
-+        <value>{{package_type}} [trusted=yes] {{base_url}} ./</value>
-         <description>Template of repositories for ubuntu.</description>
-         <on-ambari-upgrade add="true"/>
-     </property>
-Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/FLINK/metainfo.xml
-IDEA additional info:
-Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
-<+>UTF-8
-===================================================================
-diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/FLINK/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/FLINK/metainfo.xml
---- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/FLINK/metainfo.xml	(revision f85547ff162dec0ea8c5d1c0fe14ec36621c06bc)
-+++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/FLINK/metainfo.xml	(date 1752754066431)
-@@ -112,6 +112,14 @@
-             </package>
-           </packages>
-         </osSpecific>
-+        <osSpecific>
-+          <osFamily>ubuntu22</osFamily>
-+          <packages>
-+            <package>
-+              <name>flink-${stack_version}</name>
-+            </package>
-+          </packages>
-+        </osSpecific>
-       </osSpecifics>
-
-       <quickLinksConfigurations>
-Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUDI/metainfo.xml
-IDEA additional info:
-Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
-<+>UTF-8
-===================================================================
-diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUDI/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUDI/metainfo.xml
---- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUDI/metainfo.xml	(revision f85547ff162dec0ea8c5d1c0fe14ec36621c06bc)
-+++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUDI/metainfo.xml	(date 1752754499852)
-@@ -41,10 +41,18 @@
-             </components>
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ATLAS/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ATLAS/metainfo.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ATLAS/metainfo.xml	(revision f85547ff162dec0ea8c5d1c0fe14ec36621c06bc)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ATLAS/metainfo.xml	(date 1752755756973)
+@@ -153,7 +153,7 @@
+ 
              <osSpecifics>
                  <osSpecific>
--                    <osFamily>any</osFamily>
+-                    <osFamily>redhat7</osFamily>
 +                    <osFamily>redhat7,redhat8</osFamily>
                      <packages>
                          <package>
-                             <name>hudi_${stack_version}</name>
-+                        </package>
-+                    </packages>
-+                </osSpecific>
-+                <osSpecific>
-+                    <osFamily>ubuntu22</osFamily>
-+                    <packages>
-+                        <package>
-+                            <name>hudi-${stack_version}</name>
-                         </package>
+                             <name>atlas_${stack_version}</name>
+@@ -192,7 +192,7 @@
                      </packages>
                  </osSpecific>
+                 <osSpecific>
+-                    <osFamily>debian7,debian9,ubuntu12,ubuntu14,ubuntu16,ubuntu18</osFamily>
++                    <osFamily>ubuntu22</osFamily>
+                     <packages>
+                         <package>
+                             <name>atlas-${stack_version}</name>
 Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/DORIS/metainfo.xml
 IDEA additional info:
 Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
@@ -379,9 +434,9 @@ Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
 ===================================================================
 diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/DORIS/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/DORIS/metainfo.xml
 --- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/DORIS/metainfo.xml	(revision f85547ff162dec0ea8c5d1c0fe14ec36621c06bc)
-+++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/DORIS/metainfo.xml	(date 1752754037565)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/DORIS/metainfo.xml	(date 1752755756974)
 @@ -110,7 +110,7 @@
-
+ 	  
              <osSpecifics>
                  <osSpecific>
 -                    <osFamily>any</osFamily>
@@ -417,9 +472,9 @@ Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
 ===================================================================
 diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/DOLPHINSCHEDULER/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/DOLPHINSCHEDULER/metainfo.xml
 --- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/DOLPHINSCHEDULER/metainfo.xml	(revision f85547ff162dec0ea8c5d1c0fe14ec36621c06bc)
-+++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/DOLPHINSCHEDULER/metainfo.xml	(date 1752753968742)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/DOLPHINSCHEDULER/metainfo.xml	(date 1752755756974)
 @@ -92,10 +92,18 @@
-
+ 
              <osSpecifics>
                  <osSpecific>
 -                    <osFamily>any</osFamily>
@@ -438,15 +493,15 @@ diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/DOLPH
                          </package>
                      </packages>
                  </osSpecific>
-Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/CLOUDBEAVER/metainfo.xml
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/LIVY/metainfo.xml
 IDEA additional info:
 Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
 <+>UTF-8
 ===================================================================
-diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/CLOUDBEAVER/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/CLOUDBEAVER/metainfo.xml
---- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/CLOUDBEAVER/metainfo.xml	(revision f85547ff162dec0ea8c5d1c0fe14ec36621c06bc)
-+++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/CLOUDBEAVER/metainfo.xml	(date 1752753929870)
-@@ -70,6 +70,14 @@
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/LIVY/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/LIVY/metainfo.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/LIVY/metainfo.xml	(revision f85547ff162dec0ea8c5d1c0fe14ec36621c06bc)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/LIVY/metainfo.xml	(date 1752755756979)
+@@ -110,6 +110,20 @@
              </package>
            </packages>
          </osSpecific>
@@ -454,36 +509,19 @@ diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/CLOUD
 +          <osFamily>ubuntu22</osFamily>
 +          <packages>
 +            <package>
-+              <name>cloudbeaver-${stack_version}</name>
++              <name>spark-${stack_version}-core</name>
 +            </package>
-+          </packages>
-+        </osSpecific>
-       </osSpecifics>
-
-       <quickLinksConfigurations>
-Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ZOOKEEPER/metainfo.xml
-IDEA additional info:
-Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
-<+>UTF-8
-===================================================================
-diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ZOOKEEPER/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ZOOKEEPER/metainfo.xml
---- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ZOOKEEPER/metainfo.xml	(revision f85547ff162dec0ea8c5d1c0fe14ec36621c06bc)
-+++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ZOOKEEPER/metainfo.xml	(date 1752739675970)
-@@ -86,6 +86,14 @@
-             </package>
-           </packages>
-         </osSpecific>
-+        <osSpecific>
-+          <osFamily>ubuntu22</osFamily>
-+          <packages>
 +            <package>
-+              <name>zookeeper-${stack_version}</name>
++              <name>spark-${stack_version}-python</name>
++            </package>
++            <package>
++              <name>livy-${stack_version}</name>
 +            </package>
 +          </packages>
 +        </osSpecific>
        </osSpecifics>
-
-       <commandScript>
+ 
+       <themes>
 Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/CELEBORN/metainfo.xml
 IDEA additional info:
 Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
@@ -491,9 +529,9 @@ Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
 ===================================================================
 diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/CELEBORN/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/CELEBORN/metainfo.xml
 --- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/CELEBORN/metainfo.xml	(revision f85547ff162dec0ea8c5d1c0fe14ec36621c06bc)
-+++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/CELEBORN/metainfo.xml	(date 1752753901500)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/CELEBORN/metainfo.xml	(date 1752755756973)
 @@ -101,10 +101,18 @@
-
+ 
        <osSpecifics>
          <osSpecific>
 -          <osFamily>any</osFamily>
@@ -512,176 +550,74 @@ diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/CELEB
              </package>
            </packages>
          </osSpecific>
-Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ATLAS/metainfo.xml
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/REDIS/metainfo.xml
 IDEA additional info:
 Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
 <+>UTF-8
 ===================================================================
-diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ATLAS/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ATLAS/metainfo.xml
---- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ATLAS/metainfo.xml	(revision f85547ff162dec0ea8c5d1c0fe14ec36621c06bc)
-+++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ATLAS/metainfo.xml	(date 1752753901480)
-@@ -153,7 +153,7 @@
-
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/REDIS/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/REDIS/metainfo.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/REDIS/metainfo.xml	(revision f85547ff162dec0ea8c5d1c0fe14ec36621c06bc)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/REDIS/metainfo.xml	(date 1752755756981)
+@@ -84,10 +84,18 @@
+             <!-- 操作系统相关 -->
              <osSpecifics>
                  <osSpecific>
--                    <osFamily>redhat7</osFamily>
-+                    <osFamily>redhat7,redhat8</osFamily>
+-                    <osFamily>any</osFamily> <!-- 支持任何操作系统 -->
++                    <osFamily>redhat7,redhat8</osFamily> <!-- 支持任何操作系统 -->
                      <packages>
                          <package>
-                             <name>atlas_${stack_version}</name>
-@@ -192,7 +192,7 @@
+                             <name>redis_${stack_version}</name>
++                        </package>
++                    </packages>
++                </osSpecific>
++                <osSpecific>
++                    <osFamily>ubuntu22</osFamily> <!-- 支持任何操作系统 -->
++                    <packages>
++                        <package>
++                            <name>redis-${stack_version}</name>
+                         </package>
                      </packages>
                  </osSpecific>
-                 <osSpecific>
--                    <osFamily>debian7,debian9,ubuntu12,ubuntu14,ubuntu16,ubuntu18</osFamily>
-+                    <osFamily>ubuntu22</osFamily>
-                     <packages>
-                         <package>
-                             <name>atlas-${stack_version}</name>
-Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ZEPPELIN/metainfo.xml
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/KERBEROS/metainfo.xml
 IDEA additional info:
 Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
 <+>UTF-8
 ===================================================================
-diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ZEPPELIN/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ZEPPELIN/metainfo.xml
---- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ZEPPELIN/metainfo.xml	(revision f85547ff162dec0ea8c5d1c0fe14ec36621c06bc)
-+++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ZEPPELIN/metainfo.xml	(date 1752755156599)
-@@ -72,6 +72,14 @@
-             </package>
-           </packages>
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/KERBEROS/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/KERBEROS/metainfo.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/KERBEROS/metainfo.xml	(revision f85547ff162dec0ea8c5d1c0fe14ec36621c06bc)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/KERBEROS/metainfo.xml	(date 1752755756978)
+@@ -91,7 +91,7 @@
          </osSpecific>
-+        <osSpecific>
+ 
+         <osSpecific>
+-          <osFamily>debian7,ubuntu12,ubuntu14,ubuntu16</osFamily>
 +          <osFamily>ubuntu22</osFamily>
-+          <packages>
-+            <package>
-+              <name>zeppelin-${stack_version}</name>
-+            </package>
-+          </packages>
-+        </osSpecific>
-       </osSpecifics>
-
-       <commandScript>
-Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/YARN/metainfo.xml
-IDEA additional info:
-Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
-<+>UTF-8
-===================================================================
-diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/YARN/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/YARN/metainfo.xml
---- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/YARN/metainfo.xml	(revision f85547ff162dec0ea8c5d1c0fe14ec36621c06bc)
-+++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/YARN/metainfo.xml	(date 1752755117114)
-@@ -156,6 +156,20 @@
-             </package>
-           </packages>
-         </osSpecific>
-+        <osSpecific>
-+          <osFamily>ubuntu22</osFamily>
-+          <packages>
-+            <package>
-+              <name>hadoop-${stack_version}-yarn</name>
-+            </package>
-+            <package>
-+              <name>hadoop-${stack_version}-mapreduce</name>
-+            </package>
-+            <package>
-+              <name>hadoop-${stack_version}-hdfs</name>
-+            </package>
-+          </packages>
-+        </osSpecific>
-       </osSpecifics>
-
-       <commandScript>
-@@ -294,6 +308,14 @@
            <packages>
              <package>
-               <name>hadoop_${stack_version}-mapreduce</name>
-+            </package>
-+          </packages>
-+        </osSpecific>
+               <name>krb5-user</name>
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ZOOKEEPER/metainfo.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ZOOKEEPER/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ZOOKEEPER/metainfo.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ZOOKEEPER/metainfo.xml	(revision f85547ff162dec0ea8c5d1c0fe14ec36621c06bc)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ZOOKEEPER/metainfo.xml	(date 1752755756985)
+@@ -86,6 +86,14 @@
+             </package>
+           </packages>
+         </osSpecific>
 +        <osSpecific>
 +          <osFamily>ubuntu22</osFamily>
 +          <packages>
 +            <package>
-+              <name>hadoop-${stack_version}-mapreduce</name>
-             </package>
-           </packages>
-         </osSpecific>
-Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/VICTORIAMETRICS/metainfo.xml
-IDEA additional info:
-Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
-<+>UTF-8
-===================================================================
-diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/VICTORIAMETRICS/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/VICTORIAMETRICS/metainfo.xml
---- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/VICTORIAMETRICS/metainfo.xml	(revision f85547ff162dec0ea8c5d1c0fe14ec36621c06bc)
-+++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/VICTORIAMETRICS/metainfo.xml	(date 1752755050116)
-@@ -33,7 +33,7 @@
-
-             <osSpecifics>
-                 <osSpecific>
--                    <osFamily>any</osFamily>
-+                    <osFamily>redhat7,redhat8</osFamily>
-                     <packages>
-                         <package>
-                             <name>victoriametrics_${stack_version}</name>
-@@ -41,6 +41,16 @@
-                     </packages>
-                 </osSpecific>
-             </osSpecifics>
-+            <osSpecifics>
-+                <osSpecific>
-+                    <osFamily>ubuntu22</osFamily>
-+                    <packages>
-+                        <package>
-+                            <name>victoriametrics-${stack_version}</name>
-+                        </package>
-+                    </packages>
-+                </osSpecific>
-+            </osSpecifics>
-
-             <quickLinksConfigurations>
-                 <quickLinksConfiguration>
-Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/metainfo.xml
-IDEA additional info:
-Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
-<+>UTF-8
-===================================================================
-diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/metainfo.xml
---- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/metainfo.xml	(revision f85547ff162dec0ea8c5d1c0fe14ec36621c06bc)
-+++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/metainfo.xml	(date 1752754884617)
-@@ -143,7 +143,7 @@
-
-             <osSpecifics>
-                 <osSpecific>
--                    <osFamily>any</osFamily>
-+                    <osFamily>redhat7,redhat8</osFamily>
-                     <packages>
-                         <package>
-                             <name>ranger_${stack_version}-admin</name>
-@@ -153,6 +153,25 @@
-                         </package>
-                         <package>
-                             <name>ranger_${stack_version}-tagsync</name>
-+                            <condition>should_install_ranger_tagsync</condition>
-+                        </package>
-+                        <package>
-+                            <name>ambari-infra-solr-client</name>
-+                            <condition>should_install_infra_solr_client</condition>
-+                        </package>
-+                    </packages>
-+                </osSpecific>
-+                <osSpecific>
-+                    <osFamily>ubuntu22</osFamily>
-+                    <packages>
-+                        <package>
-+                            <name>ranger-${stack_version}-admin</name>
-+                        </package>
-+                        <package>
-+                            <name>ranger-${stack_version}-usersync</name>
-+                        </package>
-+                        <package>
-+                            <name>ranger-${stack_version}-tagsync</name>
-                             <condition>should_install_ranger_tagsync</condition>
-                         </package>
-                         <package>
++              <name>zookeeper-${stack_version}</name>
++            </package>
++          </packages>
++        </osSpecific>
+       </osSpecifics>
+ 
+       <commandScript>
 Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TRINO/metainfo.xml
 IDEA additional info:
 Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
@@ -689,9 +625,9 @@ Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
 ===================================================================
 diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TRINO/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TRINO/metainfo.xml
 --- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TRINO/metainfo.xml	(revision f85547ff162dec0ea8c5d1c0fe14ec36621c06bc)
-+++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TRINO/metainfo.xml	(date 1752755050125)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TRINO/metainfo.xml	(date 1752755756983)
 @@ -91,13 +91,27 @@
-
+ 
        <osSpecifics>
          <osSpecific>
 -          <osFamily>any</osFamily>
@@ -719,49 +655,15 @@ diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TRINO
              </package>
  			<package>
                <name>httpd-tools</name>
-Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/repos/repoinfo.xml
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HDFS/metainfo.xml
 IDEA additional info:
 Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
 <+>UTF-8
 ===================================================================
-diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/repos/repoinfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/repos/repoinfo.xml
---- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/repos/repoinfo.xml	(revision f85547ff162dec0ea8c5d1c0fe14ec36621c06bc)
-+++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/repos/repoinfo.xml	(date 1752721408885)
-@@ -30,4 +30,11 @@
-       <reponame>bigtop</reponame>
-     </repo>
-   </os>
-+  <os family="ubuntu22">
-+    <repo>
-+      <baseurl>http://your-repo/</baseurl>
-+      <repoid>BIGTOP-3.2.0</repoid>
-+      <reponame>bigtop</reponame>
-+    </repo>
-+  </os>
- </reposinfo>
-Index: ambari-agent/src/main/package/dependencies.properties
-IDEA additional info:
-Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
-<+>ISO-8859-1
-===================================================================
-diff --git a/ambari-agent/src/main/package/dependencies.properties b/ambari-agent/src/main/package/dependencies.properties
---- a/ambari-agent/src/main/package/dependencies.properties	(revision f85547ff162dec0ea8c5d1c0fe14ec36621c06bc)
-+++ b/ambari-agent/src/main/package/dependencies.properties	(date 1752717355400)
-@@ -29,4 +29,4 @@
- # however should be encouraged manually in pom.xml.
-
- rpm.dependency.list=openssl,\nRequires: python3-rpm,\nRequires: zlib,\nRequires: net-tools,\nRequires: python3-distro
--deb.dependency.list=openssl, net-tools, python (>= 2.6)
-+deb.dependency.list=openssl, net-tools, python3
-Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TEZ/metainfo.xml
-IDEA additional info:
-Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
-<+>UTF-8
-===================================================================
-diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TEZ/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TEZ/metainfo.xml
---- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TEZ/metainfo.xml	(revision f85547ff162dec0ea8c5d1c0fe14ec36621c06bc)
-+++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TEZ/metainfo.xml	(date 1752755050164)
-@@ -82,6 +82,14 @@
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HDFS/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HDFS/metainfo.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HDFS/metainfo.xml	(revision f85547ff162dec0ea8c5d1c0fe14ec36621c06bc)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HDFS/metainfo.xml	(date 1752755756976)
+@@ -299,6 +299,29 @@
              </package>
            </packages>
          </osSpecific>
@@ -769,58 +671,28 @@ diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TEZ/m
 +          <osFamily>ubuntu22</osFamily>
 +          <packages>
 +            <package>
-+              <name>tez-${stack_version}</name>
++              <name>hadoop-${stack_version}</name>
++            </package>
++            <package>
++              <name>hadoop-${stack_version}-client</name>
++            </package>
++            <package>
++              <name>snappy</name>
++            </package>
++            <package>
++              <name>libsnappy-dev</name>
++            </package>
++            <package>
++              <name>hadoop-${stack_version}-libhdfs</name>
++            </package>
++            <package>
++              <name>libtirpc-dev</name>
 +            </package>
 +          </packages>
 +        </osSpecific>
        </osSpecifics>
-
-       <commandScript>
-Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SUPERSET/metainfo.xml
-IDEA additional info:
-Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
-<+>UTF-8
-===================================================================
-diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SUPERSET/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SUPERSET/metainfo.xml
---- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SUPERSET/metainfo.xml	(revision f85547ff162dec0ea8c5d1c0fe14ec36621c06bc)
-+++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SUPERSET/metainfo.xml	(date 1752755050152)
-@@ -62,7 +62,7 @@
-           </packages>
-         </osSpecific>
-         <osSpecific>
--          <osFamily>debian7,ubuntu12,ubuntu14,ubuntu16</osFamily>
-+          <osFamily>ubuntu22</osFamily>
-           <packages>
-             <package>
-               <name>superset-${stack_version}</name>
-Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SQOOP/metainfo.xml
-IDEA additional info:
-Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
-<+>UTF-8
-===================================================================
-diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SQOOP/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SQOOP/metainfo.xml
---- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SQOOP/metainfo.xml	(revision f85547ff162dec0ea8c5d1c0fe14ec36621c06bc)
-+++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SQOOP/metainfo.xml	(date 1752755050146)
-@@ -68,10 +68,18 @@
-       </components>
-       <osSpecifics>
-         <osSpecific>
--          <osFamily>any</osFamily>
-+          <osFamily>redhat7,redhat8</osFamily>
-           <packages>
-             <package>
-               <name>sqoop_${stack_version}</name>
-+            </package>
-+          </packages>
-+        </osSpecific>
-+        <osSpecific>
-+          <osFamily>ubuntu22</osFamily>
-+          <packages>
-+            <package>
-+              <name>sqoop-${stack_version}</name>
-             </package>
-           </packages>
-         </osSpecific>
+ 
+ 
 Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SPARK/metainfo.xml
 IDEA additional info:
 Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
@@ -828,7 +700,7 @@ Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
 ===================================================================
 diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SPARK/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SPARK/metainfo.xml
 --- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SPARK/metainfo.xml	(revision f85547ff162dec0ea8c5d1c0fe14ec36621c06bc)
-+++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SPARK/metainfo.xml	(date 1752755050101)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SPARK/metainfo.xml	(date 1752755756982)
 @@ -223,6 +223,26 @@
              </package>
            </packages>
@@ -854,17 +726,139 @@ diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SPARK
 +          </packages>
 +        </osSpecific>
        </osSpecifics>
-
+ 
        <quickLinksConfigurations>
-Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SOLR/metainfo.xml
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/OZONE/metainfo.xml
 IDEA additional info:
 Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
 <+>UTF-8
 ===================================================================
-diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SOLR/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SOLR/metainfo.xml
---- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SOLR/metainfo.xml	(revision f85547ff162dec0ea8c5d1c0fe14ec36621c06bc)
-+++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SOLR/metainfo.xml	(date 1752755050085)
-@@ -71,6 +71,14 @@
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/OZONE/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/OZONE/metainfo.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/OZONE/metainfo.xml	(revision f85547ff162dec0ea8c5d1c0fe14ec36621c06bc)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/OZONE/metainfo.xml	(date 1752755756979)
+@@ -122,7 +122,7 @@
+ 
+             <osSpecifics>
+                 <osSpecific>
+-                    <osFamily>any</osFamily>
++                    <osFamily>redhat7,redhat8</osFamily>
+                     <packages>
+                         <package>
+                             <name>ozone_${stack_version}</name>
+@@ -132,6 +132,20 @@
+                         </package>
+                         <package>
+                             <name>snappy-devel</name>
++                        </package>
++                    </packages>
++                </osSpecific>
++                <osSpecific>
++                    <osFamily>ubuntu22</osFamily>
++                    <packages>
++                        <package>
++                            <name>ozone-${stack_version}</name>
++                        </package>
++                        <package>
++                            <name>libsnappy1v5</name>
++                        </package>
++                        <package>
++                            <name>libsnappy-dev</name>
+                         </package>
+                     </packages>
+                 </osSpecific>
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/PAIMON/metainfo.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/PAIMON/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/PAIMON/metainfo.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/PAIMON/metainfo.xml	(revision f85547ff162dec0ea8c5d1c0fe14ec36621c06bc)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/PAIMON/metainfo.xml	(date 1752755756980)
+@@ -41,10 +41,18 @@
+             </components>
+             <osSpecifics>
+                 <osSpecific>
+-                    <osFamily>any</osFamily>
++                    <osFamily>redhat7,redhat8</osFamily>
+                     <packages>
+                         <package>
+                             <name>paimon_${stack_version}</name>
++                        </package>
++                    </packages>
++                </osSpecific>
++                <osSpecific>
++                    <osFamily>ubuntu22</osFamily>
++                    <packages>
++                        <package>
++                            <name>paimon-${stack_version}</name>
+                         </package>
+                     </packages>
+                 </osSpecific>
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SQOOP/metainfo.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SQOOP/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SQOOP/metainfo.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SQOOP/metainfo.xml	(revision f85547ff162dec0ea8c5d1c0fe14ec36621c06bc)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SQOOP/metainfo.xml	(date 1752755756982)
+@@ -68,10 +68,18 @@
+       </components>
+       <osSpecifics>
+         <osSpecific>
+-          <osFamily>any</osFamily>
++          <osFamily>redhat7,redhat8</osFamily>
+           <packages>
+             <package>
+               <name>sqoop_${stack_version}</name>
++            </package>
++          </packages>
++        </osSpecific>
++        <osSpecific>
++          <osFamily>ubuntu22</osFamily>
++          <packages>
++            <package>
++              <name>sqoop-${stack_version}</name>
+             </package>
+           </packages>
+         </osSpecific>
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUDI/metainfo.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUDI/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUDI/metainfo.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUDI/metainfo.xml	(revision f85547ff162dec0ea8c5d1c0fe14ec36621c06bc)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUDI/metainfo.xml	(date 1752755756977)
+@@ -41,10 +41,18 @@
+             </components>
+             <osSpecifics>
+                 <osSpecific>
+-                    <osFamily>any</osFamily>
++                    <osFamily>redhat7,redhat8</osFamily>
+                     <packages>
+                         <package>
+                             <name>hudi_${stack_version}</name>
++                        </package>
++                    </packages>
++                </osSpecific>
++                <osSpecific>
++                    <osFamily>ubuntu22</osFamily>
++                    <packages>
++                        <package>
++                            <name>hudi-${stack_version}</name>
+                         </package>
+                     </packages>
+                 </osSpecific>
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HIVE/metainfo.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HIVE/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HIVE/metainfo.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HIVE/metainfo.xml	(revision f85547ff162dec0ea8c5d1c0fe14ec36621c06bc)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HIVE/metainfo.xml	(date 1752755756976)
+@@ -299,6 +299,25 @@
              </package>
            </packages>
          </osSpecific>
@@ -872,38 +866,44 @@ diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SOLR/
 +          <osFamily>ubuntu22</osFamily>
 +          <packages>
 +            <package>
-+              <name>solr-${stack_version}</name>
++              <name>hive-${stack_version}</name>
++            </package>
++            <package>
++              <name>hive-${stack_version}-hcatalog</name>
++            </package>
++            <package>
++              <name>hive-${stack_version}-webhcat</name>
++            </package>
++            <package>
++              <name>mariadb-server</name>
++              <skipUpgrade>true</skipUpgrade>
++              <condition>should_install_mysql</condition>
 +            </package>
 +          </packages>
 +        </osSpecific>
        </osSpecifics>
-
+ 
        <commandScript>
-Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/REDIS/metainfo.xml
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/CLOUDBEAVER/metainfo.xml
 IDEA additional info:
 Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
 <+>UTF-8
 ===================================================================
-diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/REDIS/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/REDIS/metainfo.xml
---- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/REDIS/metainfo.xml	(revision f85547ff162dec0ea8c5d1c0fe14ec36621c06bc)
-+++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/REDIS/metainfo.xml	(date 1752754884587)
-@@ -84,10 +84,18 @@
-             <!-- 操作系统相关 -->
-             <osSpecifics>
-                 <osSpecific>
--                    <osFamily>any</osFamily> <!-- 支持任何操作系统 -->
-+                    <osFamily>redhat7,redhat8</osFamily> <!-- 支持任何操作系统 -->
-                     <packages>
-                         <package>
-                             <name>redis_${stack_version}</name>
-+                        </package>
-+                    </packages>
-+                </osSpecific>
-+                <osSpecific>
-+                    <osFamily>ubuntu22</osFamily> <!-- 支持任何操作系统 -->
-+                    <packages>
-+                        <package>
-+                            <name>redis-${stack_version}</name>
-                         </package>
-                     </packages>
-                 </osSpecific>
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/CLOUDBEAVER/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/CLOUDBEAVER/metainfo.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/CLOUDBEAVER/metainfo.xml	(revision f85547ff162dec0ea8c5d1c0fe14ec36621c06bc)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/CLOUDBEAVER/metainfo.xml	(date 1752755756973)
+@@ -70,6 +70,14 @@
+             </package>
+           </packages>
+         </osSpecific>
++        <osSpecific>
++          <osFamily>ubuntu22</osFamily>
++          <packages>
++            <package>
++              <name>cloudbeaver-${stack_version}</name>
++            </package>
++          </packages>
++        </osSpecific>
+       </osSpecifics>
+ 
+       <quickLinksConfigurations>
