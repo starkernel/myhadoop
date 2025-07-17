@@ -34,7 +34,7 @@ patch_files=(
   "/scripts/build/ambari3/common/patch2_0_0/patch0-ALL-IN-ONE.diff"
   "/scripts/build/ambari3/common/patch2_0_0/patch1-START-LOGBACK-LOGGER.diff"
   # 2.1.0 补丁
-  "/scripts/build/ambari3/common/patch2_1_0/patch0-DEBIAN-AGENT-SUP.diff"
+  "/scripts/build/ambari3/common/patch2_1_0/patch0-DEBIAN-BASE-SUP.diff"
   # 后续可继续添加补丁文件路径
 )
 
