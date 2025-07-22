@@ -1,0 +1,47 @@
+Subject: [PATCH] feature: hdfs支持ubuntu22的安装
+---
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HDFS/package/scripts/hdfs.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HDFS/package/scripts/hdfs.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HDFS/package/scripts/hdfs.py
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HDFS/package/scripts/hdfs.py	(revision 435e421d3b4b891181eadaae96d9bc64716c5603)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HDFS/package/scripts/hdfs.py	(date 1753070815035)
+@@ -49,6 +49,12 @@
+               group='root'
+               )
+ 
++    Directory(params.hadoop_conf_dir,
++              create_parents=True,
++              owner='root',
++              group='root'
++              )
++
+     File(os.path.join(params.limits_conf_dir, 'hdfs.conf'),
+          owner='root',
+          group='root',
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HDFS/metainfo.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HDFS/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HDFS/metainfo.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HDFS/metainfo.xml	(revision 435e421d3b4b891181eadaae96d9bc64716c5603)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HDFS/metainfo.xml	(date 1753144685708)
+@@ -309,13 +309,13 @@
+               <name>hadoop-${stack_version}-client</name>
+             </package>
+             <package>
+-              <name>snappy</name>
++              <name>libsnappy1v5</name>
+             </package>
+             <package>
+               <name>libsnappy-dev</name>
+             </package>
+             <package>
+-              <name>hadoop-${stack_version}-libhdfs</name>
++              <name>hadoop-${stack_version}-libhdfs0</name>
+             </package>
+             <package>
+               <name>libtirpc-dev</name>
