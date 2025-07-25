@@ -62,7 +62,8 @@ if [ ! -d "$INSTALL_DIR" ]; then
     texlive-latex-recommended \
     texlive-latex-extra \
     texlive-fonts-extra \
-    tidy
+    tidy \
+    pandoc
 
   # 下载tar.gz文件，如果文件不存在
   if [ ! -f "$TAR_FILE" ]; then
