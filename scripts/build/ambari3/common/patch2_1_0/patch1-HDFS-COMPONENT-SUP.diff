@@ -1,26 +1,5 @@
-Subject: [PATCH] feature: hdfs支持ubuntu22的安装
+Subject: [PATCH] feature: 支持ubuntu22的部署
 ---
-Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HDFS/package/scripts/hdfs.py
-IDEA additional info:
-Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
-<+>UTF-8
-===================================================================
-diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HDFS/package/scripts/hdfs.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HDFS/package/scripts/hdfs.py
---- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HDFS/package/scripts/hdfs.py	(revision 435e421d3b4b891181eadaae96d9bc64716c5603)
-+++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HDFS/package/scripts/hdfs.py	(date 1753070815035)
-@@ -49,6 +49,12 @@
-               group='root'
-               )
- 
-+    Directory(params.hadoop_conf_dir,
-+              create_parents=True,
-+              owner='root',
-+              group='root'
-+              )
-+
-     File(os.path.join(params.limits_conf_dir, 'hdfs.conf'),
-          owner='root',
-          group='root',
 Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HDFS/metainfo.xml
 IDEA additional info:
 Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
@@ -45,3 +24,67 @@ diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HDFS/
              </package>
              <package>
                <name>libtirpc-dev</name>
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HDFS/package/scripts/hdfs.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HDFS/package/scripts/hdfs.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HDFS/package/scripts/hdfs.py
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HDFS/package/scripts/hdfs.py	(revision 435e421d3b4b891181eadaae96d9bc64716c5603)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HDFS/package/scripts/hdfs.py	(date 1753070815035)
+@@ -49,6 +49,12 @@
+               group='root'
+               )
+
++    Directory(params.hadoop_conf_dir,
++              create_parents=True,
++              owner='root',
++              group='root'
++              )
++
+     File(os.path.join(params.limits_conf_dir, 'hdfs.conf'),
+          owner='root',
+          group='root',
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ZEPPELIN/package/scripts/zeppelin_server.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ZEPPELIN/package/scripts/zeppelin_server.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ZEPPELIN/package/scripts/zeppelin_server.py
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ZEPPELIN/package/scripts/zeppelin_server.py	(revision 435e421d3b4b891181eadaae96d9bc64716c5603)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ZEPPELIN/package/scripts/zeppelin_server.py	(date 1753513531699)
+@@ -285,7 +285,7 @@
+     interpreter_settings = config_data['interpreterSettings']
+
+     if upgrade_type is not None:
+-      current_interpreters_keys = interpreter_settings.keys()
++      current_interpreters_keys = list(interpreter_settings.keys())
+       for key in current_interpreters_keys:
+         interpreter_data = interpreter_settings[key]
+         if interpreter_data["name"] == "sh" and interpreter_data["group"] == "sh":
+@@ -529,7 +529,7 @@
+         del interpreter_settings[key]
+
+     hive_interactive_properties_key = 'hive_interactive'
+-    for setting_key in interpreter_settings.keys():
++    for setting_key in list(interpreter_settings.keys()):
+       interpreter = interpreter_settings[setting_key]
+       if interpreter['group'] == 'jdbc' and interpreter['name'] == 'jdbc' and ('jdbc' not in exclude_interpreter_autoconfig_list
+                                                                or 'jdbc' in exclude_interpreter_property_groups_map.keys()):
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SPARK/metainfo.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SPARK/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SPARK/metainfo.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SPARK/metainfo.xml	(revision 435e421d3b4b891181eadaae96d9bc64716c5603)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SPARK/metainfo.xml	(date 1753513531738)
+@@ -227,7 +227,7 @@
+           <osFamily>ubuntu22</osFamily>
+           <packages>
+             <package>
+-              <name>spark-${stack_version}-core</name>
++              <name>spark-${stack_version}</name>
+             </package>
+             <package>
+               <name>spark-${stack_version}-python</name>
