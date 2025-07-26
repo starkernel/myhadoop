@@ -16,7 +16,7 @@
 #
 # Author: JaneTTR
 
-#set -ex
+set -ex
 
 echo "############## PRE BUILD AMBARI-METRICS start #############"
 
@@ -53,9 +53,11 @@ done
 
 DOWNLOAD_DIR="$PROJECT_PATH/ambari-download-tar"
 RPM_PACKAGE="/data/rpm-package/ambari-metrics"
+DEB_PACKAGE="/data/deb-package/ambari-metrics"
 
 mkdir -p "$DOWNLOAD_DIR"
 mkdir -p "$RPM_PACKAGE"
+mkdir -p "$DEB_PACKAGE"
 
 # 检查是否已有 tar.gz 文件存在，如果没有则提示用户
 if ! ls "$DOWNLOAD_DIR"/*.tar.gz >/dev/null 2>&1; then
@@ -86,9 +88,19 @@ fi
 ####      BUILD       ###
 #########################
 
-cd "$PROJECT_PATH"
-mvn -T 4C clean install -DskipTests -Drat.skip=true -Dbuild-rpm -X
-
-find "$PROJECT_PATH" -iname '*.rpm' -exec cp -rv {} "$RPM_PACKAGE" \;
+# ------- 自动适配 deb/rpm -------
+if [ -f /etc/redhat-release ]; then
+    echo "############## BUILD RPM #############"
+    mvn -T 4C clean install -DskipTests -Drat.skip=true -Dbuild-rpm -X
+    find "$PROJECT_PATH" -iname '*.rpm' -exec cp -rv {} "$RPM_PACKAGE" \;
+elif [ -f /etc/debian_version ]; then
+    echo "############## BUILD DEB #############"
+    mvn -T 4C package -DskipTests -Drat.skip=true -Dbuild-deb
+    find "$PROJECT_PATH" -iname '*.deb' -exec cp -rv {} "$DEB_PACKAGE" \;
+else
+    echo "不支持的系统类型，仅支持 RedHat/CentOS/Rocky 和 Debian/Ubuntu！"
+    exit 1
+fi
 
 echo "############## PRE BUILD AMBARI-METRICS end #############"
+

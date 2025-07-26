@@ -1,5 +1,167 @@
-Subject: [PATCH] fixed: 解决下载慢问题
+Subject: [PATCH] 111
 ---
+Index: ambari-metrics-hadoop-sink/pom.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-metrics-hadoop-sink/pom.xml b/ambari-metrics-hadoop-sink/pom.xml
+--- a/ambari-metrics-hadoop-sink/pom.xml	(revision e8a1d5add03e2b5b128a7fd3f054fa2dd8120a2b)
++++ b/ambari-metrics-hadoop-sink/pom.xml	(date 1753545676652)
+@@ -87,7 +87,8 @@
+           </execution>
+         </executions>
+         <configuration>
+-          <skip>true</skip>
++          <skip>false</skip>
++          <skipPOMs>false</skipPOMs>
+           <attach>false</attach>
+           <submodules>false</submodules>
+           <controlDir>${project.basedir}/../src/main/package/deb/control</controlDir>
+Index: ambari-metrics-storm-sink/pom.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-metrics-storm-sink/pom.xml b/ambari-metrics-storm-sink/pom.xml
+--- a/ambari-metrics-storm-sink/pom.xml	(revision e8a1d5add03e2b5b128a7fd3f054fa2dd8120a2b)
++++ b/ambari-metrics-storm-sink/pom.xml	(date 1753545676536)
+@@ -122,7 +122,8 @@
+           </execution>
+         </executions>
+         <configuration>
+-          <skip>true</skip>
++          <skip>false</skip>
++          <skipPOMs>false</skipPOMs>
+           <attach>false</attach>
+           <submodules>false</submodules>
+           <controlDir>${project.basedir}/../src/main/package/deb/control</controlDir>
+Index: ambari-metrics-timelineservice/pom.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-metrics-timelineservice/pom.xml b/ambari-metrics-timelineservice/pom.xml
+--- a/ambari-metrics-timelineservice/pom.xml	(revision e8a1d5add03e2b5b128a7fd3f054fa2dd8120a2b)
++++ b/ambari-metrics-timelineservice/pom.xml	(date 1753545676633)
+@@ -254,7 +254,8 @@
+           </execution>
+         </executions>
+         <configuration>
+-          <skip>true</skip>
++          <skip>false</skip>
++          <skipPOMs>false</skipPOMs>
+           <attach>false</attach>
+           <submodules>false</submodules>
+           <controlDir>${project.basedir}/../src/main/package/deb/control
+Index: ambari-metrics-grafana/pom.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-metrics-grafana/pom.xml b/ambari-metrics-grafana/pom.xml
+--- a/ambari-metrics-grafana/pom.xml	(revision e8a1d5add03e2b5b128a7fd3f054fa2dd8120a2b)
++++ b/ambari-metrics-grafana/pom.xml	(date 1753545676583)
+@@ -47,7 +47,8 @@
+           </execution>
+         </executions>
+         <configuration>
+-          <skip>true</skip>
++          <skip>false</skip>
++          <skipPOMs>false</skipPOMs>
+           <attach>false</attach>
+           <submodules>false</submodules>
+           <controlDir>${project.basedir}/../src/main/package/deb/control</controlDir>
+Index: ambari-metrics-common/pom.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-metrics-common/pom.xml b/ambari-metrics-common/pom.xml
+--- a/ambari-metrics-common/pom.xml	(revision e8a1d5add03e2b5b128a7fd3f054fa2dd8120a2b)
++++ b/ambari-metrics-common/pom.xml	(date 1753545676576)
+@@ -47,7 +47,8 @@
+           </execution>
+         </executions>
+         <configuration>
+-          <skip>true</skip>
++          <skip>false</skip>
++          <skipPOMs>false</skipPOMs>
+           <attach>false</attach>
+           <submodules>false</submodules>
+           <controlDir>${project.basedir}/../src/main/package/deb/control</controlDir>
+Index: ambari-metrics-host-monitoring/pom.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-metrics-host-monitoring/pom.xml b/ambari-metrics-host-monitoring/pom.xml
+--- a/ambari-metrics-host-monitoring/pom.xml	(revision e8a1d5add03e2b5b128a7fd3f054fa2dd8120a2b)
++++ b/ambari-metrics-host-monitoring/pom.xml	(date 1753545676589)
+@@ -116,7 +116,8 @@
+           </execution>
+         </executions>
+         <configuration>
+-          <skip>true</skip>
++          <skip>false</skip>
++          <skipPOMs>false</skipPOMs>
+           <attach>false</attach>
+           <submodules>false</submodules>
+           <controlDir>${project.basedir}/../src/main/package/deb/control</controlDir>
+Index: ambari-metrics-kafka-sink/pom.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-metrics-kafka-sink/pom.xml b/ambari-metrics-kafka-sink/pom.xml
+--- a/ambari-metrics-kafka-sink/pom.xml	(revision e8a1d5add03e2b5b128a7fd3f054fa2dd8120a2b)
++++ b/ambari-metrics-kafka-sink/pom.xml	(date 1753545676527)
+@@ -99,7 +99,8 @@
+           </execution>
+         </executions>
+         <configuration>
+-          <skip>true</skip>
++          <skip>false</skip>
++          <skipPOMs>false</skipPOMs>
+           <attach>false</attach>
+           <submodules>false</submodules>
+           <controlDir>${project.basedir}/../src/main/package/deb/control</controlDir>
+Index: ambari-metrics-flume-sink/pom.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-metrics-flume-sink/pom.xml b/ambari-metrics-flume-sink/pom.xml
+--- a/ambari-metrics-flume-sink/pom.xml	(revision e8a1d5add03e2b5b128a7fd3f054fa2dd8120a2b)
++++ b/ambari-metrics-flume-sink/pom.xml	(date 1753545676640)
+@@ -81,7 +81,8 @@
+           </execution>
+         </executions>
+         <configuration>
+-          <skip>true</skip>
++          <skip>false</skip>
++          <skipPOMs>false</skipPOMs>
+           <attach>false</attach>
+           <submodules>false</submodules>
+           <controlDir>${project.basedir}/../src/main/package/deb/control</controlDir>
+Index: ambari-metrics-host-aggregator/pom.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-metrics-host-aggregator/pom.xml b/ambari-metrics-host-aggregator/pom.xml
+--- a/ambari-metrics-host-aggregator/pom.xml	(revision e8a1d5add03e2b5b128a7fd3f054fa2dd8120a2b)
++++ b/ambari-metrics-host-aggregator/pom.xml	(date 1753545676615)
+@@ -136,7 +136,8 @@
+             </execution>
+           </executions>
+           <configuration>
+-            <skip>true</skip>
++              <skip>false</skip>
++              <skipPOMs>false</skipPOMs>
+             <attach>false</attach>
+             <submodules>false</submodules>
+             <controlDir>${project.basedir}/../src/main/package/deb/control</controlDir>
 Index: pom.xml
 IDEA additional info:
 Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
@@ -7,8 +169,8 @@ Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
 ===================================================================
 diff --git a/pom.xml b/pom.xml
 --- a/pom.xml	(revision e8a1d5add03e2b5b128a7fd3f054fa2dd8120a2b)
-+++ b/pom.xml	(date 1735008211133)
-@@ -15,299 +15,301 @@
++++ b/pom.xml	(date 1753545676647)
+@@ -15,163 +15,165 @@
     See the License for the specific language governing permissions and
     limitations under the License.
  -->
@@ -329,277 +491,15 @@ diff --git a/pom.xml b/pom.xml
 +                <configuration>
 +                    <skip>${skipSurefireTests}</skip>
 
--          <!-- Each profile in the top-level pom.xml defines which test group categories to run. -->
--          <groups>${testcase.groups}</groups>
--        </configuration>
--      </plugin>
--      <plugin>
--        <artifactId>maven-compiler-plugin</artifactId>
--        <version>3.2</version>
--        <configuration>
--          <source>1.8</source>
--          <target>1.8</target>
--        </configuration>
--      </plugin>
--      <plugin>
--        <groupId>org.apache.maven.plugins</groupId>
--        <artifactId>maven-clean-plugin</artifactId>
--        <version>2.5</version>
--        <configuration>
--          <filesets>
--            <fileset>
--              <directory>${basedir}</directory>
--              <followSymlinks>false</followSymlinks>
--              <includes>
--                <include>**/*.pyc</include>
--              </includes>
--            </fileset>
--          </filesets>
--        </configuration>
--      </plugin>
--      <plugin>
--        <!--Stub execution on direct plugin call - workaround for ambari rpm build process-->
--        <groupId>org.codehaus.mojo</groupId>
--        <artifactId>rpm-maven-plugin</artifactId>
--        <version>2.1.4</version>
--        <executions>
--          <execution>
--            <id>stub-execution</id>
--            <!-- unbinds rpm creation from maven lifecycle -->
--            <phase>none</phase>
--            <goals>
--              <goal>attached-rpm</goal>
--            </goals>
--          </execution>
--        </executions>
--        <configuration>
--          <license>2012, Apache Software Foundation</license>
--          <group>Development</group>
--          <description>Maven Recipe: RPM Package.</description>
--          <version>${project.version}</version>
--          <release>${release.version}</release>
--          <mappings/>
--        </configuration>
--      </plugin>
--      <plugin>
--        <groupId>org.vafer</groupId>
--        <artifactId>jdeb</artifactId>
--        <executions>
--          <execution>
--            <!--Stub execution on direct plugin call - workaround for ambari deb build process-->
--            <id>stub-execution</id>
--            <phase>none</phase>
--            <goals>
--              <goal>jdeb</goal>
--            </goals>
--          </execution>
--        </executions>
--        <configuration>
+           <!-- Each profile in the top-level pom.xml defines which test group categories to run. -->
+           <groups>${testcase.groups}</groups>
+@@ -239,7 +241,8 @@
+           </execution>
+         </executions>
+         <configuration>
 -          <skip>true</skip>
--          <attach>false</attach>
--          <submodules>true</submodules>
--          <controlDir>${project.basedir}/src/main/package/deb/control</controlDir>
--        </configuration>
--      </plugin>
--      <plugin>
--        <groupId>org.apache.rat</groupId>
--        <artifactId>apache-rat-plugin</artifactId>
--        <version>0.12</version>
--        <configuration>
--          <excludes>
--            <exclude>pass.txt</exclude>
--            <exclude>derby.log</exclude>
--            <exclude>**/*.nuspec</exclude>
--            <exclude>**/*.json</exclude>
--            <exclude>**/out</exclude>
--          </excludes>
--        </configuration>
--        <executions>
--          <execution>
--            <phase>test</phase>
--            <goals>
--              <goal>check</goal>
--            </goals>
--          </execution>
--        </executions>
--      </plugin>
--    </plugins>
--  </build>
-+                    <!-- Each profile in the top-level pom.xml defines which test group categories to run. -->
-+                    <groups>${testcase.groups}</groups>
-+                </configuration>
-+            </plugin>
-+            <plugin>
-+                <artifactId>maven-compiler-plugin</artifactId>
-+                <version>3.2</version>
-+                <configuration>
-+                    <source>1.8</source>
-+                    <target>1.8</target>
-+                </configuration>
-+            </plugin>
-+            <plugin>
-+                <groupId>org.apache.maven.plugins</groupId>
-+                <artifactId>maven-clean-plugin</artifactId>
-+                <version>2.5</version>
-+                <configuration>
-+                    <filesets>
-+                        <fileset>
-+                            <directory>${basedir}</directory>
-+                            <followSymlinks>false</followSymlinks>
-+                            <includes>
-+                                <include>**/*.pyc</include>
-+                            </includes>
-+                        </fileset>
-+                    </filesets>
-+                </configuration>
-+            </plugin>
-+            <plugin>
-+                <!--Stub execution on direct plugin call - workaround for ambari rpm build process-->
-+                <groupId>org.codehaus.mojo</groupId>
-+                <artifactId>rpm-maven-plugin</artifactId>
-+                <version>2.1.4</version>
-+                <executions>
-+                    <execution>
-+                        <id>stub-execution</id>
-+                        <!-- unbinds rpm creation from maven lifecycle -->
-+                        <phase>none</phase>
-+                        <goals>
-+                            <goal>attached-rpm</goal>
-+                        </goals>
-+                    </execution>
-+                </executions>
-+                <configuration>
-+                    <license>2012, Apache Software Foundation</license>
-+                    <group>Development</group>
-+                    <description>Maven Recipe: RPM Package.</description>
-+                    <version>${project.version}</version>
-+                    <release>${release.version}</release>
-+                    <mappings/>
-+                </configuration>
-+            </plugin>
-+            <plugin>
-+                <groupId>org.vafer</groupId>
-+                <artifactId>jdeb</artifactId>
-+                <executions>
-+                    <execution>
-+                        <!--Stub execution on direct plugin call - workaround for ambari deb build process-->
-+                        <id>stub-execution</id>
-+                        <phase>none</phase>
-+                        <goals>
-+                            <goal>jdeb</goal>
-+                        </goals>
-+                    </execution>
-+                </executions>
-+                <configuration>
-+                    <skip>true</skip>
-+                    <attach>false</attach>
-+                    <submodules>true</submodules>
-+                    <controlDir>${project.basedir}/src/main/package/deb/control</controlDir>
-+                </configuration>
-+            </plugin>
-+            <plugin>
-+                <groupId>org.apache.rat</groupId>
-+                <artifactId>apache-rat-plugin</artifactId>
-+                <version>0.12</version>
-+                <configuration>
-+                    <excludes>
-+                        <exclude>pass.txt</exclude>
-+                        <exclude>derby.log</exclude>
-+                        <exclude>**/*.nuspec</exclude>
-+                        <exclude>**/*.json</exclude>
-+                        <exclude>**/out</exclude>
-+                    </excludes>
-+                </configuration>
-+                <executions>
-+                    <execution>
-+                        <phase>test</phase>
-+                        <goals>
-+                            <goal>check</goal>
-+                        </goals>
-+                    </execution>
-+                </executions>
-+            </plugin>
-+        </plugins>
-+    </build>
-
--  <profiles>
--    <profile>
--      <id>sign-artifacts</id>
--      <activation>
--        <property>
--          <name>performRelease</name>
--          <value>true</value>
--        </property>
--      </activation>
--      <build>
--        <plugins>
--          <plugin>
--            <groupId>org.apache.maven.plugins</groupId>
--            <artifactId>maven-gpg-plugin</artifactId>
--            <version>1.6</version>
--            <executions>
--              <execution>
--                <id>sign-artifacts</id>
--                <phase>verify</phase>
--                <goals>
--                  <goal>sign</goal>
--                </goals>
--              </execution>
--            </executions>
--          </plugin>
--        </plugins>
--      </build>
--    </profile>
--    <profile>
--      <id>skipTestRun</id>
--      <activation>
--        <property>
--          <name>skipTests</name>
--        </property>
--      </activation>
--      <properties>
--        <skipPythonTests>true</skipPythonTests>
--      </properties>
--    </profile>
--  </profiles>
-+    <profiles>
-+        <profile>
-+            <id>sign-artifacts</id>
-+            <activation>
-+                <property>
-+                    <name>performRelease</name>
-+                    <value>true</value>
-+                </property>
-+            </activation>
-+            <build>
-+                <plugins>
-+                    <plugin>
-+                        <groupId>org.apache.maven.plugins</groupId>
-+                        <artifactId>maven-gpg-plugin</artifactId>
-+                        <version>1.6</version>
-+                        <executions>
-+                            <execution>
-+                                <id>sign-artifacts</id>
-+                                <phase>verify</phase>
-+                                <goals>
-+                                    <goal>sign</goal>
-+                                </goals>
-+                            </execution>
-+                        </executions>
-+                    </plugin>
-+                </plugins>
-+            </build>
-+        </profile>
-+        <profile>
-+            <id>skipTestRun</id>
-+            <activation>
-+                <property>
-+                    <name>skipTests</name>
-+                </property>
-+            </activation>
-+            <properties>
-+                <skipPythonTests>true</skipPythonTests>
-+            </properties>
-+        </profile>
-+    </profiles>
- </project>
++          <skip>false</skip>
++          <skipPOMs>false</skipPOMs>
+           <attach>false</attach>
+           <submodules>true</submodules>
+           <controlDir>${project.basedir}/src/main/package/deb/control</controlDir>
