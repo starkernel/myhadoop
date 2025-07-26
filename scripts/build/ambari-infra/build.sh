@@ -33,7 +33,9 @@ patch_files=(
 )
 PROJECT_PATH="/opt/modules/ambari-infra"
 RPM_PACKAGE="/data/rpm-package/ambari-infra"
+DEB_PACKAGE="/data/deb-package/ambari-infra"
 mkdir -p "$RPM_PACKAGE"
+mkdir -p "$DEB_PACKAGE"
 
 # 定义一个函数来应用补丁
 apply_patch() {
@@ -59,7 +61,17 @@ done
 ####      BUILD       ###
 #########################
 
-cd "$PROJECT_PATH" && make rpm
+if [ -f /etc/redhat-release ]; then
+    echo "############## BUILD RPM #############"
+    make rpm
+    find "$PROJECT_PATH" -iname '*.rpm' -exec cp -rv {} "$RPM_PACKAGE" \;
+elif [ -f /etc/debian_version ]; then
+    echo "############## BUILD DEB #############"
+    make deb
+    find "$PROJECT_PATH" -iname '*.deb' -exec cp -rv {} "$DEB_PACKAGE" \;
+else
+    echo "不支持的系统类型，仅支持 RedHat/CentOS/Rocky 和 Debian/Ubuntu！"
+    exit 1
+fi
 
-find "$PROJECT_PATH" -iname '*.rpm' -exec cp -rv {} "$RPM_PACKAGE" \;
 echo "############## PRE BUILD AMBARI-INFRA end #############"
