@@ -1,4 +1,4 @@
-Subject: [PATCH] feature: 支持ubuntu22的部署
+Subject: [PATCH] feature: 支持ubuntu22的基础调整
 ---
 Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HDFS/metainfo.xml
 IDEA additional info:
@@ -45,6 +45,23 @@ diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HDFS/
      File(os.path.join(params.limits_conf_dir, 'hdfs.conf'),
           owner='root',
           group='root',
+Index: ambari-server/src/main/resources/common-services/AMBARI_METRICS/3.0.0/metainfo.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/common-services/AMBARI_METRICS/3.0.0/metainfo.xml b/ambari-server/src/main/resources/common-services/AMBARI_METRICS/3.0.0/metainfo.xml
+--- a/ambari-server/src/main/resources/common-services/AMBARI_METRICS/3.0.0/metainfo.xml	(revision 435e421d3b4b891181eadaae96d9bc64716c5603)
++++ b/ambari-server/src/main/resources/common-services/AMBARI_METRICS/3.0.0/metainfo.xml	(date 1753693447790)
+@@ -192,7 +192,7 @@
+           </packages>
+         </osSpecific>
+         <osSpecific>
+-          <osFamily>ubuntu16</osFamily>
++          <osFamily>ubuntu22</osFamily>
+           <packages>
+             <package>
+               <name>ambari-metrics-assembly</name>
 Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ZEPPELIN/package/scripts/zeppelin_server.py
 IDEA additional info:
 Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP

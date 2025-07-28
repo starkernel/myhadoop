@@ -26,7 +26,6 @@ echo "############## PRE BUILD AMBARI-METRICS start #############"
 
 patch_files=(
   "/scripts/build/ambari-metrics/patch/patch0-TAR-DOWNLOAD.diff"
-  "/scripts/build/ambari-metrics/patch/patch1-DEB-SUP-WORK.diff"
 )
 PROJECT_PATH="/opt/modules/ambari-metrics"
 
