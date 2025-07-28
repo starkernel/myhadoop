@@ -26,8 +26,11 @@ echo "############## PRE BUILD AMBARI-METRICS start #############"
 
 patch_files=(
   "/scripts/build/ambari-metrics/patch/patch0-TAR-DOWNLOAD.diff"
+  "/scripts/build/ambari-metrics/patch/patch1-DEB-SUP-WORK.diff"
 )
 PROJECT_PATH="/opt/modules/ambari-metrics"
+
+cd $PROJECT_PATH && git checkout .
 
 apply_patch() {
   local patch_file=$1
@@ -95,7 +98,7 @@ if [ -f /etc/redhat-release ]; then
     find "$PROJECT_PATH" -iname '*.rpm' -exec cp -rv {} "$RPM_PACKAGE" \;
 elif [ -f /etc/debian_version ]; then
     echo "############## BUILD DEB #############"
-    mvn -T 4C package -DskipTests -Drat.skip=true -Dbuild-deb
+    mvn -T 4C clean install -DskipTests -Drat.skip=true -Dbuild-deb
     find "$PROJECT_PATH" -iname '*.deb' -exec cp -rv {} "$DEB_PACKAGE" \;
 else
     echo "不支持的系统类型，仅支持 RedHat/CentOS/Rocky 和 Debian/Ubuntu！"
