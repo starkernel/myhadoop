@@ -1,0 +1,242 @@
+Subject: [PATCH] feature: dolphin和ranger支持 ubuntu 修复
+---
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/service_advisor.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/service_advisor.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/service_advisor.py
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/service_advisor.py	(revision 2ea4d0fa340397a42223fd3e7b44d1c49e1c7434)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/service_advisor.py	(date 1754135836198)
+@@ -39,7 +39,7 @@
+     service_advisor = imp.load_module('service_advisor', fp, PARENT_FILE, ('.py', 'rb', imp.PY_SOURCE))
+ except Exception as e:
+   traceback.print_exc()
+-  print "Failed to load parent"
++  print("Failed to load parent")
+ 
+ DB_TYPE_DEFAULT_PORT_MAP = {"MYSQL":"3306", "ORACLE":"1521", "POSTGRES":"5432", "MSSQL":"1433", "SQLA":"2638"}
+ 
+@@ -305,6 +305,7 @@
+     if "ranger-env" in configurations and not security_enabled:
+       putRangerEnvProperty("ranger-storm-plugin-enabled", "No")
+ 
++
+   def getDBConnectionHostPort(self, db_type, db_host):
+     connection_string = ""
+     if db_type is None or db_type == "":
+@@ -312,10 +313,13 @@
+     else:
+       colon_count = db_host.count(':')
+       if colon_count == 0:
+-        if DB_TYPE_DEFAULT_PORT_MAP.has_key(db_type):
++        # --------- Python3修改点 START -----------
++        # if DB_TYPE_DEFAULT_PORT_MAP.has_key(db_type):
++        if db_type in DB_TYPE_DEFAULT_PORT_MAP:
+           connection_string = db_host + ":" + DB_TYPE_DEFAULT_PORT_MAP[db_type]
+         else:
+           connection_string = db_host
++        # --------- Python3修改点 END -----------
+       elif colon_count == 1:
+         connection_string = db_host
+       elif colon_count == 2:
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/package/scripts/setup_ranger_xml.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/package/scripts/setup_ranger_xml.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/package/scripts/setup_ranger_xml.py
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/package/scripts/setup_ranger_xml.py	(revision 2ea4d0fa340397a42223fd3e7b44d1c49e1c7434)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/package/scripts/setup_ranger_xml.py	(date 1754109273211)
+@@ -88,7 +88,7 @@
+     cp = cp + os.pathsep + format("{ranger_home}/ews/lib/*")
+ 
+     db_connection_check_command = format(
+-        "{java_home}/bin/java -cp {cp} org.apache.ambari.server.DBConnectionVerification '{ranger_jdbc_connection_url}' {ranger_db_user} {ranger_db_password!p} {ranger_jdbc_driver}")
++        "{server_java_home}/bin/java -cp {cp} org.apache.ambari.server.DBConnectionVerification '{ranger_jdbc_connection_url}' {ranger_db_user} {ranger_db_password!p} {ranger_jdbc_driver}")
+ 
+     env_dict = {}
+     if params.db_flavor.lower() == 'sqla':
+@@ -511,10 +511,10 @@
+         File(params.usgsync_log4j_file, owner=params.unix_user, group=params.unix_group)
+ 
+     if os.path.isfile(params.cred_validator_file):
+-        File(params.cred_validator_file, group=params.unix_group, mode=0750)
++        File(params.cred_validator_file, group=params.unix_group, mode=0o750)
+ 
+     if os.path.isfile(params.pam_cred_validator_file):
+-        File(params.pam_cred_validator_file, group=params.unix_group, mode=0750)
++        File(params.pam_cred_validator_file, group=params.unix_group, mode=0o750)
+ 
+     ranger_credential_helper(params.ugsync_cred_lib, 'usersync.ssl.key.password',
+                              params.ranger_usersync_keystore_password, params.ugsync_jceks_path)
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/metainfo.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/metainfo.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/metainfo.xml	(revision 2ea4d0fa340397a42223fd3e7b44d1c49e1c7434)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/metainfo.xml	(date 1754099599552)
+@@ -174,10 +174,6 @@
+                             <name>ranger-${stack_version}-tagsync</name>
+                             <condition>should_install_ranger_tagsync</condition>
+                         </package>
+-                        <package>
+-                            <name>ambari-infra-solr-client</name>
+-                            <condition>should_install_infra_solr_client</condition>
+-                        </package>
+                     </packages>
+                 </osSpecific>
+             </osSpecifics>
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/package/scripts/params.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/package/scripts/params.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/package/scripts/params.py
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/package/scripts/params.py	(revision 2ea4d0fa340397a42223fd3e7b44d1c49e1c7434)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/package/scripts/params.py	(date 1754109273220)
+@@ -141,6 +141,8 @@
+ usersync_start = format('{usersync_services_file} start')
+ 
+ java_home = default("/configurations/cluster-env/tt_jdk_home", None)
++server_java_home = config["ambariLevelParams"]["java_home"]
++
+ unix_user = config['configurations']['ranger-env']['ranger_user']
+ unix_group = config['configurations']['ranger-env']['ranger_group']
+ ranger_pid_dir = default("/configurations/ranger-env/ranger_pid_dir", "/var/run/ranger")
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/DOLPHINSCHEDULER/package/scripts/dolphin_api_service.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/DOLPHINSCHEDULER/package/scripts/dolphin_api_service.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/DOLPHINSCHEDULER/package/scripts/dolphin_api_service.py
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/DOLPHINSCHEDULER/package/scripts/dolphin_api_service.py	(revision 2ea4d0fa340397a42223fd3e7b44d1c49e1c7434)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/DOLPHINSCHEDULER/package/scripts/dolphin_api_service.py	(date 1754032107096)
+@@ -44,13 +44,13 @@
+ 
+         no_op_test = ("ls {0} >/dev/null 2>&1 && ps `cat {0}` | grep `cat {0}` >/dev/null 2>&1").format(status_params.dolphin_api_server_pidfile)
+ 
+-        start_cmd = format("sh " + params.dolphin_bin_dir + "/dolphinscheduler-daemon.sh start api-server")
++        start_cmd = format("bash " + params.dolphin_bin_dir + "/dolphinscheduler-daemon.sh start api-server")
+         Execute(start_cmd, user=params.dolphin_user, not_if=no_op_test, environment=params.dolphinExecEnv)
+ 
+     def stop(self, env):
+         import params
+         env.set_params(params)
+-        stop_cmd = format("sh " + params.dolphin_bin_dir + "/dolphinscheduler-daemon.sh stop api-server")
++        stop_cmd = format("bash " + params.dolphin_bin_dir + "/dolphinscheduler-daemon.sh stop api-server")
+         Execute(stop_cmd, user=params.dolphin_user, environment=params.dolphinExecEnv)
+         time.sleep(5)
+ 
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/DOLPHINSCHEDULER/package/scripts/dolphin_alert_service.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/DOLPHINSCHEDULER/package/scripts/dolphin_alert_service.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/DOLPHINSCHEDULER/package/scripts/dolphin_alert_service.py
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/DOLPHINSCHEDULER/package/scripts/dolphin_alert_service.py	(revision 2ea4d0fa340397a42223fd3e7b44d1c49e1c7434)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/DOLPHINSCHEDULER/package/scripts/dolphin_alert_service.py	(date 1754032107089)
+@@ -44,13 +44,13 @@
+         no_op_test = ("ls {0} >/dev/null 2>&1 && ps `cat {0}` | grep `cat {0}` >/dev/null 2>&1").format(
+             status_params.dolphin_alert_server_pidfile)
+ 
+-        start_cmd = format("sh " + params.dolphin_bin_dir + "/dolphinscheduler-daemon.sh start alert-server")
++        start_cmd = format("bash " + params.dolphin_bin_dir + "/dolphinscheduler-daemon.sh start alert-server")
+         Execute(start_cmd, user=params.dolphin_user, not_if=no_op_test, environment=params.dolphinExecEnv)
+ 
+     def stop(self, env):
+         import params
+         env.set_params(params)
+-        stop_cmd = format("sh " + params.dolphin_bin_dir + "/dolphinscheduler-daemon.sh stop alert-server")
++        stop_cmd = format("bash " + params.dolphin_bin_dir + "/dolphinscheduler-daemon.sh stop alert-server")
+         Execute(stop_cmd, user=params.dolphin_user, environment=params.dolphinExecEnv)
+         time.sleep(5)
+ 
+Index: ambari-common/src/main/python/resource_management/libraries/functions/setup_ranger_plugin_xml.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-common/src/main/python/resource_management/libraries/functions/setup_ranger_plugin_xml.py b/ambari-common/src/main/python/resource_management/libraries/functions/setup_ranger_plugin_xml.py
+--- a/ambari-common/src/main/python/resource_management/libraries/functions/setup_ranger_plugin_xml.py	(revision 2ea4d0fa340397a42223fd3e7b44d1c49e1c7434)
++++ b/ambari-common/src/main/python/resource_management/libraries/functions/setup_ranger_plugin_xml.py	(date 1754109851317)
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/env ambari-python-wrapper
+ # coding=utf-8
+ """
+ Licensed to the Apache Software Foundation (ASF) under one
+@@ -348,7 +348,7 @@
+     ranger_plugin_properties_copy = {}
+     ranger_plugin_properties_copy.update(ranger_plugin_properties)
+ 
+-    for key, value in ranger_plugin_properties_copy.iteritems():
++    for key, value in ranger_plugin_properties_copy.items():
+         if key.startswith("ranger.service.config.param."):
+             modify_key_name = key.replace("ranger.service.config.param.", "")
+             custom_service_config_dict[modify_key_name] = value
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/DOLPHINSCHEDULER/package/scripts/dolphin_worker_service.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/DOLPHINSCHEDULER/package/scripts/dolphin_worker_service.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/DOLPHINSCHEDULER/package/scripts/dolphin_worker_service.py
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/DOLPHINSCHEDULER/package/scripts/dolphin_worker_service.py	(revision 2ea4d0fa340397a42223fd3e7b44d1c49e1c7434)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/DOLPHINSCHEDULER/package/scripts/dolphin_worker_service.py	(date 1754032077259)
+@@ -45,13 +45,13 @@
+         no_op_test = ("ls {0} >/dev/null 2>&1 && ps `cat {0}` | grep `cat {0}` >/dev/null 2>&1").format(
+             status_params.dolphin_worker_server_pidfile)
+ 
+-        start_cmd = format("sh " + params.dolphin_bin_dir + "/dolphinscheduler-daemon.sh start worker-server")
++        start_cmd = format("bash " + params.dolphin_bin_dir + "/dolphinscheduler-daemon.sh start worker-server")
+         Execute(start_cmd, user=params.dolphin_user, not_if=no_op_test, environment=params.dolphinExecEnv)
+ 
+     def stop(self, env):
+         import params
+         env.set_params(params)
+-        stop_cmd = format("sh " + params.dolphin_bin_dir + "/dolphinscheduler-daemon.sh stop worker-server")
++        stop_cmd = format("bash " + params.dolphin_bin_dir + "/dolphinscheduler-daemon.sh stop worker-server")
+         Execute(stop_cmd, user=params.dolphin_user, environment=params.dolphinExecEnv)
+         time.sleep(5)
+ 
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/DOLPHINSCHEDULER/package/scripts/dolphin_master_service.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/DOLPHINSCHEDULER/package/scripts/dolphin_master_service.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/DOLPHINSCHEDULER/package/scripts/dolphin_master_service.py
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/DOLPHINSCHEDULER/package/scripts/dolphin_master_service.py	(revision 2ea4d0fa340397a42223fd3e7b44d1c49e1c7434)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/DOLPHINSCHEDULER/package/scripts/dolphin_master_service.py	(date 1754031980790)
+@@ -43,18 +43,18 @@
+         self.configure(env)
+ 
+         # upgrade schema
+-        upgrade_schema_cmd = format("sh " + params.dolphin_tools_home + "/bin/upgrade-schema.sh")
++        upgrade_schema_cmd = format("bash " + params.dolphin_tools_home + "/bin/upgrade-schema.sh")
+         Execute(upgrade_schema_cmd, user=params.dolphin_user, environment=params.dolphinExecEnv)
+ 
+         no_op_test = ("ls {0} >/dev/null 2>&1 && ps `cat {0}` | grep `cat {0}` >/dev/null 2>&1").format(
+             status_params.dolphin_master_server_pidfile)
+-        start_cmd = format("sh " + params.dolphin_bin_dir + "/dolphinscheduler-daemon.sh start master-server")
++        start_cmd = format("bash " + params.dolphin_bin_dir + "/dolphinscheduler-daemon.sh start master-server")
+         Execute(start_cmd, user=params.dolphin_user, not_if=no_op_test, environment=params.dolphinExecEnv)
+ 
+     def stop(self, env):
+         import params
+         env.set_params(params)
+-        stop_cmd = format("sh " + params.dolphin_bin_dir + "/dolphinscheduler-daemon.sh stop master-server")
++        stop_cmd = format("bash " + params.dolphin_bin_dir + "/dolphinscheduler-daemon.sh stop master-server")
+         Execute(stop_cmd, user=params.dolphin_user, environment=params.dolphinExecEnv)
+         time.sleep(5)
+ 
+@@ -67,7 +67,7 @@
+         import params
+         env.set_params(params)
+         self.configure(env)
+-        upgrade_schema_cmd = format("sh " + params.dolphin_tools_home + "/bin/upgrade-schema.sh")
++        upgrade_schema_cmd = format("bash " + params.dolphin_tools_home + "/bin/upgrade-schema.sh")
+         Execute(upgrade_schema_cmd, user=params.dolphin_user, environment=params.dolphinExecEnv)
+ 
+ 
