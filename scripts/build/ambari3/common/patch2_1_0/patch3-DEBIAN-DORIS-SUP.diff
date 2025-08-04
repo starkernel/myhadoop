@@ -1,4 +1,4 @@
-Subject: [PATCH] feature: doris 2.1.7 在ubuntu上成功运行
+Subject: [PATCH] feature: dolphin 和 ranger 支持py3 修复
 ---
 Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/DORIS/metainfo.xml
 IDEA additional info:
@@ -7,7 +7,7 @@ Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
 ===================================================================
 diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/DORIS/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/DORIS/metainfo.xml
 --- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/DORIS/metainfo.xml	(revision b3ecbbbe418c2803e19fb5c12f1c681d0217f306)
-+++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/DORIS/metainfo.xml	(date 1754293564950)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/DORIS/metainfo.xml	(date 1754299464414)
 @@ -94,7 +94,7 @@
                      <name>DORIS_CLIENT</name>
                      <displayName>Doris Client</displayName>
@@ -30,7 +30,7 @@ diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/DORIS
                          </package>
                          <package>
 -                            <name>doris-${stack_version}-doris-hdfs_broker</name>
-+                            <name>doris-${stack_version}-hdfs_broker</name>
++                            <name>doris-${stack_version}-hdfs-broker</name>
                          </package>
                      </packages>
                  </osSpecific>
