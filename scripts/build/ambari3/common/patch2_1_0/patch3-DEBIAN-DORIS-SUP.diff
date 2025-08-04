@@ -1,0 +1,36 @@
+Subject: [PATCH] feature: doris 2.1.7 在ubuntu上成功运行
+---
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/DORIS/metainfo.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/DORIS/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/DORIS/metainfo.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/DORIS/metainfo.xml	(revision b3ecbbbe418c2803e19fb5c12f1c681d0217f306)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/DORIS/metainfo.xml	(date 1754293564950)
+@@ -94,7 +94,7 @@
+                     <name>DORIS_CLIENT</name>
+                     <displayName>Doris Client</displayName>
+                     <category>CLIENT</category>
+-                    <cardinality>1+</cardinality>
++                    <cardinality>0+</cardinality>
+                     <versionAdvertised>true</versionAdvertised>
+                     <commandScript>
+                         <script>scripts/doris_client.py</script>
+@@ -127,13 +127,13 @@
+                     <osFamily>ubuntu22</osFamily>
+                     <packages>
+                         <package>
+-                            <name>doris-${stack_version}-doris-fe</name>
++                            <name>doris-${stack_version}-fe</name>
+                         </package>
+                         <package>
+-                            <name>doris-${stack_version}-doris-be</name>
++                            <name>doris-${stack_version}-be</name>
+                         </package>
+                         <package>
+-                            <name>doris-${stack_version}-doris-hdfs_broker</name>
++                            <name>doris-${stack_version}-hdfs_broker</name>
+                         </package>
+                     </packages>
+                 </osSpecific>
