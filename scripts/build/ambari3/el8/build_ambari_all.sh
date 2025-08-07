@@ -39,7 +39,7 @@ done
 
 
 # 使用jdk 17
-export JAVA_HOME=/opt/modules/jdk-17.0.15+6
+export JAVA_HOME=/opt/modules/jdk-17.0.16+8
 export PATH=$JAVA_HOME/bin:$PATH
 
 java -version
