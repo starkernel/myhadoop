@@ -1,0 +1,158 @@
+Subject: [PATCH] feature: sup ubuntu22 install & start
+---
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/IMPALA/metainfo.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/IMPALA/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/IMPALA/metainfo.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/IMPALA/metainfo.xml	(revision b3ecbbbe418c2803e19fb5c12f1c681d0217f306)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/IMPALA/metainfo.xml	(date 1754535680161)
+@@ -75,7 +75,7 @@
+                     <osFamily>ubuntu22</osFamily>
+                     <packages>
+                         <package>
+-                            <name>impala_${stack_version}</name>
++                            <name>impala-${stack_version}</name>
+                         </package>
+                         <package>
+                             <name>libsasl2-2</name>
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/DORIS/metainfo.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/DORIS/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/DORIS/metainfo.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/DORIS/metainfo.xml	(revision b3ecbbbe418c2803e19fb5c12f1c681d0217f306)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/DORIS/metainfo.xml	(date 1754299464414)
+@@ -94,7 +94,7 @@
+                     <name>DORIS_CLIENT</name>
+                     <displayName>Doris Client</displayName>
+                     <category>CLIENT</category>
+-                    <cardinality>1+</cardinality>
++                    <cardinality>0+</cardinality>
+                     <versionAdvertised>true</versionAdvertised>
+                     <commandScript>
+                         <script>scripts/doris_client.py</script>
+@@ -127,13 +127,13 @@
+                     <osFamily>ubuntu22</osFamily>
+                     <packages>
+                         <package>
+-                            <name>doris-${stack_version}-doris-fe</name>
++                            <name>doris-${stack_version}-fe</name>
+                         </package>
+                         <package>
+-                            <name>doris-${stack_version}-doris-be</name>
++                            <name>doris-${stack_version}-be</name>
+                         </package>
+                         <package>
+-                            <name>doris-${stack_version}-doris-hdfs_broker</name>
++                            <name>doris-${stack_version}-hdfs-broker</name>
+                         </package>
+                     </packages>
+                 </osSpecific>
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ATLAS/metainfo.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ATLAS/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ATLAS/metainfo.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ATLAS/metainfo.xml	(revision b3ecbbbe418c2803e19fb5c12f1c681d0217f306)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ATLAS/metainfo.xml	(date 1754813992594)
+@@ -197,10 +197,10 @@
+                         <package>
+                             <name>atlas-${stack_version}</name>
+                         </package>
+-                        <package>
+-                            <name>ambari-infra-solr-client</name>
+-                            <condition>should_install_infra_solr_client</condition>
+-                        </package>
++<!--                        <package>-->
++<!--                            <name>ambari-infra-solr-client</name>-->
++<!--                            <condition>should_install_infra_solr_client</condition>-->
++<!--                        </package>-->
+                         <package>
+                             <name>kafka-${stack_version}</name>
+                         </package>
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TRINO/metainfo.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TRINO/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TRINO/metainfo.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TRINO/metainfo.xml	(revision b3ecbbbe418c2803e19fb5c12f1c681d0217f306)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TRINO/metainfo.xml	(date 1754710698172)
+@@ -108,13 +108,13 @@
+           <osFamily>ubuntu22</osFamily>
+           <packages>
+             <package>
+-              <name>trino-${stack_version}-trino-server</name>
++              <name>trino-${stack_version}-server</name>
+             </package>
+ 			<package>
+-              <name>trino-${stack_version}-trino-cli</name>
++              <name>trino-${stack_version}-cli</name>
+             </package>
+ 			<package>
+-              <name>httpd-tools</name>
++              <name>apache2-utils</name>
+             </package>
+           </packages>
+         </osSpecific>
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/IMPALA/configuration/impala-env.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/IMPALA/configuration/impala-env.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/IMPALA/configuration/impala-env.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/IMPALA/configuration/impala-env.xml	(revision b3ecbbbe418c2803e19fb5c12f1c681d0217f306)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/IMPALA/configuration/impala-env.xml	(date 1754556727363)
+@@ -299,7 +299,13 @@
+ 
+ export CLASSPATH="$JAVA_HOME/lib:$JAVA_HOME/lib/tools.jar:$IMPALA_LIB_DIR:$HIVE_LIB_DIR:$HADOOP_CONF_DIR:$HIVE_CONF_DIR:$HBASE_CONF_DIR"
+ 
+-export LD_LIBRARY_PATH="$IMPALA_NATIVE_DIR:$LD_LIBRARY_PATH"
++if [ -d "${JAVA_HOME}/jre/lib/amd64/server" ]; then
++    export LD_LIBRARY_PATH="${JAVA_HOME}/jre/lib/amd64/server:$IMPALA_NATIVE_DIR:$LD_LIBRARY_PATH"
++elif [ -d "${JAVA_HOME}/lib/server" ]; then
++    export LD_LIBRARY_PATH="${JAVA_HOME}/lib/server:$IMPALA_NATIVE_DIR:$LD_LIBRARY_PATH"
++else
++    export LD_LIBRARY_PATH="$IMPALA_NATIVE_DIR:$LD_LIBRARY_PATH"
++fi
+     </value>
+     <value-attributes>
+       <type>content</type>
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TRINO/package/scripts/trino_worker.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TRINO/package/scripts/trino_worker.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TRINO/package/scripts/trino_worker.py
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TRINO/package/scripts/trino_worker.py	(revision b3ecbbbe418c2803e19fb5c12f1c681d0217f306)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TRINO/package/scripts/trino_worker.py	(date 1754711077876)
+@@ -19,7 +19,7 @@
+ 
+         env.set_params(params)
+         self.install_packages(env)
+-        self.configure(env)
++        # self.configure(env)
+ 
+     def configure(self, env):
+         import params
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/CELEBORN/package/scripts/celeborn_client.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/CELEBORN/package/scripts/celeborn_client.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/CELEBORN/package/scripts/celeborn_client.py
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/CELEBORN/package/scripts/celeborn_client.py	(revision b3ecbbbe418c2803e19fb5c12f1c681d0217f306)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/CELEBORN/package/scripts/celeborn_client.py	(date 1754387471054)
+@@ -26,7 +26,7 @@
+ class CelebornClient(Script):
+     def install(self, env):
+         self.install_packages(env)
+-        self.configure(env)
++        # self.configure(env)
+ 
+     def configure(self, env, upgrade_type=None, config_dir=None):
+         import params

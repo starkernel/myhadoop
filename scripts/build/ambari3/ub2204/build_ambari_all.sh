@@ -38,6 +38,7 @@ patch_files=(
   "/scripts/build/ambari3/common/patch2_1_0/patch1-DEBIAN-BASE-SUP.diff"
   "/scripts/build/ambari3/common/patch2_1_0/patch2-DEBIAN-DOLPHIN-RANGER-SUP.diff"
   "/scripts/build/ambari3/common/patch2_1_0/patch3-DEBIAN-DORIS-SUP.diff"
+  "/scripts/build/ambari3/common/patch2_1_0/patch4-DEBIAN-FINAL-SUP.diff"
   # 后续可继续添加补丁文件路径
 )
 
