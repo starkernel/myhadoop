@@ -79,7 +79,7 @@ init_ubuntu22() {
     libcppunit-dev pkg-config m4 autoconf-archive \
     liblzo2-dev libzip-dev sharutils libfuse-dev \
     libsasl2-dev libgsasl-dev \
-    asciidoc rsync
+    asciidoc rsync libzstd-dev libprotobuf-dev libisal-dev libpmem-dev
   rm -rf /var/lib/apt/lists/*
 }
 

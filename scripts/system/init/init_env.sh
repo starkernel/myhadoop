@@ -161,6 +161,17 @@ init_rocky8() {
       which \
       xmlto \
       zlib-devel \
+      isa-l-devel \
+      libpmem-devel \
+      libpmemobj-devel \
+      protobuf-compiler \
+      pkgconf \
+      m4 \
+      autoconf-archive \
+      libzip-devel \
+      sharutils \
+      libgsasl-devel \
+      libzstd-devel \
   || true
 
   # yum -y install wget || true
