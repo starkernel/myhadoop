@@ -1,0 +1,1521 @@
+{
+  "openapi" : "3.0.1",
+  "info" : {
+    "title" : "API Documentation",
+    "version" : "1.0"
+  },
+  "paths" : {
+    "/ws/v1/timeline" : {
+      "get" : {
+        "summary" : "【GET /】返回 API 简要信息。",
+        "description" : "【GET /】返回 API 简要信息。",
+        "responses" : {
+          "200" : {
+            "description" : "{\"About\":\"AMS API\"}",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "about" : {
+                      "type" : "string",
+                      "description" : ""
+                    }
+                  },
+                  "description" : "{\"About\":\"AMS API\"}"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ws/v1/timeline/metrics" : {
+      "get" : {
+        "summary" : "【GET /metrics】查询时间线指标。",
+        "description" : "【GET /metrics】查询时间线指标。",
+        "parameters" : [ {
+          "name" : "metricNames",
+          "in" : "query",
+          "description" : "逗号分隔的指标名",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "nullable" : false
+          }
+        }, {
+          "name" : "appId",
+          "in" : "query",
+          "description" : "应用 ID",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "nullable" : false
+          }
+        }, {
+          "name" : "instanceId",
+          "in" : "query",
+          "description" : "实例 ID",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "nullable" : false
+          }
+        }, {
+          "name" : "hostname",
+          "in" : "query",
+          "description" : "逗号分隔的主机名",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "nullable" : false
+          }
+        }, {
+          "name" : "startTime",
+          "in" : "query",
+          "description" : "起始时间（epoch ms）",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "nullable" : false
+          }
+        }, {
+          "name" : "endTime",
+          "in" : "query",
+          "description" : "结束时间（epoch ms）",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "nullable" : false
+          }
+        }, {
+          "name" : "precision",
+          "in" : "query",
+          "description" : "粒度（seconds/minutes/hours）",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "nullable" : false
+          }
+        }, {
+          "name" : "limit",
+          "in" : "query",
+          "description" : "返回上限",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "nullable" : false
+          }
+        }, {
+          "name" : "grouped",
+          "in" : "query",
+          "description" : "是否按维度分组返回（null 视为 true）",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "nullable" : false
+          }
+        }, {
+          "name" : "topN",
+          "in" : "query",
+          "description" : "Top-N 值（>0）；支持 Bottom-N（见 isBottomN）",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "nullable" : false
+          }
+        }, {
+          "name" : "topNFunction",
+          "in" : "query",
+          "description" : "Top-N 统计函数（如 max/avg/min/sum）",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "nullable" : false
+          }
+        }, {
+          "name" : "isBottomN",
+          "in" : "query",
+          "description" : "是否取 Bottom-N",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "nullable" : false
+          }
+        }, {
+          "name" : "seriesAggregateFunction",
+          "in" : "query",
+          "description" : "序列聚合函数（avg/sum/min/max）",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "nullable" : false
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "[The class that hosts a list of timeline entities.] 指标结果集",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "allMetrics" : {
+                      "type" : "array",
+                      "description" : "",
+                      "items" : {
+                        "type" : "object",
+                        "properties" : {
+                          "metricName" : {
+                            "type" : "string",
+                            "description" : ""
+                          },
+                          "appId" : {
+                            "type" : "string",
+                            "description" : ""
+                          },
+                          "instanceId" : {
+                            "type" : "string",
+                            "description" : ""
+                          },
+                          "hostName" : {
+                            "type" : "string",
+                            "description" : ""
+                          },
+                          "timestamp" : {
+                            "type" : "integer",
+                            "description" : "",
+                            "format" : "int64"
+                          },
+                          "startTime" : {
+                            "type" : "integer",
+                            "description" : "",
+                            "format" : "int64"
+                          },
+                          "type" : {
+                            "type" : "string",
+                            "description" : ""
+                          },
+                          "units" : {
+                            "type" : "string",
+                            "description" : ""
+                          },
+                          "metricValues" : {
+                            "type" : "object",
+                            "properties" : {
+                              "0" : {
+                                "type" : "number"
+                              }
+                            },
+                            "description" : "",
+                            "default" : "new TreeMap<Long, Double>()"
+                          },
+                          "metadata" : {
+                            "type" : "object",
+                            "properties" : {
+                              "key" : {
+                                "type" : "string"
+                              }
+                            },
+                            "description" : "",
+                            "default" : "new HashMap<>()"
+                          }
+                        },
+                        "description" : "org.apache.hadoop.metrics2.sink.timeline.TimelineMetric"
+                      },
+                      "default" : "new ArrayList<TimelineMetric>()"
+                    }
+                  },
+                  "description" : "[The class that hosts a list of timeline entities.] 指标结果集"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "summary" : "【POST /metrics】写入普通指标。",
+        "description" : "【POST /metrics】写入普通指标。",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "object",
+                "properties" : {
+                  "allMetrics" : {
+                    "type" : "array",
+                    "description" : "",
+                    "items" : {
+                      "type" : "object",
+                      "properties" : {
+                        "metricName" : {
+                          "type" : "string",
+                          "description" : ""
+                        },
+                        "appId" : {
+                          "type" : "string",
+                          "description" : ""
+                        },
+                        "instanceId" : {
+                          "type" : "string",
+                          "description" : ""
+                        },
+                        "hostName" : {
+                          "type" : "string",
+                          "description" : ""
+                        },
+                        "timestamp" : {
+                          "type" : "integer",
+                          "description" : "",
+                          "format" : "int64"
+                        },
+                        "startTime" : {
+                          "type" : "integer",
+                          "description" : "",
+                          "format" : "int64"
+                        },
+                        "type" : {
+                          "type" : "string",
+                          "description" : ""
+                        },
+                        "units" : {
+                          "type" : "string",
+                          "description" : ""
+                        },
+                        "metricValues" : {
+                          "type" : "object",
+                          "properties" : {
+                            "0" : {
+                              "type" : "number"
+                            }
+                          },
+                          "description" : "",
+                          "default" : "new TreeMap<Long, Double>()"
+                        },
+                        "metadata" : {
+                          "type" : "object",
+                          "properties" : {
+                            "key" : {
+                              "type" : "string"
+                            }
+                          },
+                          "description" : "",
+                          "default" : "new HashMap<>()"
+                        }
+                      },
+                      "description" : "org.apache.hadoop.metrics2.sink.timeline.TimelineMetric"
+                    },
+                    "default" : "new ArrayList<TimelineMetric>()"
+                  }
+                },
+                "description" : "指标集合，允许为 null（null 时返回空 [TimelinePutResponse]）"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "[TimelinePutResponse] 写入结果",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "errors" : {
+                      "type" : "array",
+                      "description" : "",
+                      "items" : {
+                        "type" : "object",
+                        "properties" : {
+                          "entityId" : {
+                            "type" : "string",
+                            "description" : ""
+                          },
+                          "entityType" : {
+                            "type" : "string",
+                            "description" : ""
+                          },
+                          "errorCode" : {
+                            "type" : "integer",
+                            "description" : ""
+                          }
+                        },
+                        "description" : "org.apache.hadoop.yarn.api.records.timeline.TimelinePutResponse.TimelinePutError"
+                      }
+                    }
+                  },
+                  "description" : "[TimelinePutResponse] 写入结果"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ws/v1/timeline/metrics/aggregated" : {
+      "post" : {
+        "summary" : "【POST /metrics/aggregated】写入主机聚合指标。",
+        "description" : "【POST /metrics/aggregated】写入主机聚合指标。",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "object",
+                "properties" : {
+                  "result" : {
+                    "type" : "array",
+                    "description" : "",
+                    "items" : {
+                      "type" : "object",
+                      "properties" : {
+                        "timelineMetric" : {
+                          "type" : "object",
+                          "properties" : {
+                            "metricName" : {
+                              "type" : "string",
+                              "description" : ""
+                            },
+                            "appId" : {
+                              "type" : "string",
+                              "description" : ""
+                            },
+                            "instanceId" : {
+                              "type" : "string",
+                              "description" : ""
+                            },
+                            "hostName" : {
+                              "type" : "string",
+                              "description" : ""
+                            },
+                            "timestamp" : {
+                              "type" : "integer",
+                              "description" : "",
+                              "format" : "int64"
+                            },
+                            "startTime" : {
+                              "type" : "integer",
+                              "description" : "",
+                              "format" : "int64"
+                            },
+                            "type" : {
+                              "type" : "string",
+                              "description" : ""
+                            },
+                            "units" : {
+                              "type" : "string",
+                              "description" : ""
+                            },
+                            "metricValues" : {
+                              "type" : "object",
+                              "properties" : {
+                                "0" : {
+                                  "type" : "number"
+                                }
+                              },
+                              "description" : "",
+                              "default" : "new TreeMap<Long, Double>()"
+                            },
+                            "metadata" : {
+                              "type" : "object",
+                              "properties" : {
+                                "key" : {
+                                  "type" : "string"
+                                }
+                              },
+                              "description" : "",
+                              "default" : "new HashMap<>()"
+                            }
+                          },
+                          "description" : ""
+                        },
+                        "metricAggregate" : {
+                          "type" : "object",
+                          "properties" : {
+                            "sum" : {
+                              "type" : "number",
+                              "description" : "",
+                              "default" : 0.0
+                            },
+                            "deviation" : {
+                              "type" : "number",
+                              "description" : ""
+                            },
+                            "max" : {
+                              "type" : "number",
+                              "description" : "",
+                              "default" : 4.9E-324
+                            },
+                            "min" : {
+                              "type" : "number",
+                              "description" : "",
+                              "default" : 1.7976931348623157E308
+                            },
+                            "numberOfSamples" : {
+                              "type" : "integer",
+                              "description" : "",
+                              "format" : "int64",
+                              "default" : 0
+                            }
+                          },
+                          "description" : ""
+                        }
+                      },
+                      "description" : "org.apache.hadoop.metrics2.sink.timeline.TimelineMetricWithAggregatedValues"
+                    }
+                  },
+                  "timeInMilis" : {
+                    "type" : "integer",
+                    "description" : "",
+                    "format" : "int64"
+                  }
+                },
+                "description" : "聚合指标，允许为 null（null 时返回空 [TimelinePutResponse]）"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "[TimelinePutResponse] 写入结果",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "errors" : {
+                      "type" : "array",
+                      "description" : "",
+                      "items" : {
+                        "type" : "object",
+                        "properties" : {
+                          "entityId" : {
+                            "type" : "string",
+                            "description" : ""
+                          },
+                          "entityType" : {
+                            "type" : "string",
+                            "description" : ""
+                          },
+                          "errorCode" : {
+                            "type" : "integer",
+                            "description" : ""
+                          }
+                        },
+                        "description" : "org.apache.hadoop.yarn.api.records.timeline.TimelinePutResponse.TimelinePutError"
+                      }
+                    }
+                  },
+                  "description" : "[TimelinePutResponse] 写入结果"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ws/v1/timeline/containermetrics" : {
+      "post" : {
+        "summary" : "【POST /containermetrics】写入容器指标。",
+        "description" : "【POST /containermetrics】写入容器指标。",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "object",
+                "properties" : {
+                  "hostName" : {
+                    "type" : "string",
+                    "description" : ""
+                  },
+                  "containerId" : {
+                    "type" : "string",
+                    "description" : ""
+                  },
+                  "pmemLimit" : {
+                    "type" : "integer",
+                    "description" : ""
+                  },
+                  "vmemLimit" : {
+                    "type" : "integer",
+                    "description" : ""
+                  },
+                  "pmemUsedAvg" : {
+                    "type" : "integer",
+                    "description" : ""
+                  },
+                  "pmemUsedMin" : {
+                    "type" : "integer",
+                    "description" : ""
+                  },
+                  "pmemUsedMax" : {
+                    "type" : "integer",
+                    "description" : ""
+                  },
+                  "pmem50Pct" : {
+                    "type" : "integer",
+                    "description" : ""
+                  },
+                  "pmem75Pct" : {
+                    "type" : "integer",
+                    "description" : ""
+                  },
+                  "pmem90Pct" : {
+                    "type" : "integer",
+                    "description" : ""
+                  },
+                  "pmem95Pct" : {
+                    "type" : "integer",
+                    "description" : ""
+                  },
+                  "pmem99Pct" : {
+                    "type" : "integer",
+                    "description" : ""
+                  },
+                  "launchDuration" : {
+                    "type" : "integer",
+                    "description" : "",
+                    "format" : "int64"
+                  },
+                  "localizationDuration" : {
+                    "type" : "integer",
+                    "description" : "",
+                    "format" : "int64"
+                  },
+                  "startTime" : {
+                    "type" : "integer",
+                    "description" : "",
+                    "format" : "int64"
+                  },
+                  "finishTime" : {
+                    "type" : "integer",
+                    "description" : "",
+                    "format" : "int64"
+                  },
+                  "exitCode" : {
+                    "type" : "integer",
+                    "description" : ""
+                  }
+                },
+                "description" : "容器指标列表；若为 null 或空，返回空 [TimelinePutResponse]"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "[TimelinePutResponse] 写入结果",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "errors" : {
+                      "type" : "array",
+                      "description" : "",
+                      "items" : {
+                        "type" : "object",
+                        "properties" : {
+                          "entityId" : {
+                            "type" : "string",
+                            "description" : ""
+                          },
+                          "entityType" : {
+                            "type" : "string",
+                            "description" : ""
+                          },
+                          "errorCode" : {
+                            "type" : "integer",
+                            "description" : ""
+                          }
+                        },
+                        "description" : "org.apache.hadoop.yarn.api.records.timeline.TimelinePutResponse.TimelinePutError"
+                      }
+                    }
+                  },
+                  "description" : "[TimelinePutResponse] 写入结果"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ws/v1/timeline/metrics/{instanceId}" : {
+      "get" : {
+        "summary" : "【GET /metrics/{instanceId}】按实例查询时间线指标。",
+        "description" : "【GET /metrics/{instanceId}】按实例查询时间线指标。",
+        "parameters" : [ {
+          "name" : "instanceId",
+          "in" : "path",
+          "description" : "路径参数：实例 ID",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "metricNames",
+          "in" : "query",
+          "description" : "逗号分隔的指标名",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "nullable" : false
+          }
+        }, {
+          "name" : "appId",
+          "in" : "query",
+          "description" : "应用 ID",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "nullable" : false
+          }
+        }, {
+          "name" : "hostname",
+          "in" : "query",
+          "description" : "逗号分隔的主机名",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "nullable" : false
+          }
+        }, {
+          "name" : "startTime",
+          "in" : "query",
+          "description" : "起始时间（epoch ms）",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "nullable" : false
+          }
+        }, {
+          "name" : "endTime",
+          "in" : "query",
+          "description" : "结束时间（epoch ms）",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "nullable" : false
+          }
+        }, {
+          "name" : "precision",
+          "in" : "query",
+          "description" : "粒度",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "nullable" : false
+          }
+        }, {
+          "name" : "limit",
+          "in" : "query",
+          "description" : "返回上限",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "nullable" : false
+          }
+        }, {
+          "name" : "grouped",
+          "in" : "query",
+          "description" : "是否分组",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "nullable" : false
+          }
+        }, {
+          "name" : "topN",
+          "in" : "query",
+          "description" : "Top-N",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "nullable" : false
+          }
+        }, {
+          "name" : "topNFunction",
+          "in" : "query",
+          "description" : "Top-N 函数",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "nullable" : false
+          }
+        }, {
+          "name" : "isBottomN",
+          "in" : "query",
+          "description" : "是否 Bottom-N",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "nullable" : false
+          }
+        }, {
+          "name" : "seriesAggregateFunction",
+          "in" : "query",
+          "description" : "序列聚合函数",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "nullable" : false
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "[The class that hosts a list of timeline entities.]",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "allMetrics" : {
+                      "type" : "array",
+                      "description" : "",
+                      "items" : {
+                        "type" : "object",
+                        "properties" : {
+                          "metricName" : {
+                            "type" : "string",
+                            "description" : ""
+                          },
+                          "appId" : {
+                            "type" : "string",
+                            "description" : ""
+                          },
+                          "instanceId" : {
+                            "type" : "string",
+                            "description" : ""
+                          },
+                          "hostName" : {
+                            "type" : "string",
+                            "description" : ""
+                          },
+                          "timestamp" : {
+                            "type" : "integer",
+                            "description" : "",
+                            "format" : "int64"
+                          },
+                          "startTime" : {
+                            "type" : "integer",
+                            "description" : "",
+                            "format" : "int64"
+                          },
+                          "type" : {
+                            "type" : "string",
+                            "description" : ""
+                          },
+                          "units" : {
+                            "type" : "string",
+                            "description" : ""
+                          },
+                          "metricValues" : {
+                            "type" : "object",
+                            "properties" : {
+                              "0" : {
+                                "type" : "number"
+                              }
+                            },
+                            "description" : "",
+                            "default" : "new TreeMap<Long, Double>()"
+                          },
+                          "metadata" : {
+                            "type" : "object",
+                            "properties" : {
+                              "key" : {
+                                "type" : "string"
+                              }
+                            },
+                            "description" : "",
+                            "default" : "new HashMap<>()"
+                          }
+                        },
+                        "description" : "org.apache.hadoop.metrics2.sink.timeline.TimelineMetric"
+                      },
+                      "default" : "new ArrayList<TimelineMetric>()"
+                    }
+                  },
+                  "description" : "[The class that hosts a list of timeline entities.]"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ws/v1/timeline/metrics/summary" : {
+      "get" : {
+        "summary" : "【GET /metrics/summary】返回服务级别运行摘要/健康信息。",
+        "description" : "【GET /metrics/summary】返回服务级别运行摘要/健康信息。",
+        "responses" : {
+          "200" : {
+            "description" : "[TimelineMetricServiceSummary]",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "timestamp" : {
+                      "type" : "string",
+                      "description" : ""
+                    },
+                    "metadataSummary" : {
+                      "type" : "object",
+                      "properties" : {
+                        "key" : {
+                          "type" : "string"
+                        }
+                      },
+                      "description" : "",
+                      "default" : "new HashMap<>()"
+                    },
+                    "aggregationSummary" : {
+                      "type" : "object",
+                      "properties" : {
+                        "key" : {
+                          "type" : "string"
+                        }
+                      },
+                      "description" : "",
+                      "default" : "new HashMap<>()"
+                    }
+                  },
+                  "description" : "[TimelineMetricServiceSummary]"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ws/v1/timeline/metrics/metadata" : {
+      "get" : {
+        "summary" : "【GET /metrics/metadata】查询指标元数据。",
+        "description" : "【GET /metrics/metadata】查询指标元数据。",
+        "parameters" : [ {
+          "name" : "appId",
+          "in" : "query",
+          "description" : "应用 ID（可选）",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "nullable" : false
+          }
+        }, {
+          "name" : "metricName",
+          "in" : "query",
+          "description" : "指标名（可为通配/模式，按实现而定）",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "nullable" : false
+          }
+        }, {
+          "name" : "includeAll",
+          "in" : "query",
+          "description" : "是否包含黑名单指标（null 视为 true）",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "nullable" : false
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Map&lt;metricName, List&lt;[TimelineMetricMetadata]&gt;&gt;",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "key" : {
+                      "type" : "array",
+                      "items" : {
+                        "type" : "object",
+                        "properties" : {
+                          "metricName" : {
+                            "type" : "string",
+                            "description" : ""
+                          },
+                          "appId" : {
+                            "type" : "string",
+                            "description" : ""
+                          },
+                          "instanceId" : {
+                            "type" : "string",
+                            "description" : ""
+                          },
+                          "uuid" : {
+                            "type" : "array",
+                            "description" : "",
+                            "items" : {
+                              "type" : "integer"
+                            }
+                          },
+                          "units" : {
+                            "type" : "string",
+                            "description" : ""
+                          },
+                          "type" : {
+                            "type" : "string",
+                            "description" : "",
+                            "default" : "UNDEFINED"
+                          },
+                          "seriesStartTime" : {
+                            "type" : "integer",
+                            "description" : "",
+                            "format" : "int64"
+                          },
+                          "supportsAggregates" : {
+                            "type" : "boolean",
+                            "description" : "",
+                            "default" : "true"
+                          },
+                          "isWhitelisted" : {
+                            "type" : "boolean",
+                            "description" : "",
+                            "default" : "false"
+                          },
+                          "isPersisted" : {
+                            "type" : "boolean",
+                            "description" : "Serialization ignored helper flag",
+                            "default" : "false"
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "description" : "Map&lt;metricName, List&lt;[TimelineMetricMetadata]&gt;&gt;"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ws/v1/timeline/metrics/{instanceId}/metadata" : {
+      "get" : {
+        "summary" : "【GET /metrics/{instanceId}/metadata】按实例查询指标元数据。",
+        "description" : "【GET /metrics/{instanceId}/metadata】按实例查询指标元数据。",
+        "parameters" : [ {
+          "name" : "appId",
+          "in" : "query",
+          "description" : "应用 ID（可选）",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "nullable" : false
+          }
+        }, {
+          "name" : "metricName",
+          "in" : "query",
+          "description" : "指标名/模式（可选）",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "nullable" : false
+          }
+        }, {
+          "name" : "includeAll",
+          "in" : "query",
+          "description" : "是否包含黑名单指标（null 视为 true）",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "nullable" : false
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Map&lt;metricName, List&lt;[TimelineMetricMetadata]&gt;&gt;",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "key" : {
+                      "type" : "array",
+                      "items" : {
+                        "type" : "object",
+                        "properties" : {
+                          "metricName" : {
+                            "type" : "string",
+                            "description" : ""
+                          },
+                          "appId" : {
+                            "type" : "string",
+                            "description" : ""
+                          },
+                          "instanceId" : {
+                            "type" : "string",
+                            "description" : ""
+                          },
+                          "uuid" : {
+                            "type" : "array",
+                            "description" : "",
+                            "items" : {
+                              "type" : "integer"
+                            }
+                          },
+                          "units" : {
+                            "type" : "string",
+                            "description" : ""
+                          },
+                          "type" : {
+                            "type" : "string",
+                            "description" : "",
+                            "default" : "UNDEFINED"
+                          },
+                          "seriesStartTime" : {
+                            "type" : "integer",
+                            "description" : "",
+                            "format" : "int64"
+                          },
+                          "supportsAggregates" : {
+                            "type" : "boolean",
+                            "description" : "",
+                            "default" : "true"
+                          },
+                          "isWhitelisted" : {
+                            "type" : "boolean",
+                            "description" : "",
+                            "default" : "false"
+                          },
+                          "isPersisted" : {
+                            "type" : "boolean",
+                            "description" : "Serialization ignored helper flag",
+                            "default" : "false"
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "description" : "Map&lt;metricName, List&lt;[TimelineMetricMetadata]&gt;&gt;"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ws/v1/timeline/metrics/hosts" : {
+      "get" : {
+        "summary" : "【GET /metrics/hosts】返回 Host -> Apps 映射信息。",
+        "description" : "【GET /metrics/hosts】返回 Host -> Apps 映射信息。",
+        "responses" : {
+          "200" : {
+            "description" : "Map&lt;hostname, Set&lt;appId&gt;&gt;",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "key" : {
+                      "type" : "array",
+                      "items" : {
+                        "type" : "string"
+                      }
+                    }
+                  },
+                  "description" : "Map&lt;hostname, Set&lt;appId&gt;&gt;"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ws/v1/timeline/metrics/instance" : {
+      "get" : {
+        "summary" : "【GET /metrics/instance】按 app/instance 返回 Host 映射。",
+        "description" : "【GET /metrics/instance】按 app/instance 返回 Host 映射。",
+        "parameters" : [ {
+          "name" : "appId",
+          "in" : "query",
+          "description" : "应用 ID（可选）",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "nullable" : false
+          }
+        }, {
+          "name" : "instanceId",
+          "in" : "query",
+          "description" : "实例 ID（可选）",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "nullable" : false
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Map&lt;hostname, Map&lt;appId, Set&lt;instanceId&gt;&gt;&gt;",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "key" : {
+                      "type" : "object",
+                      "properties" : {
+                        "key" : {
+                          "type" : "array",
+                          "items" : {
+                            "type" : "string"
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "description" : "Map&lt;hostname, Map&lt;appId, Set&lt;instanceId&gt;&gt;&gt;"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ws/v1/timeline/metrics/{instanceId}/instance" : {
+      "get" : {
+        "summary" : "【GET /metrics/{instanceId}/instance】按实例返回 Host 映射。",
+        "description" : "【GET /metrics/{instanceId}/instance】按实例返回 Host 映射。",
+        "parameters" : [ {
+          "name" : "instanceId",
+          "in" : "path",
+          "description" : "路径参数：实例 ID",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "appId",
+          "in" : "query",
+          "description" : "应用 ID（可选）",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "nullable" : false
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Map&lt;hostname, Map&lt;appId, Set&lt;instanceId&gt;&gt;&gt;",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "key" : {
+                      "type" : "object",
+                      "properties" : {
+                        "key" : {
+                          "type" : "array",
+                          "items" : {
+                            "type" : "string"
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "description" : "Map&lt;hostname, Map&lt;appId, Set&lt;instanceId&gt;&gt;&gt;"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ws/v1/timeline/metrics/uuid" : {
+      "get" : {
+        "summary" : "【GET /metrics/uuid】返回某指标的 UUID（底层字节数组）。",
+        "description" : "【GET /metrics/uuid】返回某指标的 UUID（底层字节数组）。",
+        "parameters" : [ {
+          "name" : "metricName",
+          "in" : "query",
+          "description" : "指标名（必填）",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "nullable" : false
+          }
+        }, {
+          "name" : "appId",
+          "in" : "query",
+          "description" : "应用 ID（必填）",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "nullable" : false
+          }
+        }, {
+          "name" : "instanceId",
+          "in" : "query",
+          "description" : "实例 ID（可选）",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "nullable" : false
+          }
+        }, {
+          "name" : "hostname",
+          "in" : "query",
+          "description" : "主机名（可选）",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "nullable" : false
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "原始 UUID 字节数组（JSON 中可能表现为 Base64 字符串）",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "description" : "原始 UUID 字节数组（JSON 中可能表现为 Base64 字符串）",
+                  "items" : {
+                    "type" : "integer"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ws/v1/timeline/metrics/livenodes" : {
+      "get" : {
+        "summary" : "【GET /metrics/livenodes】返回活跃的 Collector 节点列表（主机名）。",
+        "description" : "【GET /metrics/livenodes】返回活跃的 Collector 节点列表（主机名）。",
+        "responses" : {
+          "200" : {
+            "description" : "List&lt;hostname&gt;",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "description" : "List&lt;hostname&gt;",
+                  "items" : {
+                    "type" : "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "org.apache.hadoop.metrics2.sink.timeline.TimelineMetric" : {
+        "type" : "object",
+        "properties" : {
+          "metricName" : {
+            "type" : "string",
+            "description" : ""
+          },
+          "appId" : {
+            "type" : "string",
+            "description" : ""
+          },
+          "instanceId" : {
+            "type" : "string",
+            "description" : ""
+          },
+          "hostName" : {
+            "type" : "string",
+            "description" : ""
+          },
+          "timestamp" : {
+            "type" : "integer",
+            "description" : "",
+            "format" : "int64"
+          },
+          "startTime" : {
+            "type" : "integer",
+            "description" : "",
+            "format" : "int64"
+          },
+          "type" : {
+            "type" : "string",
+            "description" : ""
+          },
+          "units" : {
+            "type" : "string",
+            "description" : ""
+          },
+          "metricValues" : {
+            "type" : "object",
+            "properties" : {
+              "0" : {
+                "type" : "number"
+              }
+            },
+            "description" : "",
+            "default" : "new TreeMap<Long, Double>()"
+          },
+          "metadata" : {
+            "type" : "object",
+            "properties" : {
+              "key" : {
+                "type" : "string"
+              }
+            },
+            "description" : "",
+            "default" : "new HashMap<>()"
+          }
+        },
+        "description" : "org.apache.hadoop.metrics2.sink.timeline.TimelineMetric"
+      },
+      "org.apache.hadoop.yarn.api.records.timeline.TimelinePutResponse.TimelinePutError" : {
+        "type" : "object",
+        "properties" : {
+          "entityId" : {
+            "type" : "string",
+            "description" : ""
+          },
+          "entityType" : {
+            "type" : "string",
+            "description" : ""
+          },
+          "errorCode" : {
+            "type" : "integer",
+            "description" : ""
+          }
+        },
+        "description" : "org.apache.hadoop.yarn.api.records.timeline.TimelinePutResponse.TimelinePutError"
+      },
+      "Represents a collection of minute based aggregation of values for\nresolution greater than a minute." : {
+        "type" : "object",
+        "properties" : {
+          "sum" : {
+            "type" : "number",
+            "description" : "",
+            "default" : 0.0
+          },
+          "deviation" : {
+            "type" : "number",
+            "description" : ""
+          },
+          "max" : {
+            "type" : "number",
+            "description" : "",
+            "default" : 4.9E-324
+          },
+          "min" : {
+            "type" : "number",
+            "description" : "",
+            "default" : 1.7976931348623157E308
+          },
+          "numberOfSamples" : {
+            "type" : "integer",
+            "description" : "",
+            "format" : "int64",
+            "default" : 0
+          }
+        },
+        "description" : ""
+      },
+      "org.apache.hadoop.metrics2.sink.timeline.TimelineMetricWithAggregatedValues" : {
+        "type" : "object",
+        "properties" : {
+          "timelineMetric" : {
+            "type" : "object",
+            "properties" : {
+              "metricName" : {
+                "type" : "string",
+                "description" : ""
+              },
+              "appId" : {
+                "type" : "string",
+                "description" : ""
+              },
+              "instanceId" : {
+                "type" : "string",
+                "description" : ""
+              },
+              "hostName" : {
+                "type" : "string",
+                "description" : ""
+              },
+              "timestamp" : {
+                "type" : "integer",
+                "description" : "",
+                "format" : "int64"
+              },
+              "startTime" : {
+                "type" : "integer",
+                "description" : "",
+                "format" : "int64"
+              },
+              "type" : {
+                "type" : "string",
+                "description" : ""
+              },
+              "units" : {
+                "type" : "string",
+                "description" : ""
+              },
+              "metricValues" : {
+                "type" : "object",
+                "properties" : {
+                  "0" : {
+                    "type" : "number"
+                  }
+                },
+                "description" : "",
+                "default" : "new TreeMap<Long, Double>()"
+              },
+              "metadata" : {
+                "type" : "object",
+                "properties" : {
+                  "key" : {
+                    "type" : "string"
+                  }
+                },
+                "description" : "",
+                "default" : "new HashMap<>()"
+              }
+            },
+            "description" : ""
+          },
+          "metricAggregate" : {
+            "type" : "object",
+            "properties" : {
+              "sum" : {
+                "type" : "number",
+                "description" : "",
+                "default" : 0.0
+              },
+              "deviation" : {
+                "type" : "number",
+                "description" : ""
+              },
+              "max" : {
+                "type" : "number",
+                "description" : "",
+                "default" : 4.9E-324
+              },
+              "min" : {
+                "type" : "number",
+                "description" : "",
+                "default" : 1.7976931348623157E308
+              },
+              "numberOfSamples" : {
+                "type" : "integer",
+                "description" : "",
+                "format" : "int64",
+                "default" : 0
+              }
+            },
+            "description" : ""
+          }
+        },
+        "description" : "org.apache.hadoop.metrics2.sink.timeline.TimelineMetricWithAggregatedValues"
+      }
+    }
+  }
+}
