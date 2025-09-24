@@ -43,6 +43,18 @@ REPOS_ROCKY8=(
 GROUP_REPO_ROCKY8="yum-public-rocky8"
 GROUP_MEMBERS_ROCKY8=("rocky8-mirrors" "rocky8-epel")
 
+
+########## Kylin V10 仓库（SP3 固定到代理端） ##########
+# 说明：
+# - 单个 proxy 指到 V10SP3 根： https://update.cs2c.com.cn/NS/V10/V10SP3/
+# - 组仓库聚合这个 proxy；客户端再在 baseurl 里拼接 os/adv/lic/base|updates/$basearch/
+REPOS_KYLIN10=(
+  "kylin-v10-sp3|https://update.cs2c.com.cn/NS/V10/V10SP3/"
+)
+GROUP_REPO_KYLIN10="yum-public-kylinv10"
+GROUP_MEMBERS_KYLIN10=("kylin-v10-sp3")
+
+
 # ================= 函数定义 ===================
 
 # 检查仓库是否存在
@@ -204,6 +216,27 @@ else
   echo "组仓库 ${GROUP_REPO_ROCKY8} 不存在，正在创建..."
   create_group_repo "${GROUP_REPO_ROCKY8}" "${GROUP_MEMBERS_ROCKY8[@]}"
 fi
+
+
+# ================== 创建/更新 Kylin V10 仓库 ==================
+for repo in "${REPOS_KYLIN10[@]}"; do
+  IFS="|" read -r repo_name remote_url <<<"${repo}"
+  if check_repo_exists "${repo_name}"; then
+    echo "仓库 ${repo_name} 已存在。"
+  else
+    echo "正在创建代理仓库 ${repo_name}..."
+    create_proxy_repo "${repo_name}" "${remote_url}"
+  fi
+done
+
+if check_repo_exists "${GROUP_REPO_KYLIN10}"; then
+  echo "组仓库 ${GROUP_REPO_KYLIN10} 已存在，正在更新成员..."
+  update_group_repo_members "${GROUP_REPO_KYLIN10}" "${GROUP_MEMBERS_KYLIN10[@]}"
+else
+  echo "组仓库 ${GROUP_REPO_KYLIN10} 不存在，正在创建..."
+  create_group_repo "${GROUP_REPO_KYLIN10}" "${GROUP_MEMBERS_KYLIN10[@]}"
+fi
+
 
 echo "仓库创建成功。"
 

@@ -27,6 +27,9 @@ if [ -f /etc/os-release ]; then
     elif [[ "$ID" == "ubuntu" && "$VERSION_ID" == "22.04" ]]; then
         # Ubuntu 22.04
         /scripts/build/ambari3/ub2204/build_ambari_all.sh
+    elif [[ "$ID" == "kylin" && "$VERSION_ID" =~ ^[Vv]?10 ]]; then
+        # Kylin V10
+        /scripts/build/ambari3/kylinv10/build_ambari_all.sh
     else
         echo "不支持的系统: $ID $VERSION_ID"
         exit 1
