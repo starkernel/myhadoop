@@ -22,7 +22,9 @@ echo "############## PRE BUILD_AMBARI_ALL start #############"
 
 PROJECT_PATH="/opt/modules/ambari3"   # 你的目标项目路径
 PATCH_SCRIPT="/scripts/util/apply_patch.sh"  # 工具脚本路径
-RPM_PACKAGE="/data/rpm-package-kylin/ambari3" # 目标路径
+RPM_PACKAGE="/data/rpm-package/ambari3" # 目标路径
+
+mkdir -p $RPM_PACKAGE
 
 cd "$PROJECT_PATH"
 rm -rf "$PROJECT_PATH"/* && git checkout .
@@ -35,7 +37,11 @@ patch_files=(
   "/scripts/build/ambari3/common/patch2_1_0/patch1-DEBIAN-BASE-SUP.diff"
   "/scripts/build/ambari3/common/patch2_1_0/patch2-DEBIAN-DOLPHIN-RANGER-SUP.diff"
   "/scripts/build/ambari3/common/patch2_1_0/patch3-DEBIAN-FINAL-SUP.diff"
+  # 2.1.0 补丁
+  "/scripts/build/ambari3/common/patch2_2_0/patch0-KYLIN-BASE-SUP.diff"
+
   # 后续可继续添加补丁文件路径
+
 )
 
 for patch_file in "${patch_files[@]}"; do
@@ -53,6 +59,7 @@ mvn package install \
 rpm:rpm \
 -Drat.skip=true \
 -Dcheckstyle.skip=true \
+-Pkylin10-x86_64 \
 -DskipTests
 
 

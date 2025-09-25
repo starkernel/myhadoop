@@ -1,0 +1,316 @@
+Subject: [PATCH] feature: kylin v10 适配
+---
+Index: ambari-views/pom.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-views/pom.xml b/ambari-views/pom.xml
+--- a/ambari-views/pom.xml	(revision 31b1ad9626b748f654ff289e7262d7a95352a317)
++++ b/ambari-views/pom.xml	(date 1758791859425)
+@@ -142,6 +142,13 @@
+             <plugin>
+                 <groupId>org.codehaus.mojo</groupId>
+                 <artifactId>rpm-maven-plugin</artifactId>
++                <configuration>
++                    <license>2012, Apache Software Foundation</license>
++                    <group>Development</group>
++                    <disabled>true</disabled>
++                    <description>Maven Recipe: RPM Package.</description>
++                    <mappings/>
++                </configuration>
+             </plugin>
+         </plugins>
+     </build>
+Index: ambari-web/pom.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-web/pom.xml b/ambari-web/pom.xml
+--- a/ambari-web/pom.xml	(revision 31b1ad9626b748f654ff289e7262d7a95352a317)
++++ b/ambari-web/pom.xml	(date 1758791844824)
+@@ -69,6 +69,13 @@
+             <plugin>
+                 <groupId>org.codehaus.mojo</groupId>
+                 <artifactId>rpm-maven-plugin</artifactId>
++                <configuration>
++                    <license>2012, Apache Software Foundation</license>
++                    <group>Development</group>
++                    <disabled>true</disabled>
++                    <description>Maven Recipe: RPM Package.</description>
++                    <mappings/>
++                </configuration>
+             </plugin>
+             <plugin>
+                 <groupId>com.github.eirslett</groupId>
+Index: ambari-server-spi/pom.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server-spi/pom.xml b/ambari-server-spi/pom.xml
+--- a/ambari-server-spi/pom.xml	(revision 31b1ad9626b748f654ff289e7262d7a95352a317)
++++ b/ambari-server-spi/pom.xml	(date 1758791886292)
+@@ -35,6 +35,17 @@
+   <build>
+     <plugins>
+       <plugin>
++        <groupId>org.codehaus.mojo</groupId>
++        <artifactId>rpm-maven-plugin</artifactId>
++        <configuration>
++          <license>2012, Apache Software Foundation</license>
++          <group>Development</group>
++          <disabled>true</disabled>
++          <description>Maven Recipe: RPM Package.</description>
++          <mappings/>
++        </configuration>
++      </plugin>
++      <plugin>
+         <artifactId>maven-compiler-plugin</artifactId>
+         <configuration>
+           <source>${jdk.version}</source>
+Index: ambari-funtest/pom.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-funtest/pom.xml b/ambari-funtest/pom.xml
+--- a/ambari-funtest/pom.xml	(revision 31b1ad9626b748f654ff289e7262d7a95352a317)
++++ b/ambari-funtest/pom.xml	(date 1758791910463)
+@@ -24,6 +24,17 @@
+   <build>
+     <plugins>
+       <plugin>
++        <groupId>org.codehaus.mojo</groupId>
++        <artifactId>rpm-maven-plugin</artifactId>
++        <configuration>
++          <license>2012, Apache Software Foundation</license>
++          <group>Development</group>
++          <disabled>true</disabled>
++          <description>Maven Recipe: RPM Package.</description>
++          <mappings/>
++        </configuration>
++      </plugin>
++      <plugin>
+         <artifactId>maven-compiler-plugin</artifactId>
+         <version>3.5</version>
+         <configuration>
+Index: ambari-project/pom.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-project/pom.xml b/ambari-project/pom.xml
+--- a/ambari-project/pom.xml	(revision 31b1ad9626b748f654ff289e7262d7a95352a317)
++++ b/ambari-project/pom.xml	(date 1758791902882)
+@@ -738,6 +738,17 @@
+     </pluginManagement>
+     <plugins>
+       <plugin>
++        <groupId>org.codehaus.mojo</groupId>
++        <artifactId>rpm-maven-plugin</artifactId>
++        <configuration>
++          <license>2012, Apache Software Foundation</license>
++          <group>Development</group>
++          <disabled>true</disabled>
++          <description>Maven Recipe: RPM Package.</description>
++          <mappings/>
++        </configuration>
++      </plugin>
++      <plugin>
+         <groupId>org.apache.rat</groupId>
+         <artifactId>apache-rat-plugin</artifactId>
+         <configuration combine.self="override"/>
+Index: ambari-agent/pom.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-agent/pom.xml b/ambari-agent/pom.xml
+--- a/ambari-agent/pom.xml	(revision 31b1ad9626b748f654ff289e7262d7a95352a317)
++++ b/ambari-agent/pom.xml	(date 1758794085626)
+@@ -379,6 +379,7 @@
+         <configuration>
+           <license>2012, Apache Software Foundation</license>
+           <group>Development</group>
++          <disabled>false</disabled>
+           <description>Maven Recipe: RPM Package.</description>
+           <defineStatements>
+             <defineStatement>__python 3</defineStatement>
+@@ -416,7 +417,8 @@
+             <fileEncoding>utf-8</fileEncoding>
+           </postremoveScriptlet>
+
+-          <needarch>x86_64</needarch>
++          <needarch>${ttbigdata.arch.rpm.version}</needarch>
++          <release>${ttbigdata.package.rpm.release}</release>
+           <autoRequires>false</autoRequires>
+           <mappings>
+             <mapping>
+Index: ambari-server/pom.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/pom.xml b/ambari-server/pom.xml
+--- a/ambari-server/pom.xml	(revision 31b1ad9626b748f654ff289e7262d7a95352a317)
++++ b/ambari-server/pom.xml	(date 1758794069516)
+@@ -580,6 +580,7 @@
+         <configuration>
+           <license>2012, Apache Software Foundation</license>
+           <group>Development</group>
++          <disabled>false</disabled>
+           <description>Maven Recipe: RPM Package.</description>
+           <defineStatements>
+             <defineStatement>__python 3</defineStatement>
+@@ -619,7 +620,8 @@
+             <scriptFile>src/main/package/rpm/postremove.sh</scriptFile>
+             <fileEncoding>utf-8</fileEncoding>
+           </postremoveScriptlet>
+-          <needarch>x86_64</needarch>
++          <needarch>${ttbigdata.arch.rpm.version}</needarch>
++          <release>${ttbigdata.package.rpm.release}</release>
+           <mappings>
+             <mapping>
+               <directory>/etc</directory>
+@@ -700,7 +702,8 @@
+         </executions>
+         <configuration>
+           <controlDir>${basedir}/src/main/package/deb/control</controlDir>
+-          <deb>${basedir}/target/${project.artifactId}_${package-version}-${package-release}-dist.deb</deb>
++<!--          <deb>${basedir}/target/${project.artifactId}_${package-version}-${package-release}-dist.deb</deb>-->
++          <deb>${basedir}/target/${project.artifactId}_${ttbigdata.package.deb.release}.deb</deb>
+           <skip>false</skip>
+           <skipPOMs>false</skipPOMs>
+           <dataSet>
+Index: ambari-serviceadvisor/pom.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-serviceadvisor/pom.xml b/ambari-serviceadvisor/pom.xml
+--- a/ambari-serviceadvisor/pom.xml	(revision 31b1ad9626b748f654ff289e7262d7a95352a317)
++++ b/ambari-serviceadvisor/pom.xml	(date 1758791873207)
+@@ -128,6 +128,13 @@
+       <plugin>
+         <groupId>org.codehaus.mojo</groupId>
+         <artifactId>rpm-maven-plugin</artifactId>
++        <configuration>
++          <license>2012, Apache Software Foundation</license>
++          <group>Development</group>
++          <disabled>true</disabled>
++          <description>Maven Recipe: RPM Package.</description>
++          <mappings/>
++        </configuration>
+       </plugin>
+       <plugin>
+         <groupId>org.vafer</groupId>
+Index: ambari-admin/pom.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-admin/pom.xml b/ambari-admin/pom.xml
+--- a/ambari-admin/pom.xml	(revision 31b1ad9626b748f654ff289e7262d7a95352a317)
++++ b/ambari-admin/pom.xml	(date 1758791931444)
+@@ -166,6 +166,17 @@
+         </configuration>
+       </plugin>
+       <plugin>
++        <groupId>org.codehaus.mojo</groupId>
++        <artifactId>rpm-maven-plugin</artifactId>
++        <configuration>
++          <license>2012, Apache Software Foundation</license>
++          <group>Development</group>
++          <disabled>true</disabled>
++          <description>Maven Recipe: RPM Package.</description>
++          <mappings/>
++        </configuration>
++      </plugin>
++      <plugin>
+         <groupId>org.vafer</groupId>
+         <artifactId>jdeb</artifactId>
+         <executions>
+Index: pom.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/pom.xml b/pom.xml
+--- a/pom.xml	(revision 31b1ad9626b748f654ff289e7262d7a95352a317)
++++ b/pom.xml	(date 1758792953255)
+@@ -97,6 +97,15 @@
+     <assemblyPhase>package</assemblyPhase> <!-- use -DassemblyPhase=none to skip building tarball, useful when you want purely compile jar -->
+     <rpm-maven-plugin.version>2.1.4</rpm-maven-plugin.version>
+     <eclipselink.version>2.7.14</eclipselink.version>
++
++    <!--    JaneTTR define start -->
++    <ttbigdata.release.version>2.2.0</ttbigdata.release.version>
++    <ttbigdata.package.name>el8</ttbigdata.package.name>
++    <ttbigdata.package.rpm.release>${ttbigdata.release.version}.${ttbigdata.package.name}</ttbigdata.package.rpm.release>
++    <ttbigdata.package.deb.release>${ttbigdata.release.version}-${ttbigdata.package.name}</ttbigdata.package.deb.release>
++    <ttbigdata.arch.rpm.version>noarch</ttbigdata.arch.rpm.version>
++    <ttbigdata.arch.deb.version>all</ttbigdata.arch.deb.version>
++    <!--    JaneTTR define end -->
+   </properties>
+   <pluginRepositories>
+     <pluginRepository>
+@@ -491,6 +500,57 @@
+     </plugins>
+   </build>
+   <profiles>
++    <profile>
++      <id>el7</id>
++      <properties>
++        <ttbigdata.package.name>el7</ttbigdata.package.name>
++        <ttbigdata.arch.rpm.version>x86_64</ttbigdata.arch.rpm.version>
++      </properties>
++    </profile>
++
++    <profile>
++      <id>el8</id>
++      <properties>
++        <ttbigdata.package.name>el8</ttbigdata.package.name>
++        <ttbigdata.arch.rpm.version>x86_64</ttbigdata.arch.rpm.version>
++      </properties>
++    </profile>
++
++    <profile>
++      <id>kylin10-x86_64</id>
++      <properties>
++        <ttbigdata.package.name>ky10</ttbigdata.package.name>
++        <ttbigdata.arch.rpm.version>x86_64</ttbigdata.arch.rpm.version>
++      </properties>
++    </profile>
++
++    <profile>
++      <id>kylin10-aarch64</id>
++      <properties>
++        <ttbigdata.package.name>ky10</ttbigdata.package.name>
++        <ttbigdata.arch.rpm.version>aarch64</ttbigdata.arch.rpm.version>
++      </properties>
++    </profile>
++
++    <!-- Ubuntu22 主要用于 DEB；RPM 若也打包可沿用 x86_64 -->
++    <profile>
++      <id>ubuntu22</id>
++      <properties>
++        <ttbigdata.package.name>ubuntu22</ttbigdata.package.name>
++        <ttbigdata.arch.deb.version>amd64</ttbigdata.arch.deb.version>
++      </properties>
++    </profile>
++
++    <!-- 纯脚本/资源包：RPM noarch, DEB all -->
++    <profile>
++      <id>noarch</id>
++      <properties>
++        <ttbigdata.package.name>noarch</ttbigdata.package.name>
++        <ttbigdata.arch.rpm.version>noarch</ttbigdata.arch.rpm.version>
++        <ttbigdata.arch.deb.version>all</ttbigdata.arch.deb.version>
++      </properties>
++    </profile>
++
+     <profile>
+       <id>default-views</id>
+       <activation>

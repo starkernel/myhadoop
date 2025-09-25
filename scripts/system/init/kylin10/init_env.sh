@@ -137,6 +137,7 @@ init_kylin_v10() {
     curl wget vim tar unzip which sudo \
     net-tools iproute less lsof \
     openssh-server \
+    iputils \
     passwd \
     || true
 
