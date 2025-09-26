@@ -145,6 +145,7 @@ init_kylin_v10() {
   ${PKG_INSTALL} \
     gcc gcc-c++ make cmake autoconf automake libtool m4 autoconf-archive pkgconf \
     rpm-build rsync \
+    python2-devel \
     || true
 
   # 常见库 & 头文件（Kylin 源中存在）

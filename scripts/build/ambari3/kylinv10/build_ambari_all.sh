@@ -59,6 +59,7 @@ mvn package install \
 rpm:rpm \
 -Drat.skip=true \
 -Dcheckstyle.skip=true \
+-Dspotbugs.skip=true \
 -Pkylin10-x86_64 \
 -DskipTests
 

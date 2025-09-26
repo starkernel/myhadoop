@@ -1,49 +1,5 @@
-Subject: [PATCH] feature: kylin v10 适配
+Subject: [PATCH] feature: 规范包重命名
 ---
-Index: ambari-views/pom.xml
-IDEA additional info:
-Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
-<+>UTF-8
-===================================================================
-diff --git a/ambari-views/pom.xml b/ambari-views/pom.xml
---- a/ambari-views/pom.xml	(revision 31b1ad9626b748f654ff289e7262d7a95352a317)
-+++ b/ambari-views/pom.xml	(date 1758791859425)
-@@ -142,6 +142,13 @@
-             <plugin>
-                 <groupId>org.codehaus.mojo</groupId>
-                 <artifactId>rpm-maven-plugin</artifactId>
-+                <configuration>
-+                    <license>2012, Apache Software Foundation</license>
-+                    <group>Development</group>
-+                    <disabled>true</disabled>
-+                    <description>Maven Recipe: RPM Package.</description>
-+                    <mappings/>
-+                </configuration>
-             </plugin>
-         </plugins>
-     </build>
-Index: ambari-web/pom.xml
-IDEA additional info:
-Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
-<+>UTF-8
-===================================================================
-diff --git a/ambari-web/pom.xml b/ambari-web/pom.xml
---- a/ambari-web/pom.xml	(revision 31b1ad9626b748f654ff289e7262d7a95352a317)
-+++ b/ambari-web/pom.xml	(date 1758791844824)
-@@ -69,6 +69,13 @@
-             <plugin>
-                 <groupId>org.codehaus.mojo</groupId>
-                 <artifactId>rpm-maven-plugin</artifactId>
-+                <configuration>
-+                    <license>2012, Apache Software Foundation</license>
-+                    <group>Development</group>
-+                    <disabled>true</disabled>
-+                    <description>Maven Recipe: RPM Package.</description>
-+                    <mappings/>
-+                </configuration>
-             </plugin>
-             <plugin>
-                 <groupId>com.github.eirslett</groupId>
 Index: ambari-server-spi/pom.xml
 IDEA additional info:
 Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
@@ -96,6 +52,42 @@ diff --git a/ambari-funtest/pom.xml b/ambari-funtest/pom.xml
          <artifactId>maven-compiler-plugin</artifactId>
          <version>3.5</version>
          <configuration>
+Index: ambari-agent/pom.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-agent/pom.xml b/ambari-agent/pom.xml
+--- a/ambari-agent/pom.xml	(revision 31b1ad9626b748f654ff289e7262d7a95352a317)
++++ b/ambari-agent/pom.xml	(date 1758854267144)
+@@ -379,6 +379,7 @@
+         <configuration>
+           <license>2012, Apache Software Foundation</license>
+           <group>Development</group>
++          <disabled>false</disabled>
+           <description>Maven Recipe: RPM Package.</description>
+           <defineStatements>
+             <defineStatement>__python 3</defineStatement>
+@@ -416,7 +417,8 @@
+             <fileEncoding>utf-8</fileEncoding>
+           </postremoveScriptlet>
+
+-          <needarch>x86_64</needarch>
++          <needarch>${ttbigdata.arch.rpm.version}</needarch>
++          <release>${ttbigdata.package.rpm.release}</release>
+           <autoRequires>false</autoRequires>
+           <mappings>
+             <mapping>
+@@ -506,7 +508,8 @@
+         </executions>
+         <configuration>
+           <controlDir>${basedir}/src/main/package/deb/control</controlDir>
+-          <deb>${basedir}/target/${project.artifactId}_${package-version}-${package-release}.deb</deb>
++<!--          <deb>${basedir}/target/${project.artifactId}_${package-version}-${package-release}.deb</deb>-->
++          <deb>${basedir}/target/${project.artifactId}_${package-version}-${ttbigdata.package.deb.release}.deb</deb>
+           <skip>false</skip>
+           <skipPOMs>false</skipPOMs>
+           <dataSet>
 Index: ambari-project/pom.xml
 IDEA additional info:
 Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
@@ -122,90 +114,28 @@ diff --git a/ambari-project/pom.xml b/ambari-project/pom.xml
          <groupId>org.apache.rat</groupId>
          <artifactId>apache-rat-plugin</artifactId>
          <configuration combine.self="override"/>
-Index: ambari-agent/pom.xml
+Index: ambari-views/pom.xml
 IDEA additional info:
 Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
 <+>UTF-8
 ===================================================================
-diff --git a/ambari-agent/pom.xml b/ambari-agent/pom.xml
---- a/ambari-agent/pom.xml	(revision 31b1ad9626b748f654ff289e7262d7a95352a317)
-+++ b/ambari-agent/pom.xml	(date 1758794085626)
-@@ -379,6 +379,7 @@
-         <configuration>
-           <license>2012, Apache Software Foundation</license>
-           <group>Development</group>
-+          <disabled>false</disabled>
-           <description>Maven Recipe: RPM Package.</description>
-           <defineStatements>
-             <defineStatement>__python 3</defineStatement>
-@@ -416,7 +417,8 @@
-             <fileEncoding>utf-8</fileEncoding>
-           </postremoveScriptlet>
-
--          <needarch>x86_64</needarch>
-+          <needarch>${ttbigdata.arch.rpm.version}</needarch>
-+          <release>${ttbigdata.package.rpm.release}</release>
-           <autoRequires>false</autoRequires>
-           <mappings>
-             <mapping>
-Index: ambari-server/pom.xml
-IDEA additional info:
-Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
-<+>UTF-8
-===================================================================
-diff --git a/ambari-server/pom.xml b/ambari-server/pom.xml
---- a/ambari-server/pom.xml	(revision 31b1ad9626b748f654ff289e7262d7a95352a317)
-+++ b/ambari-server/pom.xml	(date 1758794069516)
-@@ -580,6 +580,7 @@
-         <configuration>
-           <license>2012, Apache Software Foundation</license>
-           <group>Development</group>
-+          <disabled>false</disabled>
-           <description>Maven Recipe: RPM Package.</description>
-           <defineStatements>
-             <defineStatement>__python 3</defineStatement>
-@@ -619,7 +620,8 @@
-             <scriptFile>src/main/package/rpm/postremove.sh</scriptFile>
-             <fileEncoding>utf-8</fileEncoding>
-           </postremoveScriptlet>
--          <needarch>x86_64</needarch>
-+          <needarch>${ttbigdata.arch.rpm.version}</needarch>
-+          <release>${ttbigdata.package.rpm.release}</release>
-           <mappings>
-             <mapping>
-               <directory>/etc</directory>
-@@ -700,7 +702,8 @@
-         </executions>
-         <configuration>
-           <controlDir>${basedir}/src/main/package/deb/control</controlDir>
--          <deb>${basedir}/target/${project.artifactId}_${package-version}-${package-release}-dist.deb</deb>
-+<!--          <deb>${basedir}/target/${project.artifactId}_${package-version}-${package-release}-dist.deb</deb>-->
-+          <deb>${basedir}/target/${project.artifactId}_${ttbigdata.package.deb.release}.deb</deb>
-           <skip>false</skip>
-           <skipPOMs>false</skipPOMs>
-           <dataSet>
-Index: ambari-serviceadvisor/pom.xml
-IDEA additional info:
-Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
-<+>UTF-8
-===================================================================
-diff --git a/ambari-serviceadvisor/pom.xml b/ambari-serviceadvisor/pom.xml
---- a/ambari-serviceadvisor/pom.xml	(revision 31b1ad9626b748f654ff289e7262d7a95352a317)
-+++ b/ambari-serviceadvisor/pom.xml	(date 1758791873207)
-@@ -128,6 +128,13 @@
-       <plugin>
-         <groupId>org.codehaus.mojo</groupId>
-         <artifactId>rpm-maven-plugin</artifactId>
-+        <configuration>
-+          <license>2012, Apache Software Foundation</license>
-+          <group>Development</group>
-+          <disabled>true</disabled>
-+          <description>Maven Recipe: RPM Package.</description>
-+          <mappings/>
-+        </configuration>
-       </plugin>
-       <plugin>
-         <groupId>org.vafer</groupId>
+diff --git a/ambari-views/pom.xml b/ambari-views/pom.xml
+--- a/ambari-views/pom.xml	(revision 31b1ad9626b748f654ff289e7262d7a95352a317)
++++ b/ambari-views/pom.xml	(date 1758791859425)
+@@ -142,6 +142,13 @@
+             <plugin>
+                 <groupId>org.codehaus.mojo</groupId>
+                 <artifactId>rpm-maven-plugin</artifactId>
++                <configuration>
++                    <license>2012, Apache Software Foundation</license>
++                    <group>Development</group>
++                    <disabled>true</disabled>
++                    <description>Maven Recipe: RPM Package.</description>
++                    <mappings/>
++                </configuration>
+             </plugin>
+         </plugins>
+     </build>
 Index: ambari-admin/pom.xml
 IDEA additional info:
 Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
@@ -232,6 +162,64 @@ diff --git a/ambari-admin/pom.xml b/ambari-admin/pom.xml
          <groupId>org.vafer</groupId>
          <artifactId>jdeb</artifactId>
          <executions>
+Index: ambari-serviceadvisor/pom.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-serviceadvisor/pom.xml b/ambari-serviceadvisor/pom.xml
+--- a/ambari-serviceadvisor/pom.xml	(revision 31b1ad9626b748f654ff289e7262d7a95352a317)
++++ b/ambari-serviceadvisor/pom.xml	(date 1758791873207)
+@@ -128,6 +128,13 @@
+       <plugin>
+         <groupId>org.codehaus.mojo</groupId>
+         <artifactId>rpm-maven-plugin</artifactId>
++        <configuration>
++          <license>2012, Apache Software Foundation</license>
++          <group>Development</group>
++          <disabled>true</disabled>
++          <description>Maven Recipe: RPM Package.</description>
++          <mappings/>
++        </configuration>
+       </plugin>
+       <plugin>
+         <groupId>org.vafer</groupId>
+Index: ambari-server/pom.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/pom.xml b/ambari-server/pom.xml
+--- a/ambari-server/pom.xml	(revision 31b1ad9626b748f654ff289e7262d7a95352a317)
++++ b/ambari-server/pom.xml	(date 1758854295215)
+@@ -580,6 +580,7 @@
+         <configuration>
+           <license>2012, Apache Software Foundation</license>
+           <group>Development</group>
++          <disabled>false</disabled>
+           <description>Maven Recipe: RPM Package.</description>
+           <defineStatements>
+             <defineStatement>__python 3</defineStatement>
+@@ -619,7 +620,8 @@
+             <scriptFile>src/main/package/rpm/postremove.sh</scriptFile>
+             <fileEncoding>utf-8</fileEncoding>
+           </postremoveScriptlet>
+-          <needarch>x86_64</needarch>
++          <needarch>${ttbigdata.arch.rpm.version}</needarch>
++          <release>${ttbigdata.package.rpm.release}</release>
+           <mappings>
+             <mapping>
+               <directory>/etc</directory>
+@@ -700,7 +702,8 @@
+         </executions>
+         <configuration>
+           <controlDir>${basedir}/src/main/package/deb/control</controlDir>
+-          <deb>${basedir}/target/${project.artifactId}_${package-version}-${package-release}-dist.deb</deb>
++<!--          <deb>${basedir}/target/${project.artifactId}_${package-version}-${package-release}-dist.deb</deb>-->
++          <deb>${basedir}/target/${project.artifactId}_${package-version}-${ttbigdata.package.deb.release}.deb</deb>
+           <skip>false</skip>
+           <skipPOMs>false</skipPOMs>
+           <dataSet>
 Index: pom.xml
 IDEA additional info:
 Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
@@ -239,7 +227,7 @@ Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
 ===================================================================
 diff --git a/pom.xml b/pom.xml
 --- a/pom.xml	(revision 31b1ad9626b748f654ff289e7262d7a95352a317)
-+++ b/pom.xml	(date 1758792953255)
++++ b/pom.xml	(date 1758854381157)
 @@ -97,6 +97,15 @@
      <assemblyPhase>package</assemblyPhase> <!-- use -DassemblyPhase=none to skip building tarball, useful when you want purely compile jar -->
      <rpm-maven-plugin.version>2.1.4</rpm-maven-plugin.version>
@@ -249,14 +237,22 @@ diff --git a/pom.xml b/pom.xml
 +    <ttbigdata.release.version>2.2.0</ttbigdata.release.version>
 +    <ttbigdata.package.name>el8</ttbigdata.package.name>
 +    <ttbigdata.package.rpm.release>${ttbigdata.release.version}.${ttbigdata.package.name}</ttbigdata.package.rpm.release>
-+    <ttbigdata.package.deb.release>${ttbigdata.release.version}-${ttbigdata.package.name}</ttbigdata.package.deb.release>
++    <ttbigdata.package.deb.release>${ttbigdata.release.version}_${ttbigdata.arch.deb.version}</ttbigdata.package.deb.release>
 +    <ttbigdata.arch.rpm.version>noarch</ttbigdata.arch.rpm.version>
 +    <ttbigdata.arch.deb.version>all</ttbigdata.arch.deb.version>
 +    <!--    JaneTTR define end -->
    </properties>
    <pluginRepositories>
      <pluginRepository>
-@@ -491,6 +500,57 @@
+@@ -263,6 +272,7 @@
+         <configuration>
+           <license>2012, Apache Software Foundation</license>
+           <group>Development</group>
++          <disabled>true</disabled>
+           <description>Maven Recipe: RPM Package.</description>
+           <release>${package-release}</release>
+           <version>${package-version}</version>
+@@ -491,6 +501,57 @@
      </plugins>
    </build>
    <profiles>
@@ -314,3 +310,25 @@ diff --git a/pom.xml b/pom.xml
      <profile>
        <id>default-views</id>
        <activation>
+Index: ambari-web/pom.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-web/pom.xml b/ambari-web/pom.xml
+--- a/ambari-web/pom.xml	(revision 31b1ad9626b748f654ff289e7262d7a95352a317)
++++ b/ambari-web/pom.xml	(date 1758791844824)
+@@ -69,6 +69,13 @@
+             <plugin>
+                 <groupId>org.codehaus.mojo</groupId>
+                 <artifactId>rpm-maven-plugin</artifactId>
++                <configuration>
++                    <license>2012, Apache Software Foundation</license>
++                    <group>Development</group>
++                    <disabled>true</disabled>
++                    <description>Maven Recipe: RPM Package.</description>
++                    <mappings/>
++                </configuration>
+             </plugin>
+             <plugin>
+                 <groupId>com.github.eirslett</groupId>
