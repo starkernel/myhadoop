@@ -25,20 +25,41 @@ mkdir -p /var/lib/init
 # 假设 Nexus 已创建组仓库：yum-public-kylinv10
 # 组仓库成员至少包含：kylin-v10-sp3 -> https://update.cs2c.com.cn/NS/V10/V10SP3/
 write_repo_kylin_v10() {
+  local host="$1"
+  if [ -z "$host" ]; then
+    echo "Usage: write_repo_kylin_v10 <NEXUS_HOST_OR_IP>" >&2
+    return 2
+  fi
+
   cat >/etc/yum.repos.d/kylin-v10.repo <<EOF
 [kylin-base]
-name=Kylin V10 SP3 - Base (via Nexus)
-baseurl=http://$1:8081/repository/yum-public-kylinv10/os/adv/lic/base/\$basearch/
+name=Kylin V10 SP3 - Base (via Nexus group)
+baseurl=http://$host:8081/repository/yum-public-kylinv10/os/adv/lic/base/\$basearch/
 enabled=1
 gpgcheck=0
+metadata_expire=6h
 
 [kylin-updates]
-name=Kylin V10 SP3 - Updates (via Nexus)
-baseurl=http://$1:8081/repository/yum-public-kylinv10/os/adv/lic/updates/\$basearch/
+name=Kylin V10 SP3 - Updates (via Nexus group)
+baseurl=http://$host:8081/repository/yum-public-kylinv10/os/adv/lic/updates/\$basearch/
 enabled=1
 gpgcheck=0
+metadata_expire=6h
+
+[epol]
+name=openEuler EPOL main (via Nexus group)
+baseurl=http://$host:8081/repository/yum-public-kylinv10/EPOL/main/\$basearch
+enabled=1
+gpgcheck=0
+countme=1
+metadata_expire=6h
 EOF
+
+  yum clean all >/dev/null 2>&1 || true
+  yum makecache -y
+  yum repolist
 }
+
 
 # ========== 修补 /etc/profile（使其对 set -e 友好，并增加 hostname 多级回退） ==========
 install_hostname_fallback() {
@@ -134,32 +155,27 @@ init_kylin_v10() {
 
   # 常用工具 & 运行时
   ${PKG_INSTALL} \
-    curl wget vim tar unzip which sudo \
-    net-tools iproute less lsof \
-    openssh-server \
-    iputils \
-    passwd \
-    || true
-
-  # 开发工具链
-  ${PKG_INSTALL} \
-    gcc gcc-c++ make cmake autoconf automake libtool m4 autoconf-archive pkgconf \
-    rpm-build rsync \
-    python2-devel \
-    || true
-
-  # 常见库 & 头文件（Kylin 源中存在）
-  ${PKG_INSTALL} \
-    zlib-devel libzstd-devel \
-    bzip2-devel snappy-devel libzip-devel \
-    libtirpc-devel krb5-devel openssl-devel libxml2-devel \
-    protobuf protobuf-devel protobuf-compiler \
-    lzo-devel \
-    fuse fuse-devel \
-    cppunit-devel \
-    asciidoc docbook2X xmlto \
-    lsb-core \
-    || true
+  curl wget vim tar unzip which sudo less lsof git patch rsync \
+  net-tools iproute hostname passwd \
+  openssh-server openssh-clients \
+  procps-ng iputils \
+  gcc gcc-c++ make cmake autoconf automake libtool m4 autoconf-archive pkgconf \
+  rpm-build \
+  asciidoc docbook2X xmlto \
+  python3 python3-pip python2-devel \
+  zlib-devel libzstd-devel \
+  bzip2-devel snappy-devel libzip-devel \
+  libtirpc-devel krb5-devel openssl-devel libxml2-devel \
+  protobuf protobuf-devel protobuf-compiler \
+  lzo-devel \
+  fuse fuse-devel fuse-libs \
+  cppunit-devel \
+  cyrus-sasl cyrus-sasl-devel cyrus-sasl-gssapi \
+  libgsasl-devel \
+  isa-l libisa-l-devel \
+  libpmem-devel libpmemobj-devel \
+  kylin-lsb \
+  sharutils || true
 }
 
 # ========== 主流程（仅 Kylin V10） ==========

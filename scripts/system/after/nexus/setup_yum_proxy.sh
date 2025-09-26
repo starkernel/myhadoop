@@ -44,15 +44,20 @@ GROUP_REPO_ROCKY8="yum-public-rocky8"
 GROUP_MEMBERS_ROCKY8=("rocky8-mirrors" "rocky8-epel")
 
 
-########## Kylin V10 仓库（SP3 固定到代理端） ##########
-# 说明：
-# - 单个 proxy 指到 V10SP3 根： https://update.cs2c.com.cn/NS/V10/V10SP3/
-# - 组仓库聚合这个 proxy；客户端再在 baseurl 里拼接 os/adv/lic/base|updates/$basearch/
+########## Kylin V10 + openEuler EPOL（统一进同一组仓） ##########
+# Kylin V10 SP3 官方根
+#   https://update.cs2c.com.cn/NS/V10/V10SP3/
+# EPOL 20.03-LTS-SP3 官方根
+#   https://mirrors.huaweicloud.com/openeuler/openEuler-20.03-LTS-SP3/EPOL/main/
+
 REPOS_KYLIN10=(
   "kylin-v10-sp3|https://update.cs2c.com.cn/NS/V10/V10SP3/"
+  "openeuler-epol-main|https://mirrors.huaweicloud.com/openeuler/openEuler-20.03-LTS-SP3/EPOL/main/"
 )
+
+# 仍使用你现有的组仓名
 GROUP_REPO_KYLIN10="yum-public-kylinv10"
-GROUP_MEMBERS_KYLIN10=("kylin-v10-sp3")
+GROUP_MEMBERS_KYLIN10=("kylin-v10-sp3" "openeuler-epol-main")
 
 
 # ================= 函数定义 ===================
