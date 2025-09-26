@@ -58,10 +58,10 @@ echo "1.0.7 补丁"
 bash /scripts/build/bigtop/build1_0_7.sh
 
 echo "2.0.0 补丁"
-bash /scripts/build/bigtop3/el8/build2_0_0.sh
+bash /scripts/build/bigtop3/ky10-x86/build2_0_0.sh
 
 echo "2.1.0 补丁"
-bash /scripts/build/bigtop3/el8/build2_1_0.sh
+bash /scripts/build/bigtop3/ky10-x86/build2_1_0.sh
 
 # 开启 gcc 高版本
 
