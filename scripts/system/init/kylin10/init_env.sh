@@ -56,88 +56,26 @@ metadata_expire=6h
 EOF
 
   yum clean all >/dev/null 2>&1 || true
-  yum makecache -y
-  yum repolist
 }
 
 
-# ========== 修补 /etc/profile（使其对 set -e 友好，并增加 hostname 多级回退） ==========
-install_hostname_fallback() {
-  set -e
-  local backup="/etc/profile.bak.$(date +%F_%H%M%S)"
-  cp -a /etc/profile "$backup" || true
+# ========== 修补 /etc/profile ==========
 
-  awk '
-  BEGIN{
-    added_guard_start=0; replaced_host=0; replaced_hist=0; guarded_pd=0
-  }
-  NR==1 {
-    # 在文件最开头插入 errexit 保护（避免被 set -e 的调用者“连坐”）
-    print "__PROFILE_OLD_OPTS__=\"$-\""
-    print "set +e"
-    added_guard_start=1
-  }
-  # 将直接使用 hostnamectl 的行替换为“多级回退 + 不因失败退出”
-  /hostnamectl[[:space:]].*--transient/ && replaced_host==0 {
-    print "HOSTNAME=\"\""
-    print "if command -v hostnamectl >/dev/null 2>&1; then"
-    print "  HOSTNAME=\"$(hostnamectl --transient 2>/dev/null || true)\""
-    print "fi"
-    print "[ -z \"$HOSTNAME\" ] && HOSTNAME=\"$(hostname -s 2>/dev/null || cat /etc/hostname 2>/dev/null || uname -n)\""
-    print "export HOSTNAME"
-    replaced_host=1
-    next
-  }
-  # 将 HISTSIZE=1000 改为 export 形式（保留已有 HISTSIZE 优先）
-  /^[[:space:]]*HISTSIZE=1000[[:space:]]*$/ && replaced_hist==0 {
-    print "export HISTSIZE=\"${HISTSIZE:-1000}\""
-    replaced_hist=1
-    next
-  }
-  # 给 /etc/profile.d/*.sh 循环加保护，避免某个脚本非零导致整体退出
-  /^for[[:space:]]+i[[:space:]]+in[[:space:]]+\/etc\/profile\.d\/\*\.sh[[:space:]]+\/etc\/profile\.d\/sh\.local[[:space:]]*;/ && guarded_pd==0 {
-    print "## begin: guard profile.d block from errexit"
-    print "__PD_OLD_OPTS__=\"$-\""
-    print "set +e"
-    guarded_pd=1
-    print
-    next
-  }
-  # 循环结束处恢复调用者 errexit 状态
-  /^[[:space:]]*done[[:space:]]*$/ && guarded_pd==1 {
-    print "## end: guard profile.d block"
-    print "[[ \"$__PD_OLD_OPTS__\" == *\"e\"* ]] && set -e || true"
-    print "unset __PD_OLD_OPTS__"
-    print
-    next
-  }
+fixed_hostname() {
+  local profile="/etc/profile"
 
-  { print }
+  # 1. 删除旧的 hostnamectl 版本
+  sed -i '/^HOSTNAME=`\/usr\/bin\/hostnamectl/d' "$profile"
 
-  END{
-    # 如未匹配到 hostnamectl 行，追加一段安全的 HOSTNAME 设定
-    if (replaced_host==0) {
-      print ""
-      print "# (auto-added) robust HOSTNAME fallback"
-      print "HOSTNAME=\"\""
-      print "if command -v hostnamectl >/dev/null 2>&1; then"
-      print "  HOSTNAME=\"$(hostnamectl --transient 2>/dev/null || true)\""
-      print "fi"
-      print "[ -z \"$HOSTNAME\" ] && HOSTNAME=\"$(hostname -s 2>/dev/null || cat /etc/hostname 2>/dev/null || uname -n)\""
-      print "export HOSTNAME"
-    }
-    # 如未匹配到 HISTSIZE，追加默认导出
-    if (replaced_hist==0) {
-      print "export HISTSIZE=\"${HISTSIZE:-1000}\""
-    }
-    # 文件末尾恢复调用者的 -e 状态
-    print "[[ \"$__PROFILE_OLD_OPTS__\" == *\"e\"* ]] && set -e || true"
-    print "unset __PROFILE_OLD_OPTS__"
-  }
-  ' "$backup" > /etc/profile.new
+  # 2. 删除我们定义的标记块
+  sed -i '/^# >>> HOSTNAME-BEGIN$/,/^# <<< HOSTNAME-END$/d' "$profile"
 
-  mv /etc/profile.new /etc/profile
-  echo "Patched /etc/profile (backup at $backup)"
+  # 3. 在 export PATH… 的前一行插入新块
+  sed -i '/^export PATH USER LOGNAME MAIL HOSTNAME HISTSIZE HISTCONTROL$/i \
+# >>> HOSTNAME-BEGIN\
+\nHOSTNAME=$(/usr/bin/hostname 2>/dev/null)\
+\nexport HOSTNAME\
+\n# <<< HOSTNAME-END' "$profile"
 }
 
 
@@ -178,6 +116,7 @@ init_kylin_v10() {
   sharutils || true
 }
 
+
 # ========== 主流程（仅 Kylin V10） ==========
 rm_init_repos() {
   NEXUS_IP=$(cat /scripts/system/before/nexus/.lock)
@@ -204,7 +143,7 @@ rm_init_repos() {
     write_repo_kylin_v10 "$NEXUS_IP"
     echo "repo 文件已写入，正在初始化 Kylin V10 ..."
     init_kylin_v10
-    install_hostname_fallback
+    fixed_hostname
   else
     echo "当前系统不是 Kylin V10 (检测到: OS_ID=${OS_ID}, VERSION_ID=${OS_VERSION_ID_RAW}). 脚本仅支持 Kylin V10。" >&2
     exit 1
@@ -229,7 +168,6 @@ if [ ! -f "$FLAG_FILE" ]; then
   # 全局 alias 配置（带 color）
   grep -qxF "alias ll='ls -alF --color=auto'" /etc/profile || echo "alias ll='ls -alF --color=auto'" >> /etc/profile
   grep -qxF "alias ls='ls --color=auto'" /etc/profile   || echo "alias ls='ls --color=auto'"   >> /etc/profile
-  grep -qxF "source /etc/profile" /root/.bashrc         || echo "source /etc/profile"          >> /etc/profile
 
   touch "$FLAG_FILE"
 else

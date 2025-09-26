@@ -21,6 +21,7 @@ set -ex
 # init env
 source /scripts/system/init/kylin10/init_env.sh
 
+
 # setup jdk
 source /scripts/system/init/setup_jdk.sh
 
