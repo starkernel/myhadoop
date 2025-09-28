@@ -111,6 +111,7 @@ init_kylin_v10() {
   cyrus-sasl cyrus-sasl-devel cyrus-sasl-gssapi \
   libgsasl-devel \
   isa-l libisa-l-devel \
+  libtirpc libtirpc-devel pkgconf-pkg-config \
   libpmem-devel libpmemobj-devel \
   kylin-lsb \
   sharutils || true
