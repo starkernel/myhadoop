@@ -37,8 +37,9 @@ patch_files=(
   "/scripts/build/ambari3/common/patch2_1_0/patch1-DEBIAN-BASE-SUP.diff"
   "/scripts/build/ambari3/common/patch2_1_0/patch2-DEBIAN-DOLPHIN-RANGER-SUP.diff"
   "/scripts/build/ambari3/common/patch2_1_0/patch3-DEBIAN-FINAL-SUP.diff"
-  # 2.1.0 补丁
+  # 2.2.0 补丁
   "/scripts/build/ambari3/common/patch2_2_0/patch0-KYLIN-BASE-SUP.diff"
+  "/scripts/build/ambari3/common/patch2_2_0/patch1-KYLIN-ALL-COMPONENT-SUP.diff"
 
   # 后续可继续添加补丁文件路径
 

@@ -1,0 +1,566 @@
+Subject: [PATCH] feature: 支持kylin10组件
+---
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/OZONE/metainfo.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/OZONE/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/OZONE/metainfo.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/OZONE/metainfo.xml	(revision 7c2ccb68754d025492b7ccf625cdfd1f03e90864)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/OZONE/metainfo.xml	(date 1759976580148)
+@@ -122,7 +122,7 @@
+ 
+             <osSpecifics>
+                 <osSpecific>
+-                    <osFamily>redhat7,redhat8</osFamily>
++                    <osFamily>redhat7,redhat8,kylin10</osFamily>
+                     <packages>
+                         <package>
+                             <name>ozone_${stack_version}</name>
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUDI/metainfo.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUDI/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUDI/metainfo.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUDI/metainfo.xml	(revision 7c2ccb68754d025492b7ccf625cdfd1f03e90864)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUDI/metainfo.xml	(date 1759976634481)
+@@ -41,7 +41,7 @@
+             </components>
+             <osSpecifics>
+                 <osSpecific>
+-                    <osFamily>redhat7,redhat8</osFamily>
++                    <osFamily>redhat7,redhat8,kylin10</osFamily>
+                     <packages>
+                         <package>
+                             <name>hudi_${stack_version}</name>
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ZEPPELIN/metainfo.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ZEPPELIN/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ZEPPELIN/metainfo.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ZEPPELIN/metainfo.xml	(revision 7c2ccb68754d025492b7ccf625cdfd1f03e90864)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ZEPPELIN/metainfo.xml	(date 1759976503522)
+@@ -65,7 +65,7 @@
+ 
+       <osSpecifics>
+         <osSpecific>
+-          <osFamily>redhat7,redhat8</osFamily>
++          <osFamily>redhat7,redhat8,kylin10</osFamily>
+           <packages>
+             <package>
+               <name>zeppelin_${stack_version}</name>
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/KERBEROS/metainfo.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/KERBEROS/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/KERBEROS/metainfo.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/KERBEROS/metainfo.xml	(revision 7c2ccb68754d025492b7ccf625cdfd1f03e90864)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/KERBEROS/metainfo.xml	(date 1759976606295)
+@@ -81,7 +81,7 @@
+ 
+       <osSpecifics>
+         <osSpecific>
+-          <osFamily>redhat7,redhat8</osFamily>
++          <osFamily>redhat7,redhat8,kylin10</osFamily>
+           <packages>
+             <package>
+               <name>krb5-workstation</name>
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HBASE/metainfo.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HBASE/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HBASE/metainfo.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HBASE/metainfo.xml	(revision 7c2ccb68754d025492b7ccf625cdfd1f03e90864)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HBASE/metainfo.xml	(date 1759976669103)
+@@ -216,7 +216,7 @@
+ 
+       <osSpecifics>
+         <osSpecific>
+-          <osFamily>redhat7,redhat8,redhat9,openeuler22</osFamily>
++          <osFamily>redhat7,redhat8,redhat9,openeuler22,kylin10</osFamily>
+           <packages>
+             <package>
+               <name>hbase_${stack_version}</name>
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SOLR/metainfo.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SOLR/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SOLR/metainfo.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SOLR/metainfo.xml	(revision 7c2ccb68754d025492b7ccf625cdfd1f03e90864)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SOLR/metainfo.xml	(date 1759976541008)
+@@ -64,7 +64,7 @@
+ 
+       <osSpecifics>
+         <osSpecific>
+-          <osFamily>redhat7,redhat8</osFamily>
++          <osFamily>redhat7,redhat8,kylin10</osFamily>
+           <packages>
+             <package>
+               <name>solr_${stack_version}</name>
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TEZ/metainfo.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TEZ/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TEZ/metainfo.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TEZ/metainfo.xml	(revision 7c2ccb68754d025492b7ccf625cdfd1f03e90864)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TEZ/metainfo.xml	(date 1759976503528)
+@@ -75,7 +75,7 @@
+ 
+       <osSpecifics>
+         <osSpecific>
+-          <osFamily>redhat7,redhat8</osFamily>
++          <osFamily>redhat7,redhat8,kylin10</osFamily>
+           <packages>
+             <package>
+               <name>tez_${stack_version}</name>
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SPARK/metainfo.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SPARK/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SPARK/metainfo.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SPARK/metainfo.xml	(revision 7c2ccb68754d025492b7ccf625cdfd1f03e90864)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SPARK/metainfo.xml	(date 1759976533227)
+@@ -204,7 +204,7 @@
+ 
+       <osSpecifics>
+         <osSpecific>
+-          <osFamily>redhat7,redhat8</osFamily>
++          <osFamily>redhat7,redhat8,kylin10</osFamily>
+           <packages>
+             <package>
+               <name>spark_${stack_version}-core</name>
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TRINO/metainfo.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TRINO/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TRINO/metainfo.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TRINO/metainfo.xml	(revision 7c2ccb68754d025492b7ccf625cdfd1f03e90864)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TRINO/metainfo.xml	(date 1759976503506)
+@@ -91,7 +91,7 @@
+ 
+       <osSpecifics>
+         <osSpecific>
+-          <osFamily>redhat7,redhat8</osFamily>
++          <osFamily>redhat7,redhat8,kylin10</osFamily>
+           <packages>
+             <package>
+               <name>trino_${stack_version}-trino-server</name>
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SUPERSET/metainfo.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SUPERSET/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SUPERSET/metainfo.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SUPERSET/metainfo.xml	(revision 7c2ccb68754d025492b7ccf625cdfd1f03e90864)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SUPERSET/metainfo.xml	(date 1759976512332)
+@@ -54,7 +54,7 @@
+ 
+       <osSpecifics>
+         <osSpecific>
+-          <osFamily>redhat7,redhat8,redhat9,openeuler22</osFamily>
++          <osFamily>redhat7,redhat8,redhat9,openeuler22,kylin10</osFamily>
+           <packages>
+             <package>
+               <name>superset_${stack_version}</name>
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/KAFKA/metainfo.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/KAFKA/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/KAFKA/metainfo.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/KAFKA/metainfo.xml	(revision 7c2ccb68754d025492b7ccf625cdfd1f03e90864)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/KAFKA/metainfo.xml	(date 1759976616223)
+@@ -89,7 +89,7 @@
+             </configuration-dependencies>
+             <osSpecifics>
+                 <osSpecific>
+-                    <osFamily>redhat9,redhat8,redhat7,amazonlinux2,redhat6,suse11,suse12</osFamily>
++                    <osFamily>redhat9,redhat8,redhat7,amazonlinux2,redhat6,suse11,suse12,kylin10</osFamily>
+                     <packages>
+                         <package>
+                             <name>kafka_${stack_version}</name>
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/NIGHTINGALE/metainfo.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/NIGHTINGALE/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/NIGHTINGALE/metainfo.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/NIGHTINGALE/metainfo.xml	(revision 7c2ccb68754d025492b7ccf625cdfd1f03e90864)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/NIGHTINGALE/metainfo.xml	(date 1759976587840)
+@@ -88,7 +88,7 @@
+ 
+             <osSpecifics>
+                 <osSpecific>
+-                    <osFamily>redhat7,redhat8</osFamily>
++                    <osFamily>redhat7,redhat8,kylin10</osFamily>
+                     <packages>
+                         <package>
+                             <name>nightingale_${stack_version}</name>
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/IMPALA/metainfo.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/IMPALA/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/IMPALA/metainfo.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/IMPALA/metainfo.xml	(revision 7c2ccb68754d025492b7ccf625cdfd1f03e90864)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/IMPALA/metainfo.xml	(date 1759976626355)
+@@ -55,7 +55,7 @@
+             </components>
+             <osSpecifics>
+                 <osSpecific>
+-                    <osFamily>redhat7,redhat8</osFamily>
++                    <osFamily>redhat7,redhat8,kylin10</osFamily>
+                     <packages>
+                         <package>
+                             <name>impala_${stack_version}</name>
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/repos/repoinfo.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/repos/repoinfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/repos/repoinfo.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/repos/repoinfo.xml	(revision 7c2ccb68754d025492b7ccf625cdfd1f03e90864)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/repos/repoinfo.xml	(date 1759141863453)
+@@ -37,4 +37,11 @@
+       <reponame>bigtop</reponame>
+     </repo>
+   </os>
++  <os family="kylin10">
++    <repo>
++      <baseurl>http://your-repo/</baseurl>
++      <repoid>BIGTOP-3.2.0</repoid>
++      <reponame>bigtop</reponame>
++    </repo>
++  </os>
+ </reposinfo>
+Index: ambari-server/src/main/resources/common-services/AMBARI_METRICS/3.0.0/metainfo.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/common-services/AMBARI_METRICS/3.0.0/metainfo.xml b/ambari-server/src/main/resources/common-services/AMBARI_METRICS/3.0.0/metainfo.xml
+--- a/ambari-server/src/main/resources/common-services/AMBARI_METRICS/3.0.0/metainfo.xml	(revision 7c2ccb68754d025492b7ccf625cdfd1f03e90864)
++++ b/ambari-server/src/main/resources/common-services/AMBARI_METRICS/3.0.0/metainfo.xml	(date 1759976764515)
+@@ -143,7 +143,7 @@
+ 
+       <osSpecifics>
+         <osSpecific>
+-          <osFamily>redhat7,redhat8,redhat9,openeuler22</osFamily>
++          <osFamily>redhat7,redhat8,redhat9,openeuler22,kylin10</osFamily>
+           <packages>
+             <package>
+               <name>ambari-metrics-collector</name>
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/LIVY/metainfo.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/LIVY/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/LIVY/metainfo.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/LIVY/metainfo.xml	(revision 7c2ccb68754d025492b7ccf625cdfd1f03e90864)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/LIVY/metainfo.xml	(date 1759976596292)
+@@ -97,7 +97,7 @@
+ 
+       <osSpecifics>
+         <osSpecific>
+-          <osFamily>redhat7,redhat8,redhat9,openeuler22</osFamily>
++          <osFamily>redhat7,redhat8,redhat9,openeuler22,kylin10</osFamily>
+           <packages>
+             <package>
+               <name>spark_${stack_version}-core</name>
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/FLINK/metainfo.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/FLINK/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/FLINK/metainfo.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/FLINK/metainfo.xml	(revision 7c2ccb68754d025492b7ccf625cdfd1f03e90864)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/FLINK/metainfo.xml	(date 1759976678236)
+@@ -105,7 +105,7 @@
+ 
+       <osSpecifics>
+         <osSpecific>
+-          <osFamily>redhat7,redhat8,redhat9,openeuler22</osFamily>
++          <osFamily>redhat7,redhat8,redhat9,openeuler22,kylin10</osFamily>
+           <packages>
+             <package>
+               <name>flink_${stack_version}</name>
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/CELEBORN/metainfo.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/CELEBORN/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/CELEBORN/metainfo.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/CELEBORN/metainfo.xml	(revision 7c2ccb68754d025492b7ccf625cdfd1f03e90864)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/CELEBORN/metainfo.xml	(date 1759976706356)
+@@ -101,7 +101,7 @@
+ 
+       <osSpecifics>
+         <osSpecific>
+-          <osFamily>redhat7,redhat8</osFamily>
++          <osFamily>redhat7,redhat8,kylin10</osFamily>
+           <packages>
+             <package>
+               <name>celeborn_${stack_version}</name>
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ZOOKEEPER/metainfo.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ZOOKEEPER/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ZOOKEEPER/metainfo.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ZOOKEEPER/metainfo.xml	(revision 7c2ccb68754d025492b7ccf625cdfd1f03e90864)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ZOOKEEPER/metainfo.xml	(date 1759388879261)
+@@ -79,7 +79,7 @@
+ 
+       <osSpecifics>
+         <osSpecific>
+-          <osFamily>redhat7,redhat8</osFamily>
++          <osFamily>redhat7,redhat8,kylin10</osFamily>
+           <packages>
+             <package>
+               <name>zookeeper_${stack_version}</name>
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/CLOUDBEAVER/metainfo.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/CLOUDBEAVER/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/CLOUDBEAVER/metainfo.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/CLOUDBEAVER/metainfo.xml	(revision 7c2ccb68754d025492b7ccf625cdfd1f03e90864)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/CLOUDBEAVER/metainfo.xml	(date 1759976699332)
+@@ -63,7 +63,7 @@
+ 
+       <osSpecifics>
+         <osSpecific>
+-          <osFamily>redhat9,redhat8,redhat7,amazonlinux2,redhat6,suse11,suse12</osFamily>
++          <osFamily>redhat9,redhat8,redhat7,amazonlinux2,redhat6,suse11,suse12,kylin10</osFamily>
+           <packages>
+             <package>
+               <name>cloudbeaver_${stack_version}</name>
+Index: ambari-server/src/main/resources/common-services/AMBARI_INFRA_SOLR/3.0.0/metainfo.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/common-services/AMBARI_INFRA_SOLR/3.0.0/metainfo.xml b/ambari-server/src/main/resources/common-services/AMBARI_INFRA_SOLR/3.0.0/metainfo.xml
+--- a/ambari-server/src/main/resources/common-services/AMBARI_INFRA_SOLR/3.0.0/metainfo.xml	(revision 7c2ccb68754d025492b7ccf625cdfd1f03e90864)
++++ b/ambari-server/src/main/resources/common-services/AMBARI_INFRA_SOLR/3.0.0/metainfo.xml	(date 1759976778124)
+@@ -146,7 +146,7 @@
+ 
+       <osSpecifics>
+         <osSpecific>
+-          <osFamily>redhat7,redhat8,redhat9,openeuler22</osFamily>
++          <osFamily>redhat7,redhat8,redhat9,openeuler22,kylin10</osFamily>
+           <packages>
+             <package>
+               <name>ambari-infra-solr-client</name>
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SQOOP/metainfo.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SQOOP/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SQOOP/metainfo.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SQOOP/metainfo.xml	(revision 7c2ccb68754d025492b7ccf625cdfd1f03e90864)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SQOOP/metainfo.xml	(date 1759976522306)
+@@ -68,7 +68,7 @@
+       </components>
+       <osSpecifics>
+         <osSpecific>
+-          <osFamily>redhat7,redhat8</osFamily>
++          <osFamily>redhat7,redhat8,kylin10</osFamily>
+           <packages>
+             <package>
+               <name>sqoop_${stack_version}</name>
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/VICTORIAMETRICS/metainfo.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/VICTORIAMETRICS/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/VICTORIAMETRICS/metainfo.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/VICTORIAMETRICS/metainfo.xml	(revision 7c2ccb68754d025492b7ccf625cdfd1f03e90864)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/VICTORIAMETRICS/metainfo.xml	(date 1759976503540)
+@@ -33,7 +33,7 @@
+ 
+             <osSpecifics>
+                 <osSpecific>
+-                    <osFamily>redhat7,redhat8</osFamily>
++                    <osFamily>redhat7,redhat8,kylin10</osFamily>
+                     <packages>
+                         <package>
+                             <name>victoriametrics_${stack_version}</name>
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ATLAS/metainfo.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ATLAS/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ATLAS/metainfo.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ATLAS/metainfo.xml	(revision 7c2ccb68754d025492b7ccf625cdfd1f03e90864)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ATLAS/metainfo.xml	(date 1759976716822)
+@@ -153,7 +153,7 @@
+ 
+             <osSpecifics>
+                 <osSpecific>
+-                    <osFamily>redhat7,redhat8</osFamily>
++                    <osFamily>redhat7,redhat8,kylin10</osFamily>
+                     <packages>
+                         <package>
+                             <name>atlas_${stack_version}</name>
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HIVE/metainfo.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HIVE/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HIVE/metainfo.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HIVE/metainfo.xml	(revision 7c2ccb68754d025492b7ccf625cdfd1f03e90864)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HIVE/metainfo.xml	(date 1759976643674)
+@@ -281,7 +281,7 @@
+ 
+       <osSpecifics>
+         <osSpecific>
+-          <osFamily>redhat7,redhat8</osFamily>
++          <osFamily>redhat7,redhat8,kylin10</osFamily>
+           <packages>
+             <package>
+               <name>hive_${stack_version}</name>
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ALLUXIO/metainfo.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ALLUXIO/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ALLUXIO/metainfo.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ALLUXIO/metainfo.xml	(revision 7c2ccb68754d025492b7ccf625cdfd1f03e90864)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ALLUXIO/metainfo.xml	(date 1759976736235)
+@@ -110,7 +110,7 @@
+ 
+       <osSpecifics>
+         <osSpecific>
+-          <osFamily>redhat9,redhat8,redhat7,amazonlinux2,redhat6,suse11,suse12</osFamily>
++          <osFamily>redhat9,redhat8,redhat7,amazonlinux2,redhat6,suse11,suse12,kylin10</osFamily>
+           <packages>
+             <package>
+               <name>alluxio_${stack_version}</name>
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/metainfo.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/metainfo.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/metainfo.xml	(revision 7c2ccb68754d025492b7ccf625cdfd1f03e90864)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/metainfo.xml	(date 1759976558708)
+@@ -143,7 +143,7 @@
+ 
+             <osSpecifics>
+                 <osSpecific>
+-                    <osFamily>redhat7,redhat8</osFamily>
++                    <osFamily>redhat7,redhat8,kylin10</osFamily>
+                     <packages>
+                         <package>
+                             <name>ranger_${stack_version}-admin</name>
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/REDIS/metainfo.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/REDIS/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/REDIS/metainfo.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/REDIS/metainfo.xml	(revision 7c2ccb68754d025492b7ccf625cdfd1f03e90864)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/REDIS/metainfo.xml	(date 1759976548443)
+@@ -84,7 +84,7 @@
+             <!-- 操作系统相关 -->
+             <osSpecifics>
+                 <osSpecific>
+-                    <osFamily>redhat7,redhat8</osFamily> <!-- 支持任何操作系统 -->
++                    <osFamily>redhat7,redhat8,kylin10</osFamily> <!-- 支持任何操作系统 -->
+                     <packages>
+                         <package>
+                             <name>redis_${stack_version}</name>
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HDFS/metainfo.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HDFS/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HDFS/metainfo.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HDFS/metainfo.xml	(revision 7c2ccb68754d025492b7ccf625cdfd1f03e90864)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HDFS/metainfo.xml	(date 1759976655362)
+@@ -277,7 +277,7 @@
+ 
+       <osSpecifics>
+         <osSpecific>
+-          <osFamily>redhat7,redhat8</osFamily>
++          <osFamily>redhat7,redhat8,kylin10</osFamily>
+           <packages>
+             <package>
+               <name>hadoop_${stack_version}</name>
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/PAIMON/metainfo.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/PAIMON/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/PAIMON/metainfo.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/PAIMON/metainfo.xml	(revision 7c2ccb68754d025492b7ccf625cdfd1f03e90864)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/PAIMON/metainfo.xml	(date 1759976567371)
+@@ -41,7 +41,7 @@
+             </components>
+             <osSpecifics>
+                 <osSpecific>
+-                    <osFamily>redhat7,redhat8</osFamily>
++                    <osFamily>redhat7,redhat8,kylin10</osFamily>
+                     <packages>
+                         <package>
+                             <name>paimon_${stack_version}</name>
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/DOLPHINSCHEDULER/metainfo.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/DOLPHINSCHEDULER/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/DOLPHINSCHEDULER/metainfo.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/DOLPHINSCHEDULER/metainfo.xml	(revision 7c2ccb68754d025492b7ccf625cdfd1f03e90864)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/DOLPHINSCHEDULER/metainfo.xml	(date 1759976692748)
+@@ -92,7 +92,7 @@
+ 
+             <osSpecifics>
+                 <osSpecific>
+-                    <osFamily>redhat7,redhat8</osFamily>
++                    <osFamily>redhat7,redhat8,kylin10</osFamily>
+                     <packages>
+                         <package>
+                             <name>dolphinscheduler_${stack_version}</name>
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/YARN/metainfo.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/YARN/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/YARN/metainfo.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/YARN/metainfo.xml	(revision 7c2ccb68754d025492b7ccf625cdfd1f03e90864)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/YARN/metainfo.xml	(date 1759976503534)
+@@ -143,7 +143,7 @@
+ 
+       <osSpecifics>
+         <osSpecific>
+-          <osFamily>redhat7,redhat8</osFamily>
++          <osFamily>redhat7,redhat8,kylin10</osFamily>
+           <packages>
+             <package>
+               <name>hadoop_${stack_version}-yarn</name>
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/DORIS/metainfo.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/DORIS/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/DORIS/metainfo.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/DORIS/metainfo.xml	(revision 7c2ccb68754d025492b7ccf625cdfd1f03e90864)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/DORIS/metainfo.xml	(date 1759976686059)
+@@ -110,7 +110,7 @@
+ 	  
+             <osSpecifics>
+                 <osSpecific>
+-                    <osFamily>redhat7,redhat8</osFamily>
++                    <osFamily>redhat7,redhat8,kylin10</osFamily>
+                     <packages>
+                         <package>
+                             <name>doris_${stack_version}-doris-fe</name>
