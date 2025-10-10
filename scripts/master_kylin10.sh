@@ -41,7 +41,7 @@ source /scripts/system/init/setup_ivy_ant.sh
 source /scripts/system/init/setup_github_code.sh
 
 #处理r环境
-#source /scripts/system/init/kylin10/setup_r_env.sh
+source /scripts/system/init/kylin10/setup_r_env.sh
 
 #处理虚拟环境
 source /scripts/system/init/kylin10/setup_virtual_env.sh

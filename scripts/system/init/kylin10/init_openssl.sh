@@ -2,7 +2,7 @@
 # 强制 OpenSSL 全局使用 TLS1.2 (禁用 TLS1.3)，幂等脚本
 # 适配 Kylin V10 / RHEL8 系环境
 
-set -euo pipefail
+#set -euo pipefail
 
 CONF_FILE="/etc/pki/tls/openssl.cnf"
 BACKUP_FILE="${CONF_FILE}.bak.$(date +%F-%H%M)"
