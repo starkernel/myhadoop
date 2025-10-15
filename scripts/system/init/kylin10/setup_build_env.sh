@@ -26,6 +26,8 @@ CMAKE_HOME_PATH="/opt/modules/cmake3"
 mkdir -p "/opt/modules/cmake3"
 
 
+dnf install -y abseil-cpp abseil-cpp-devel ninja-build
+
 # 卸载旧的cmake
 dnf -y remove cmake cmake3
 

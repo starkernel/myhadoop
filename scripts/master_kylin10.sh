@@ -43,6 +43,9 @@ source /scripts/system/init/setup_github_code.sh
 #处理r环境
 source /scripts/system/init/kylin10/setup_r_env.sh
 
+#处理其他安装
+source /scripts/system/init/kylin10/setup_build_env.sh
+
 #处理虚拟环境
 source /scripts/system/init/kylin10/setup_virtual_env.sh
 
