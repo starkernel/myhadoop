@@ -1,0 +1,257 @@
+Subject: [PATCH] fixed: 解决修复kerberos 无法安装等问题
+---
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/KAFKA/configuration/kafka-env.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/KAFKA/configuration/kafka-env.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/KAFKA/configuration/kafka-env.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/KAFKA/configuration/kafka-env.xml	(revision de7d64acd2f4920d13092fa5494f136869121a7f)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/KAFKA/configuration/kafka-env.xml	(date 1761707797277)
+@@ -121,6 +121,7 @@
+ {% else %}
+       export CLASSPATH=$CLASSPATH:{{conf_dir}}
+ {% endif %}
++export KAFKA_OPTS="$KAFKA_OPTS ${KAFKA_KERBEROS_PARAMS:+$KAFKA_KERBEROS_PARAMS }"
+     </value>
+     <value-attributes>
+       <type>content</type>
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/KERBEROS/package/scripts/service_check.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/KERBEROS/package/scripts/service_check.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/KERBEROS/package/scripts/service_check.py
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/KERBEROS/package/scripts/service_check.py	(revision de7d64acd2f4920d13092fa5494f136869121a7f)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/KERBEROS/package/scripts/service_check.py	(date 1761705297172)
+@@ -1,3 +1,4 @@
++#!/usr/bin/env ambari-python-wrap
+ """
+ Licensed to the Apache Software Foundation (ASF) under one
+ or more contributor license agreements.  See the NOTICE file
+@@ -16,7 +17,6 @@
+ limitations under the License.
+
+ Ambari Agent
+-
+ """
+
+ import hashlib
+@@ -32,6 +32,7 @@
+ # The hash algorithm to use to generate digests/hashes
+ HASH_ALGORITHM = hashlib.sha224
+
++
+ class KerberosServiceCheck(Script):
+   def service_check(self, env):
+     import params
+@@ -47,17 +48,29 @@
+     # **  If available, this service check will execute
+
+     if ((params.smoke_test_principal is not None) and
+-          (params.smoke_test_keytab_file is not None) and
+-          os.path.isfile(params.smoke_test_keytab_file)):
+-      print "Performing kinit using %s" % params.smoke_test_principal
++        (params.smoke_test_keytab_file is not None) and
++        os.path.isfile(params.smoke_test_keytab_file)):
++
++      Logger.info("Performing kinit using {0}".format(params.smoke_test_principal))
+
+-      ccache_file_name = HASH_ALGORITHM("{0}|{1}".format(params.smoke_test_principal, params.smoke_test_keytab_file)).hexdigest()
++      # Python3: hashlib requires bytes
++      digest_input = "{0}|{1}".format(
++        params.smoke_test_principal or "",
++        params.smoke_test_keytab_file or ""
++      ).encode("utf-8")
++
++      ccache_file_name = HASH_ALGORITHM(digest_input).hexdigest()
+       ccache_file_path = "{0}{1}kerberos_service_check_cc_{2}".format(params.tmp_dir, os.sep, ccache_file_name)
+
+       kinit_path_local = functions.get_kinit_path(default('/configurations/kerberos-env/executable_search_paths', None))
+-      kinit_command = "{0} -c {1} -kt {2} {3}".format(kinit_path_local, ccache_file_path, params.smoke_test_keytab_file,
+-                                                      params.smoke_test_principal)
++      kinit_command = "{0} -c {1} -kt {2} {3}".format(
++        kinit_path_local,
++        ccache_file_path,
++        params.smoke_test_keytab_file,
++        params.smoke_test_principal
++      )
+
++      Logger.info("Executing kinit command for smoke user: {0}".format(kinit_command))
+       try:
+         # kinit
+         Execute(kinit_command,
+@@ -67,19 +80,24 @@
+                 try_sleep=15
+                 )
+       finally:
+-        File(ccache_file_path,
+-             # Since kinit might fail to write to the cache file for various reasons, an existence check should be done before cleanup
+-             action="delete",
+-             )
++        # Since kinit might fail to write to the cache file for various reasons,
++        # an existence check should be done before cleanup
++        File(ccache_file_path, action="delete")
++
+     elif params.manage_identities:
+-      err_msg = Logger.filter_text("Failed to execute kinit test due to principal or keytab not found or available")
++      err_msg = Logger.filter_text(
++        "Failed to execute kinit test due to principal or keytab not found or available"
++      )
+       raise Fail(err_msg)
++
+     else:
+       # Ambari is not managing identities so if the smoke user does not exist, indicate why....
+-      print "Skipping this service check since Ambari is not managing Kerberos identities and the smoke user " \
+-            "credentials are not available. To execute this service check, the smoke user principal name " \
+-            "and keytab file location must be set in the cluster_env and the smoke user's keytab file must" \
+-            "exist in the configured location."
++      Logger.info(
++        "Skipping this service check since Ambari is not managing Kerberos identities and the smoke user "
++        "credentials are not available. To execute this service check, the smoke user principal name "
++        "and keytab file location must be set in the cluster_env and the smoke user's keytab file must "
++        "exist in the configured location."
++      )
+
+
+ if __name__ == "__main__":
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/KERBEROS/package/scripts/params.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/KERBEROS/package/scripts/params.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/KERBEROS/package/scripts/params.py
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/KERBEROS/package/scripts/params.py	(revision de7d64acd2f4920d13092fa5494f136869121a7f)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/KERBEROS/package/scripts/params.py	(date 1761701791435)
+@@ -19,6 +19,7 @@
+
+ from ambari_commons.kerberos.utils import get_property_value, get_unstructured_data
+ from ambari_commons.os_check import OSCheck
++from resource_management import Logger
+ from resource_management.libraries.functions.default import default
+ from resource_management.libraries.functions.expect import expect
+ from resource_management.libraries.functions.format import format
+@@ -150,6 +151,8 @@
+       manage_krb5_conf = get_property_value(krb5_conf_data, 'manage_krb5_conf', "true")
+       force_tcp = get_property_value(krb5_conf_data, 'force_tcp', "false")
+
++    Logger.info(format("======= krb5 conf template is {krb5_conf_template}"))
++
+     # For backward compatibility, ensure that kdc_host exists. This may be needed if the krb5.conf
+     # template in krb5-conf/content had not be updated during the Ambari upgrade to 2.4.0 - which
+     # will happen if the template was altered from its stack-default value.
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/KERBEROS/package/scripts/kerberos_client.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/KERBEROS/package/scripts/kerberos_client.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/KERBEROS/package/scripts/kerberos_client.py
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/KERBEROS/package/scripts/kerberos_client.py	(revision de7d64acd2f4920d13092fa5494f136869121a7f)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/KERBEROS/package/scripts/kerberos_client.py	(date 1761699852809)
+@@ -1,3 +1,4 @@
++#!/usr/bin/env ambari-python-wrap
+ """
+ Licensed to the Apache Software Foundation (ASF) under one
+ or more contributor license agreements.  See the NOTICE file
+@@ -16,6 +17,7 @@
+ limitations under the License.
+
+ """
++from resource_management.core.logger import Logger
+
+ from resource_management.core.exceptions import ClientComponentHasNoStatus
+ from resource_management.libraries.script.script import Script
+@@ -30,7 +32,7 @@
+     if install_packages:
+       self.install_packages(env)
+     else:
+-      print "Kerberos client packages are not being installed, manual installation is required."
++      Logger.info("Kerberos client packages are not being installed, manual installation is required.")
+
+     self.configure(env)
+
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/KERBEROS/properties/krb5_conf.j2
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/KERBEROS/properties/krb5_conf.j2 b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/KERBEROS/properties/krb5_conf.j2
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/KERBEROS/properties/krb5_conf.j2	(revision de7d64acd2f4920d13092fa5494f136869121a7f)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/KERBEROS/properties/krb5_conf.j2	(date 1761705006586)
+@@ -18,46 +18,52 @@
+ [libdefaults]
+   #renew_lifetime = 7d
+   forwardable = true
+-  default_realm = {{realm}}
++  default_realm = {{ realm }}
+   ticket_lifetime = 24h
+   dns_lookup_realm = false
+   dns_lookup_kdc = false
+   default_ccache_name = /tmp/krb5cc_%{uid}
+-  #default_tgs_enctypes = {{encryption_types}}
+-  #default_tkt_enctypes = {{encryption_types}}
+-  {%- if force_tcp %}
++  #default_tgs_enctypes = {{ encryption_types }}
++  #default_tkt_enctypes = {{ encryption_types }}
++  {% if force_tcp %}
+   udp_preference_limit = 1
+-  {%- endif -%}
++  {% endif %}
++
+ {% if domains %}
+ [domain_realm]
+-{%- for domain in domains.split(',') %}
+-  {{domain|trim()}} = {{realm}}
+-{%- endfor %}
++{% for domain in domains.split(',') %}
++  {{ domain|trim() }} = {{ realm }}
++{% endfor %}
+ {% endif %}
++
+ [logging]
+   default = FILE:/var/log/krb5kdc.log
+   admin_server = FILE:/var/log/kadmind.log
+   kdc = FILE:/var/log/krb5kdc.log
+
+ [realms]
+-  {{realm}} = {
+-{%- if master_kdc %}
+-    master_kdc = {{master_kdc|trim()}}
+-{%- endif -%}
+-{%- if kdc_hosts > 0 -%}
+-{%- set kdc_host_list = kdc_hosts.split(',')  -%}
+-{%- if kdc_host_list and kdc_host_list|length > 0 %}
+-    admin_server = {{admin_server_host|default(kdc_host_list[0]|trim(), True)}}
+-{%- if kdc_host_list -%}
+-{%- if master_kdc and (master_kdc not in kdc_host_list) %}
+-    kdc = {{master_kdc|trim()}}
+-{%- endif -%}
++  {{ realm }} = {
++{% if master_kdc %}
++    master_kdc = {{ master_kdc|trim() }}
++{% endif %}
++
++{% set _kdc_hosts = kdc_hosts|default('', true)|trim() %}
++{% if _kdc_hosts %}
++{% set kdc_host_list = _kdc_hosts.split(',') %}
++{% if kdc_host_list and kdc_host_list|length > 0 %}
++    admin_server = {{ admin_server_host|default(kdc_host_list[0]|trim(), True) }}
++{% if kdc_host_list %}
++{% if master_kdc and (master_kdc not in kdc_host_list) %}
++    kdc = {{ master_kdc|trim() }}
++{% endif %}
+ {% for kdc_host in kdc_host_list %}
+-    kdc = {{kdc_host|trim()}}
+-{%- endfor -%}
++{% if kdc_host|trim() %}
++    kdc = {{ kdc_host|trim() }}
++{% endif %}
++{% endfor %}
+ {% endif %}
+-{%- endif %}
+-{%- endif %}
++{% endif %}
++{% endif %}
+   }
+
+ {# Append additional realm declarations below #}
