@@ -29,21 +29,9 @@ mkdir -p $RPM_PACKAGE
 cd "$PROJECT_PATH"
 rm -rf "$PROJECT_PATH"/* && git checkout .
 
-patch_files=(
-  "/scripts/build/ambari3/common/patch2_0_0/patch0-ALL-IN-ONE.diff"
-  "/scripts/build/ambari3/common/patch2_0_0/patch1-START-LOGBACK-LOGGER.diff"
-  # 2.1.0 补丁
-  "/scripts/build/ambari3/common/patch2_1_0/patch0-DEBIAN-BASE-SUP.diff"
-  "/scripts/build/ambari3/common/patch2_1_0/patch1-DEBIAN-BASE-SUP.diff"
-  "/scripts/build/ambari3/common/patch2_1_0/patch2-DEBIAN-DOLPHIN-RANGER-SUP.diff"
-  "/scripts/build/ambari3/common/patch2_1_0/patch3-DEBIAN-FINAL-SUP.diff"
-  # 2.2.0 补丁
-  "/scripts/build/ambari3/common/patch2_2_0/patch0-KYLIN-BASE-SUP.diff"
-  "/scripts/build/ambari3/common/patch2_2_0/patch1-KYLIN-ALL-COMPONENT-SUP.diff"
-
-  # 后续可继续添加补丁文件路径
-
-)
+# ---------- 引用统一补丁清单 ----------
+# 根据脚本层级调整路径，以下是你当前目录结构下的正确写法：
+source "/scripts/build/ambari3/common/patches.sh"
 
 for patch_file in "${patch_files[@]}"; do
   "$PATCH_SCRIPT" "$PROJECT_PATH" "$patch_file"
@@ -51,7 +39,7 @@ done
 
 
 # 使用jdk 17
-export JAVA_HOME=/opt/modules/jdk-17.0.16+8
+export JAVA_HOME=/opt/modules/jdk-17.0.2
 export PATH=$JAVA_HOME/bin:$PATH
 
 java -version

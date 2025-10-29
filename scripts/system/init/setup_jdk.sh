@@ -46,11 +46,12 @@ JDK8_FILE_HOME_PATH="/opt/modules/jdk1.8.0_202"
 JDK8_DOWNLOAD_URL="https://repo.huaweicloud.com/java/jdk/8u202-b08/jdk-8u202-linux-x64.tar.gz"
 
 # ------- JDK 17 相关参数 -------
-JDK17_VERSION="17.0.16_8"
-JDK17_SHORT="17.0.16"
-JDK17_FILENAME="OpenJDK17U-jdk_x64_linux_hotspot_${JDK17_VERSION}.tar.gz"
-JDK17_DOWNLOAD_URL="https://mirrors.tuna.tsinghua.edu.cn/Adoptium/17/jdk/x64/linux/${JDK17_FILENAME}"
+JDK17_VERSION="17.0.2"
+JDK17_SHORT="17.0.2"
+JDK17_FILENAME="openjdk-${JDK17_SHORT}_linux-x64_bin.tar.gz"
+JDK17_DOWNLOAD_URL="https://mirrors.huaweicloud.com/openjdk/${JDK17_SHORT}/${JDK17_FILENAME}"
 JDK17_FILE_PATH="/opt/modules/${JDK17_FILENAME}"
+
 
 JDK_FILE_PATH_LOCK="/data/.setup_jdk.lock"
 TAR_LOCK="/data/.setup_jdk_tar.lock"
