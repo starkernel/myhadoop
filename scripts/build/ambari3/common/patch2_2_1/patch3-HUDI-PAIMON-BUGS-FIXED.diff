@@ -1,0 +1,58 @@
+Subject: [PATCH] fixed：修复hudi、paimon报错行为
+---
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUDI/service_advisor.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUDI/service_advisor.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUDI/service_advisor.py
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUDI/service_advisor.py	(revision fbc97535262c3a9e8cf72cd8ffa7c995541649ea)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUDI/service_advisor.py	(revision 4e64d5c13d0acf443dc3edc387f2c25992eb6813)
+@@ -28,15 +28,17 @@
+ from resource_management.core.logger import Logger
+
+ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+-STACKS_DIR = os.path.join(SCRIPT_DIR, '../../../../')
++STACKS_DIR = os.path.join(SCRIPT_DIR, '../../../../../stacks/')
+ PARENT_FILE = os.path.join(STACKS_DIR, 'service_advisor.py')
+
+ try:
++    if "BASE_SERVICE_ADVISOR" in os.environ:
++        PARENT_FILE = os.environ["BASE_SERVICE_ADVISOR"]
+     with open(PARENT_FILE, 'rb') as fp:
+         service_advisor = imp.load_module('service_advisor', fp, PARENT_FILE, ('.py', 'rb', imp.PY_SOURCE))
+ except Exception as e:
+     traceback.print_exc()
+-    print "Failed to load parent"
++    print("Failed to load parent")
+
+
+ class HudiServiceAdvisor(service_advisor.ServiceAdvisor):
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/PAIMON/service_advisor.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/PAIMON/service_advisor.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/PAIMON/service_advisor.py
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/PAIMON/service_advisor.py	(revision fbc97535262c3a9e8cf72cd8ffa7c995541649ea)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/PAIMON/service_advisor.py	(revision 4e64d5c13d0acf443dc3edc387f2c25992eb6813)
+@@ -28,15 +28,17 @@
+ from resource_management.core.logger import Logger
+
+ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+-STACKS_DIR = os.path.join(SCRIPT_DIR, '../../../../')
++STACKS_DIR = os.path.join(SCRIPT_DIR, '../../../../../stacks/')
+ PARENT_FILE = os.path.join(STACKS_DIR, 'service_advisor.py')
+
+ try:
++    if "BASE_SERVICE_ADVISOR" in os.environ:
++        PARENT_FILE = os.environ["BASE_SERVICE_ADVISOR"]
+     with open(PARENT_FILE, 'rb') as fp:
+         service_advisor = imp.load_module('service_advisor', fp, PARENT_FILE, ('.py', 'rb', imp.PY_SOURCE))
+ except Exception as e:
+     traceback.print_exc()
+-    print "Failed to load parent"
++    print("Failed to load parent")
+
+
+ class PaimonServiceAdvisor(service_advisor.ServiceAdvisor):

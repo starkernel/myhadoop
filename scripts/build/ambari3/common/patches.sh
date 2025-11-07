@@ -15,6 +15,8 @@ patch_files=(
   "/scripts/build/ambari3/common/patch2_2_1/patch0-KERBEROS-SUP-FIXED.diff"
   "/scripts/build/ambari3/common/patch2_2_1/patch1-ATLAS-RHEL-FIXED.diff"
   "/scripts/build/ambari3/common/patch2_2_1/patch2-VIEWS-COMPILE-FIXED.diff"
+  "/scripts/build/ambari3/common/patch2_2_1/patch3-HUDI-PAIMON-BUGS-FIXED.diff"
+  "/scripts/build/ambari3/common/patch2_2_1/patch4-KERBEROS-KAFKA-SOLR-HIVE-FIXED.diff"
 )
 
 

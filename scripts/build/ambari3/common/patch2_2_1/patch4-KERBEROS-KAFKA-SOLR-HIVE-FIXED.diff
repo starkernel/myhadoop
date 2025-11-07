@@ -1,0 +1,634 @@
+Subject: [PATCH] fixed：修复Kafka、Hive、Solr开关kerberos问题
+---
+Index: ambari-common/src/main/python/resource_management/core/resources/zkmigrator.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-common/src/main/python/resource_management/core/resources/zkmigrator.py b/ambari-common/src/main/python/resource_management/core/resources/zkmigrator.py
+--- a/ambari-common/src/main/python/resource_management/core/resources/zkmigrator.py	(revision 4e64d5c13d0acf443dc3edc387f2c25992eb6813)
++++ b/ambari-common/src/main/python/resource_management/core/resources/zkmigrator.py	(revision c96dd89f8ce0d85fd5319cf9c0f00e3ce8564fd9)
+@@ -19,49 +19,62 @@
+ Ambari Agent
+
+ """
+-
+ from resource_management.core.resources.system import Execute
+ from resource_management.core.logger import Logger
+ from resource_management.libraries.functions import format
+
++# 新增两个常量（你要求的）
++MAIN_CLASS = "org.apache.ambari.tools.zk.ZkMigrator"
++ZK_LIB_DIR = "/usr/bigtop/current/zookeeper-client/lib"
++
+
+ class ZkMigrator:
+-  def __init__(self, zk_host, java_exec, java_home, jaas_file, user):
+-    self.zk_host = zk_host
+-    self.java_exec = java_exec
+-    self.java_home = java_home
+-    self.jaas_file = jaas_file
+-    self.user = user
+-    self.zkmigrator_jar = "/var/lib/ambari-agent/tools/zkmigrator.jar"
++    def __init__(self, zk_host, java_exec, java_home, jaas_file, user):
++        self.zk_host = zk_host
++        self.java_exec = java_exec
++        self.java_home = java_home
++        self.jaas_file = jaas_file
++        self.user = user
++        self.zkmigrator_jar = "/var/lib/ambari-agent/tools/zkmigrator.jar"
+
+-  def set_acls(self, znode, acl, tries=3):
+-    Logger.info(format("Setting ACL on znode {znode} to {acl}"))
+-    Execute(
+-      self._acl_command(znode, acl),
+-      user=self.user,
+-      environment={"JAVA_HOME": self.java_home},
+-      logoutput=True,
+-      tries=tries,
+-    )
++    def set_acls(self, znode, acl, tries=3):
++        Logger.info(format("Setting ACL on znode {znode} to {acl}"))
++        Execute(
++            self._acl_command(znode, acl),
++            user=self.user,
++            environment={"JAVA_HOME": self.java_home},
++            logoutput=True,
++            tries=tries,
++        )
+
+-  def delete_node(self, znode, tries=3):
+-    Logger.info(format("Removing znode {znode}"))
+-    Execute(
+-      self._delete_command(znode),
+-      user=self.user,
+-      environment={"JAVA_HOME": self.java_home},
+-      logoutput=True,
+-      tries=tries,
+-    )
++    def delete_node(self, znode, tries=3):
++        Logger.info(format("Removing znode {znode}"))
++        Execute(
++            self._delete_command(znode),
++            user=self.user,
++            environment={"JAVA_HOME": self.java_home},
++            logoutput=True,
++            tries=tries,
++        )
+
+-  def _acl_command(self, znode, acl):
+-    return (
+-      f"{self.java_exec} -Djava.security.auth.login.config={self.jaas_file} -jar {self.zkmigrator_jar}"
+-      f" -connection-string {self.zk_host} -znode {znode} -acl {acl}"
+-    )
++    # 核心改动：这里由 -jar → -cp + 主类
++    # 只改命令构造，不触碰其他逻辑
++    def _java_prefix(self):
++        classpath = f"\"{self.zkmigrator_jar}:{ZK_LIB_DIR}/*\""
++        return (
++            f"{self.java_exec} "
++            f"-Djava.security.auth.login.config={self.jaas_file} "
++            f"-cp {classpath} {MAIN_CLASS}"
++        )
++
++    def _acl_command(self, znode, acl):
++        return (
++            f"{self._java_prefix()} "
++            f"-connection-string {self.zk_host} -znode {znode} -acl {acl}"
++        )
+
+-  def _delete_command(self, znode):
+-    return (
+-      f"{self.java_exec} -Djava.security.auth.login.config={self.jaas_file} -jar {self.zkmigrator_jar}"
+-      f" -connection-string {self.zk_host} -znode {znode} -delete"
+-    )
++    def _delete_command(self, znode):
++        return (
++            f"{self._java_prefix()} "
++            f"-connection-string {self.zk_host} -znode {znode} -delete"
++        )
+Index: ambari-server/src/main/resources/common-services/AMBARI_INFRA_SOLR/3.0.0/package/scripts/params.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/common-services/AMBARI_INFRA_SOLR/3.0.0/package/scripts/params.py b/ambari-server/src/main/resources/common-services/AMBARI_INFRA_SOLR/3.0.0/package/scripts/params.py
+--- a/ambari-server/src/main/resources/common-services/AMBARI_INFRA_SOLR/3.0.0/package/scripts/params.py	(revision 4e64d5c13d0acf443dc3edc387f2c25992eb6813)
++++ b/ambari-server/src/main/resources/common-services/AMBARI_INFRA_SOLR/3.0.0/package/scripts/params.py	(revision c96dd89f8ce0d85fd5319cf9c0f00e3ce8564fd9)
+@@ -76,7 +76,8 @@
+
+ # shared configs
+ java_home = default("/configurations/cluster-env/tt_jdk_home", None)
+-ambari_java_home = default("/ambariLevelParams/ambari_java_home", None)
++# ambari_java_home = default("/ambariLevelParams/ambari_java_home", None)
++ambari_java_home = default("/ambariLevelParams/java_home", None)
+ ambari_java_exec = f"{ambari_java_home}/bin/java"
+ java64_home = java_home
+ java_exec = format("{java64_home}/bin/java")
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HIVE/package/scripts/hive_server.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HIVE/package/scripts/hive_server.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HIVE/package/scripts/hive_server.py
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HIVE/package/scripts/hive_server.py	(revision 4e64d5c13d0acf443dc3edc387f2c25992eb6813)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HIVE/package/scripts/hive_server.py	(revision c96dd89f8ce0d85fd5319cf9c0f00e3ce8564fd9)
+@@ -94,7 +94,7 @@
+
+     def disable_security(self, env):
+         import params
+-        zkmigrator = ZkMigrator(params.hive_zookeeper_quorum, params.java_exec, params.java64_home, params.jaas_file,
++        zkmigrator = ZkMigrator(params.hive_zookeeper_quorum, params.ambari_java_exec, params.ambari_java_home, params.jaas_file,
+                                 params.hive_user)
+         if params.hive_cluster_token_zkstore:
+             zkmigrator.set_acls(self._base_node(params.hive_cluster_token_zkstore), 'world:anyone:crdwa')
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HIVE/package/scripts/params.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HIVE/package/scripts/params.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HIVE/package/scripts/params.py
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HIVE/package/scripts/params.py	(revision 4e64d5c13d0acf443dc3edc387f2c25992eb6813)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HIVE/package/scripts/params.py	(revision c96dd89f8ce0d85fd5319cf9c0f00e3ce8564fd9)
+@@ -381,6 +381,7 @@
+
+ java64_home = default("/configurations/cluster-env/tt_jdk_home", None)
+ java_exec = format("{java64_home}/bin/java")
++ambari_java_exec = format("{ambari_java_home}/bin/java")
+
+ java_version = expect("/ambariLevelParams/java_version", int)
+
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/KAFKA/configuration/kafka-env.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/KAFKA/configuration/kafka-env.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/KAFKA/configuration/kafka-env.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/KAFKA/configuration/kafka-env.xml	(revision 4e64d5c13d0acf443dc3edc387f2c25992eb6813)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/KAFKA/configuration/kafka-env.xml	(revision c96dd89f8ce0d85fd5319cf9c0f00e3ce8564fd9)
+@@ -121,6 +121,7 @@
+ {% else %}
+       export CLASSPATH=$CLASSPATH:{{conf_dir}}
+ {% endif %}
++export KAFKA_OPTS="$KAFKA_OPTS ${KAFKA_KERBEROS_PARAMS:+$KAFKA_KERBEROS_PARAMS }"
+     </value>
+     <value-attributes>
+       <type>content</type>
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/KAFKA/package/scripts/kafka.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/KAFKA/package/scripts/kafka.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/KAFKA/package/scripts/kafka.py
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/KAFKA/package/scripts/kafka.py	(revision 4e64d5c13d0acf443dc3edc387f2c25992eb6813)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/KAFKA/package/scripts/kafka.py	(revision c96dd89f8ce0d85fd5319cf9c0f00e3ce8564fd9)
+@@ -73,9 +73,28 @@
+                         "User defined advertised.listeners will be merged with Ambari-managed advertised.listeners value. To leave value as is change kafka-env/kerberos_merge_advertised_listeners to false.")
+                     kafka_server_config['advertised.listeners'] = ",".join(
+                         (listeners, kafka_server_config['advertised.listeners']))
+-        elif 'advertised.listeners' in kafka_server_config:
+-            advertised_listeners = kafka_server_config['advertised.listeners'].replace("localhost", params.hostname)
+-            kafka_server_config['advertised.listeners'] = advertised_listeners
++        else:
++            # --------------------------------------------------------------------
++            # JaneTTR modification:
++            # Kerberos is DISABLED. Revert any SASL_* residues back to PLAINTEXT/SSL
++            # to avoid brokers being stuck with SASL_* listeners.
++            # --------------------------------------------------------------------
++
++            # 1) security.inter.broker.protocol 仅处理协议名
++            if 'security.inter.broker.protocol' in kafka_server_config:
++                _ibp = kafka_server_config['security.inter.broker.protocol']
++                kafka_server_config['security.inter.broker.protocol'] = revert_sasl_related_config(_ibp,
++                                                                                                   only_protocol=True)
++
++            # 2) listeners 处理完整 URI，并顺手做 localhost -> hostname 归一
++            if 'listeners' in kafka_server_config and kafka_server_config['listeners']:
++                _lsn = kafka_server_config['listeners'].replace("localhost", params.hostname)
++                kafka_server_config['listeners'] = revert_sasl_related_config(_lsn, only_protocol=False)
++
++            # 3) advertised.listeners（如存在），同样回退并做 hostname 替换
++            if 'advertised.listeners' in kafka_server_config and kafka_server_config['advertised.listeners']:
++                _adv = kafka_server_config['advertised.listeners'].replace("localhost", params.hostname)
++                kafka_server_config['advertised.listeners'] = revert_sasl_related_config(_adv, only_protocol=False)
+
+         raw_listeners = kafka_server_config['raw.listeners'] if 'raw.listeners' in kafka_server_config else ""
+         if 'raw.listeners' in kafka_server_config:
+@@ -194,6 +213,27 @@
+     property = re.sub(r"(^|\b)SSL", "SASL_SSL", property) if only_protocol else re.sub(r"(^|\b)SSL://", "SASL_SSL://",
+                                                                                        property)
+     return property
++
++
++def revert_sasl_related_config(property, only_protocol=False):
++    """
++    JaneTTR modification:
++    Revert SASL_* names back to plain counterparts when Kerberos is disabled.
++    - SASL_PLAINTEXT -> PLAINTEXT
++    - SASL_SSL       -> SSL
++
++    If only_protocol=True, operate on protocol names only (no '://').
++    Otherwise, operate on full listener strings with '://'.
++    """
++    if property is None:
++        return property
++    if only_protocol:
++        property = re.sub(r"(^|\b)SASL_PLAINTEXT", "PLAINTEXT", property)
++        property = re.sub(r"(^|\b)SASL_SSL", "SSL", property)
++    else:
++        property = re.sub(r"(^|\b)SASL_PLAINTEXT://", "PLAINTEXT://", property)
++        property = re.sub(r"(^|\b)SASL_SSL://", "SSL://", property)
++    return property
+
+
+ def mutable_config_dict(kafka_broker_config):
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/KAFKA/package/scripts/kafka_broker.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/KAFKA/package/scripts/kafka_broker.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/KAFKA/package/scripts/kafka_broker.py
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/KAFKA/package/scripts/kafka_broker.py	(revision 4e64d5c13d0acf443dc3edc387f2c25992eb6813)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/KAFKA/package/scripts/kafka_broker.py	(revision c96dd89f8ce0d85fd5319cf9c0f00e3ce8564fd9)
+@@ -143,12 +143,18 @@
+         if not params.secure_acls:
+             Logger.info("The zookeeper.set.acl is false. Skipping reverting ACL")
+             return
++
++            # 最显眼的 JVM 选项拼接方式：直接放在命令最前添加 env KAFKA_OPTS
++        cmd = (
++            'env KAFKA_OPTS="-Djava.security.auth.login.config=/etc/kafka/conf/kafka_jaas.conf '
++            '-Dzookeeper.sasl.clientconfig=Client" '
++            '{0} --zookeeper.connect {1} --zookeeper.acl=unsecure'
++        ).format(params.kafka_security_migrator, params.zookeeper_connect)
+         Execute(
+-            "{0} --zookeeper.connect {1} --zookeeper.acl=unsecure".format(params.kafka_security_migrator,
+-                                                                          params.zookeeper_connect), \
+-            user=params.kafka_user, \
+-            environment={'JAVA_HOME': params.java64_home}, \
+-            logoutput=True, \
++            cmd,
++            user=params.kafka_user,
++            environment={'JAVA_HOME': params.java64_home},
++            logoutput=True,
+             tries=3)
+
+     def status(self, env):
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/KAFKA/service_advisor.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/KAFKA/service_advisor.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/KAFKA/service_advisor.py
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/KAFKA/service_advisor.py	(revision 4e64d5c13d0acf443dc3edc387f2c25992eb6813)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/KAFKA/service_advisor.py	(revision c96dd89f8ce0d85fd5319cf9c0f00e3ce8564fd9)
+@@ -231,6 +231,14 @@
+             putKafkaBrokerAttributes('super.users', 'delete', 'true')
+             putKafkaBrokerAttributes('principal.to.local.class', 'delete', 'true')
+
++            # --------------------------------------------------------------------
++            # JaneTTR modification:
++            # When Kerberos is disabled, revert Kafka listeners from SASL_* back to
++            # PLAINTEXT/SSL. This complements update_listeners_to_sasl() which is used
++            # when Kerberos is enabled, ensuring symmetric and consistent behavior.
++            # --------------------------------------------------------------------
++            self.update_listeners_to_plaintext(services, putKafkaBrokerProperty)
++
+         # Update ranger-kafka-plugin-properties/ranger-kafka-plugin-enabled to match ranger-env/ranger-kafka-plugin-enabled
+         if "ranger-env" in services["configurations"] \
+                 and "ranger-kafka-plugin-properties" in services["configurations"] \
+@@ -327,6 +335,32 @@
+         except KeyError as e:
+             self.logger.info('Cannot replace PLAINTEXT to SASL_PLAINTEXT in listeners. KeyError: %s' % e)
+
++    def update_listeners_to_plaintext(self, services, putKafkaBrokerProperty):
++        """
++        Revert Kafka listeners from SASL_* back to their plain counterparts (PLAINTEXT/SSL)
++        when Kerberos security is disabled.
++
++        JaneTTR modification:
++        Ambari only updates listeners to SASL_* when Kerberos is enabled through
++        update_listeners_to_sasl(), but it does not automatically revert them when
++        Kerberos is disabled. This results in Kafka brokers remaining stuck with
++        SASL_PLAINTEXT/SASL_SSL listeners even when running in an unsecured mode,
++        causing startup failures.
++
++        This function provides the missing reverse transformation, restoring
++        SASL_PLAINTEXT -> PLAINTEXT and SASL_SSL -> SSL accordingly.
++        """
++        try:
++            listeners = services['configurations']['kafka-broker']['properties'].get('listeners')
++            if listeners and ("SASL_PLAINTEXT" in listeners or "SASL_SSL" in listeners):
++                new_listeners = re.sub(r"(^|\b)SASL_PLAINTEXT://", "PLAINTEXT://", listeners)
++                new_listeners = re.sub(r"(^|\b)SASL_SSL://", "SSL://", new_listeners)
++                putKafkaBrokerProperty('listeners', new_listeners)
++        except KeyError as e:
++            self.logger.info(
++                "JaneTTR modification: Failed to revert listeners from SASL_* back to plain. KeyError: %s" % e
++            )
++
+     def recommendKAFKAConfigurationsFromHDP26(self, configurations, clusterData, services, hosts):
+         if 'kafka-env' in services['configurations'] and 'kafka_user' in services['configurations']['kafka-env'][
+             'properties']:
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SOLR/configuration/solr-env.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SOLR/configuration/solr-env.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SOLR/configuration/solr-env.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SOLR/configuration/solr-env.xml	(revision 4e64d5c13d0acf443dc3edc387f2c25992eb6813)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SOLR/configuration/solr-env.xml	(revision c96dd89f8ce0d85fd5319cf9c0f00e3ce8564fd9)
+@@ -217,7 +217,7 @@
+
+   <property>
+     <name>solr_kerberos_principal</name>
+-    <value>solr</value>
++    <value>solr/_HOST@${realm}</value>
+     <display-name>Solr principal</display-name>
+     <description>The service principal for Solr.</description>
+     <property-type>KERBEROS_PRINCIPAL</property-type>
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SOLR/kerberos.json
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SOLR/kerberos.json b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SOLR/kerberos.json
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SOLR/kerberos.json	(revision 4e64d5c13d0acf443dc3edc387f2c25992eb6813)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SOLR/kerberos.json	(revision c96dd89f8ce0d85fd5319cf9c0f00e3ce8564fd9)
+@@ -20,10 +20,10 @@
+         ],
+         "components": [
+           {
+-            "name": "SOLR",
++            "name": "SOLR_SERVER",
+             "identities": [
+               {
+-                "name": "solr",
++                "name": "solr_server",
+                 "principal": {
+                   "value": "solr/_HOST@${realm}",
+                   "type": "service",
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SOLR/package/scripts/params.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SOLR/package/scripts/params.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SOLR/package/scripts/params.py
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SOLR/package/scripts/params.py	(revision 4e64d5c13d0acf443dc3edc387f2c25992eb6813)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SOLR/package/scripts/params.py	(revision c96dd89f8ce0d85fd5319cf9c0f00e3ce8564fd9)
+@@ -82,9 +82,9 @@
+
+ # shared configs
+ java_home = default("/configurations/cluster-env/tt_jdk_home", None)
+-ambari_java_home = default("/ambariLevelParams/ambari_java_home", None)
+-java64_home = ambari_java_home if ambari_java_home is not None else java_home
+-java_exec = format("{java64_home}/bin/java")
++ambari_java_home = default("/ambariLevelParams/java_home", None)
++java64_home = java_home if java_home is not None else ambari_java_home
++ambari_java_exec = format("{ambari_java_home}/bin/java")
+ zookeeper_hosts_list = config['clusterHostInfo']['zookeeper_server_hosts']
+ zookeeper_hosts_list.sort()
+ # get comma separated list of zookeeper hosts from clusterHostInfo
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SOLR/package/scripts/setup_ranger_config_for_solr.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SOLR/package/scripts/setup_ranger_config_for_solr.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SOLR/package/scripts/setup_ranger_config_for_solr.py
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SOLR/package/scripts/setup_ranger_config_for_solr.py	(revision 4e64d5c13d0acf443dc3edc387f2c25992eb6813)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SOLR/package/scripts/setup_ranger_config_for_solr.py	(revision c96dd89f8ce0d85fd5319cf9c0f00e3ce8564fd9)
+@@ -2,48 +2,189 @@
+ # coding=utf-8
+
+ import os
++import re
+ import json
+
+ from resource_management import Execute, Logger
+ from resource_management.libraries.functions.format import format
++from resource_management.libraries.functions.get_user_call_output import get_user_call_output
++from resource_management.core.exceptions import ExecutionFailed
++
++
++# ---------------- 工具与公共参数 ----------------
++
++def _p():
++    import params
++    return params
++
++
++def _g(name, default=None):
++    return getattr(_p(), name, default)
++
++
++def _cli_env():
++    """
++    bin/solr CLI 的执行环境：
++    - 以 solr 用户执行
++    - 开启 Kerberos 且存在 solr-env.sh 时，注入 SOLR_INCLUDE 让 CLI 继承 JAAS/ZK-SASL
++    """
++    env = {"user": _g("solr_user", "solr")}
++    solr_conf = _g("solr_conf", "/etc/solr/conf")
++    include = os.path.join(solr_conf, "solr-env.sh")
++    if _g("security_enabled", False) and os.path.exists(include):
++        env["env"] = {"SOLR_INCLUDE": include}
++    return env
++
++
++def _normalize_call_result(res):
++    """
++    兼容 Ambari 各版本 get_user_call_output 的返回：
++      - (code, out)
++      - (out, err, code)
++      - (out, code)
++    统一返回 (code:int, out:str)
++    """
++    code, out = 1, ""
++    if isinstance(res, tuple):
++        if len(res) >= 1 and isinstance(res[0], int):
++            code = res[0]
++            out = res[1] if len(res) > 1 else ""
++        elif len(res) >= 1 and isinstance(res[-1], int):
++            code = res[-1]
++            out = res[0] if len(res) > 0 else ""
++        else:
++            out = res[0] if len(res) > 0 else ""
++    else:
++        out = str(res)
++    return code, out
++
+
+-try:
+-    # Python3
+-    import urllib.request as urllib2
+-except ImportError:
+-    # Python2
+-    import urllib2
++def _kinit_if_needed():
++    """
++    开启 Kerberos 时：先 kinit。
++    优先使用 params 中的 keytab/principal；
++    如缺失，再尝试从 JAAS (Client) 条目解析 keyTab/principal。
++    """
++    if not _g("security_enabled", False):
++        return
++
++    kinit = _g("kinit_path_local", "/usr/bin/kinit")
++    keytab = _g("solr_kerberos_keytab", None)
++    principal = _g("solr_kerberos_principal", None)
++
++    if not keytab or not principal:
++        # 从 JAAS 的 Client 条目解析
++        solr_conf = _g("solr_conf", "/etc/solr/conf")
++        jaas = os.path.join(solr_conf, "solr_jaas.conf")
++        try:
++            with open(jaas, "r") as f:
++                txt = f.read()
++            m = re.search(r"Client\s*\{([^}]*)\}", txt, re.S)
++            if m:
++                block = m.group(1)
++                km = re.search(r'keyTab\s*=\s*"?([^"\s;]+)"?', block)
++                pm = re.search(r'principal\s*=\s*"?([^"\s;]+)"?', block)
++                if (not keytab) and km:
++                    keytab = km.group(1)
++                if (not principal) and pm:
++                    principal = pm.group(1)
++        except Exception as e:
++            Logger.warning("解析 JAAS 失败: {0}".format(e))
++
++    if not keytab or not principal:
++        Logger.warning("Kerberos 开启但未能确定 keytab/principal，跳过 kinit。")
++        return
++
++    cmd = format("{kinit} -kt {keytab} {principal}")
++    Logger.info("Kerberos 启用：执行 kinit 获取票据 ({principal}) ...")
++    Execute(cmd, user=_g("solr_user", "solr"))
++
++
++def _base_url():
++    """
++    Admin API 基础 URL：协议从 params.solr_https_enabled 判断；
++    主机名固定使用 params._hostname_lowercase，避免 127.0.0.1 触发 SPNEGO 主体不匹配。
++    """
++    scheme = "https" if _g("solr_https_enabled", False) else "http"
++    host = _g("_hostname_lowercase", "localhost")
++    port = _g("solr_port", 8983)
++    return "{}://{}:{}".format(scheme, host, port)
++
++
++def _solr_api_get(path_q):
++    """
++    用 bin/solr 调 Admin API（继承 Kerberos 配置）；返回 (code, out)
++    捕获 ExecutionFailed，把非零退出包装为 (1, message) 返回。
++    """
++    cmd = format(
++        '{solr_bindir}/solr api -get "{base}{path_q}"',
++        solr_bindir=_g("solr_bindir", "/usr/bigtop/current/solr-server/bin"),
++        base=_base_url(),
++        path_q=path_q
++    )
++    try:
++        res = get_user_call_output(cmd, **_cli_env())
++        return _normalize_call_result(res)
++    except ExecutionFailed as e:
++        return 1, str(e)
+
++
++# ---------------- 与你原文件一致的三个函数（增强后） ----------------
+
+ def collection_exists(collection_name):
+-    import params
+-    url = format("http://127.0.0.1:{solr_port}/solr/admin/collections?action=LIST")
+-    handler = urllib2.urlopen(url)
+-    # Python3 handler.read() 返回 bytes，需要 decode
+-    data = handler.read()
++    """
++    调 LIST(wt=json) 判断集合是否存在；兼容 开/关 Kerberos。
++    """
++    _kinit_if_needed()  # 开启 Kerberos 时先确保票据
++
++    code, out = _solr_api_get('/solr/admin/collections?action=LIST&wt=json')
++    if code != 0:
++        Logger.warning("collections LIST 非零退出(code={0})，输出: {1}".format(code, out))
++        return False
++
+     try:
+-        data = data.decode('utf-8')
+-    except AttributeError:
+-        # Python2 没有 decode 方法
+-        pass
+-    if handler.getcode() == 200:
+-        res = json.loads(data)
+-        collections = res.get('collections', [])
+-        return collection_name in collections
+-    else:
+-        Logger.info(format("execute failed ,HTTP code: {handler}"))
++        data = json.loads(out)
++        cols = data.get('collections') or data.get('response', {}).get('collections') or []
++        return collection_name in cols
++    except Exception as e:
++        Logger.warning("解析 LIST 返回失败: {0}".format(e))
+         return False
+
+
+-# create
+ def create_collection(collection_name):
+-    import params
+-    cmd = format('{solr_bindir}/solr'
+-                 ' create -c {collection_name} -d {ranger_audit_conf} -s 3 -rf 3 -force')
+-    Execute(cmd)
++    """
++    使用 bin/solr create 创建集合。
++    - configset：优先 params.ranger_audit_solr_configset，否则回退 params.ranger_audit_conf，再默认路径
++    - 分片/副本支持新老字段，默认 3
++    """
++    configset = _g("ranger_audit_solr_configset", _g("ranger_audit_conf", "/etc/solr/conf/audit_conf"))
++    shards = int(_g("ranger_audit_solr_shards", _g("ranger_audit_shards", 3)))
++    replicas = int(_g("ranger_audit_solr_replicas", _g("ranger_audit_replicas", 3)))
++
++    _kinit_if_needed()  # 创建前再确保一次票据
++
++    cmd = format(
++        "{solr_bindir}/solr create -c {collection_name} -d {configset} -s {shards} -rf {replicas} -force",
++        solr_bindir=_g("solr_bindir", "/usr/bigtop/current/solr-server/bin"),
++        collection_name=collection_name,
++        configset=configset,
++        shards=shards,
++        replicas=replicas
++    )
++    Logger.info(format("创建集合 {collection_name}（conf:{configset}, s:{shards}, rf:{replicas}）..."))
++    Execute(cmd, **_cli_env())
+
+
+ def setup_ranger_collection(collection_name='ranger_audit'):
++    """
++    入口逻辑维持与你原来一致：
++      - 先判断是否存在；不存在则创建
++      - 集合名明确固定为 'ranger_audit'
++      - 兼容开/关 Kerberos
++    """
++    # 你明确要求使用 'ranger_audit'
++    collection_name = 'ranger_audit'
++
+     if collection_exists(collection_name):
+         Logger.debug(format("{collection_name} already setup"))
+     else:
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SOLR/package/scripts/solr.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SOLR/package/scripts/solr.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SOLR/package/scripts/solr.py
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SOLR/package/scripts/solr.py	(revision 4e64d5c13d0acf443dc3edc387f2c25992eb6813)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SOLR/package/scripts/solr.py	(revision c96dd89f8ce0d85fd5319cf9c0f00e3ce8564fd9)
+@@ -143,8 +143,8 @@
+             return
+         zkmigrator = ZkMigrator(
+             zk_host=params.zk_quorum,
+-            java_exec=params.java_exec,
+-            java_home=params.java64_home,
++            java_exec=params.ambari_java_exec,
++            java_home=params.ambari_java_home,
+             jaas_file=params.solr_jaas_file,
+             user=params.solr_user)
+         zkmigrator.set_acls(params.solr_znode, 'world:anyone:crdwa')
