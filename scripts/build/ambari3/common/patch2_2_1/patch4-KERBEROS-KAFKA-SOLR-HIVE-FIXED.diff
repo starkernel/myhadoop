@@ -632,3 +632,22 @@ diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SOLR/
              jaas_file=params.solr_jaas_file,
              user=params.solr_user)
          zkmigrator.set_acls(params.solr_znode, 'world:anyone:crdwa')
+Subject: [PATCH] fixed：solr关闭认证报错
+---
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SOLR/package/scripts/params.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SOLR/package/scripts/params.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SOLR/package/scripts/params.py
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SOLR/package/scripts/params.py	(revision c96dd89f8ce0d85fd5319cf9c0f00e3ce8564fd9)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SOLR/package/scripts/params.py	(date 1762500739500)
+@@ -138,7 +138,7 @@
+     solr_gc_tune = format(config['configurations']['solr-env']['solr_gc_tune'])
+     solr_extra_java_opts = format(default('configurations/solr-env/solr_extra_java_opts', ""))
+
+-    zk_quorum = format(default('configurations/solr-env/solr_zookeeper_quorum', zookeeper_quorum))
++    zk_quorum = format(format(default('configurations/solr-env/solr_zookeeper_quorum', zookeeper_quorum)))
+
+ if 'solr-security-json' in config['configurations']:
+     solr_security_manually_managed = default("/configurations/solr-security-json/solr_security_manually_managed", False)
