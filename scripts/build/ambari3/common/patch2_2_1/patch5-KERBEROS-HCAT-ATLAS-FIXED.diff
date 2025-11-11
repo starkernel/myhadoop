@@ -1,0 +1,159 @@
+Subject: [PATCH] fixed：修复Kafka、Hive、Solr开关kerberos问题
+---
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HIVE/package/scripts/hcat_service_check.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HIVE/package/scripts/hcat_service_check.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HIVE/package/scripts/hcat_service_check.py
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HIVE/package/scripts/hcat_service_check.py	(revision 78c8ec3732b7b2af359065045e02245a51a4d564)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HIVE/package/scripts/hcat_service_check.py	(date 1762697851698)
+@@ -45,9 +45,36 @@
+          mode=0o755
+          )
+
++    # ---------- Atlas Hook 环境注入 ----------
++    if params.enable_atlas_hook:
++        atlas_hook_env_cmd = format(r'''
++# --- 注入 Atlas Hook jar ---
++ATLAS_HOOK_DIR="{atlas_home}/hook/hive"
++
++ATLAS_HOOK_JARS=$(
++  {{
++    ls "${{ATLAS_HOOK_DIR}}"/*.jar 2>/dev/null
++    ls "${{ATLAS_HOOK_DIR}}/atlas-hive-plugin-impl"/*.jar 2>/dev/null
++  }} | grep -v 'logback-classic' | tr '\n' ':' | sed 's/:$//'
++)
++
++if [ -n "${{ATLAS_HOOK_JARS}}" ]; then
++  if [ -n "${{HIVE_AUX_JARS_PATH:-}}" ]; then
++    export HIVE_AUX_JARS_PATH="${{HIVE_AUX_JARS_PATH}}:${{ATLAS_HOOK_JARS}}"
++  else
++    export HIVE_AUX_JARS_PATH="${{ATLAS_HOOK_JARS}}"
++  fi
++  # 规范化路径: 去掉多余的冒号
++  export HIVE_AUX_JARS_PATH="$(echo "${{HIVE_AUX_JARS_PATH}}" | sed 's/^://;s/:$//;s/::\+/:/g')"
++fi
++''')
++    else:
++        atlas_hook_env_cmd = ''
++
+     prepare_cmd = format(
+-        "{kinit_cmd}env JAVA_HOME={java64_home} {tmp_dir}/hcatSmoke.sh hcatsmoke{unique} prepare {purge_tables}")
+-
++        "{kinit_cmd}{atlas_hook_env_cmd}\n"
++        "env JAVA_HOME={java64_home} {tmp_dir}/hcatSmoke.sh hcatsmoke{unique} prepare {purge_tables}"
++    )
+     exec_path = params.execute_path
+     if params.version and params.stack_root:
+         upgrade_hive_bin = format("{hive_home}/bin")
+@@ -72,7 +99,10 @@
+                   bin_dir=params.execute_path
+                   )
+
+-    cleanup_cmd = format("{kinit_cmd} {tmp_dir}/hcatSmoke.sh hcatsmoke{unique} cleanup {purge_tables}")
++    cleanup_cmd = format(
++        "{kinit_cmd}{atlas_hook_env_cmd}\n"
++        " {tmp_dir}/hcatSmoke.sh hcatsmoke{unique} cleanup {purge_tables}"
++    )
+
+     Execute(cleanup_cmd,
+             tries=3,
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ATLAS/package/scripts/metadata_server.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ATLAS/package/scripts/metadata_server.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ATLAS/package/scripts/metadata_server.py
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ATLAS/package/scripts/metadata_server.py	(revision 78c8ec3732b7b2af359065045e02245a51a4d564)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ATLAS/package/scripts/metadata_server.py	(date 1762686569491)
+@@ -159,7 +159,7 @@
+         if not params.zookeeper_quorum:
+             Logger.info("No zookeeper connection string. Skipping reverting ACL")
+             return
+-        zkmigrator = ZkMigrator(params.zookeeper_quorum, params.java_exec, params.java64_home, params.atlas_jaas_file,
++        zkmigrator = ZkMigrator(params.zookeeper_quorum, params.ambari_java_exec, params.ambari_java_home, params.atlas_jaas_file,
+                                 params.metadata_user)
+         zkmigrator.set_acls(params.zk_root if params.zk_root.startswith('/') else '/' + params.zk_root,
+                             'world:anyone:crdwa')
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ATLAS/package/scripts/params.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ATLAS/package/scripts/params.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ATLAS/package/scripts/params.py
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ATLAS/package/scripts/params.py	(revision 78c8ec3732b7b2af359065045e02245a51a4d564)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ATLAS/package/scripts/params.py	(date 1762686569451)
+@@ -471,3 +471,7 @@
+     if 'content' in mount_table and mount_table['content'].strip():
+         mount_table_xml_inclusion_file_full_path = os.path.join(conf_dir, xml_inclusion_file_name)
+         mount_table_content = mount_table['content']
++
++ambari_java_home = default("/ambariLevelParams/java_home", None)
++
++ambari_java_exec = format("{ambari_java_home}/bin/java")
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HIVE/configuration/hive-env.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HIVE/configuration/hive-env.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HIVE/configuration/hive-env.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HIVE/configuration/hive-env.xml	(revision 78c8ec3732b7b2af359065045e02245a51a4d564)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HIVE/configuration/hive-env.xml	(date 1762736365853)
+@@ -418,16 +418,25 @@
+ # Add Atlas hive hook-plugin JAR path
+
+ {% if enable_atlas_hook %}
+-ATLAS_HOOK_JARS=$(ls {{atlas_home}}/hook/hive/atlas-hive-plugin-impl/*.jar 2>/dev/null | tr '\n' ':' | sed 's/:$//')
+-if [ -n "$ATLAS_HOOK_JARS" ]; then
+-  if [ -n "$HIVE_AUX_JARS_PATH" ]; then
+-    export HIVE_AUX_JARS_PATH="$HIVE_AUX_JARS_PATH:$ATLAS_HOOK_JARS"
++# ---- Atlas Hive Hook jars (top-level + impl), exclude logback to avoid SLF4J clashes ----
++ATLAS_HOOK_DIR="{{atlas_home}}/hook/hive"
++
++ATLAS_HOOK_JARS=$(
++  {
++    ls "${ATLAS_HOOK_DIR}"/*.jar 2>/dev/null
++    ls "${ATLAS_HOOK_DIR}/atlas-hive-plugin-impl"/*.jar 2>/dev/null
++  } | grep -v 'logback-classic' | tr '\n' ':' | sed 's/:$//'
++)
++
++if [ -n "${ATLAS_HOOK_JARS}" ]; then
++  if [ -n "${HIVE_AUX_JARS_PATH:-}" ]; then
++    export HIVE_AUX_JARS_PATH="${HIVE_AUX_JARS_PATH}:${ATLAS_HOOK_JARS}"
+   else
+-    export HIVE_AUX_JARS_PATH="$ATLAS_HOOK_JARS"
++    export HIVE_AUX_JARS_PATH="${ATLAS_HOOK_JARS}"
+   fi
++  # normalize: drop leading/trailing colons & collapse duplicates
++  export HIVE_AUX_JARS_PATH="$(echo "${HIVE_AUX_JARS_PATH}" | sed 's/^://;s/:$//;s/::\+/:/g')"
+ fi
+-
+-export HIVE_AUX_JARS_PATH=$(echo "$HIVE_AUX_JARS_PATH" | sed 's/^://;s/:$//;s/::\+/:/g')
+ {% endif %}
+
+
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ATLAS/configuration/atlas-env.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ATLAS/configuration/atlas-env.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ATLAS/configuration/atlas-env.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ATLAS/configuration/atlas-env.xml	(revision 78c8ec3732b7b2af359065045e02245a51a4d564)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ATLAS/configuration/atlas-env.xml	(date 1762686182771)
+@@ -133,8 +133,13 @@
+
+ # any additional java opts you want to set. This will apply to both client and server operations
+ {% if security_enabled %}
+-export ATLAS_OPTS="{{metadata_opts}} -Dzookeeper.sasl.client.username={{zk_principal_user}}
+--Djava.security.auth.login.config={{atlas_jaas_file}}"
++export ATLAS_OPTS="{{metadata_opts}} \
++-Dzookeeper.sasl.client.username={{zk_principal_user}} \
++-Djava.security.auth.login.config={{atlas_jaas_file}} \
++-Dsolr.kerberos.jaas.appname=Client \
++-Djavax.security.auth.useSubjectCredsOnly=false \
++-Dsolr.httpclient.builder.factory=org.apache.solr.client.solrj.impl.Krb5HttpClientBuilder \
++-Dsun.security.krb5.debug=true"
+ {% else %}
+ export ATLAS_OPTS="{{metadata_opts}}"
+ {% endif %}

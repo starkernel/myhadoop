@@ -1,0 +1,243 @@
+Subject: [PATCH] fixed：trino，livy修改
+---
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TRINO/package/scripts/params.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TRINO/package/scripts/params.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TRINO/package/scripts/params.py
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TRINO/package/scripts/params.py	(revision 55117d54f076895ac5c62990971f219a1c955d98)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TRINO/package/scripts/params.py	(date 1762849203607)
+@@ -267,12 +267,16 @@
+ authentication_type = "NONE"
+ trino_principal = ""
+ trino_keytab = ""
++hive_metastore_principal = ""
+ security_enabled = config["configurations"]["cluster-env"]["security_enabled"]
+ if security_enabled:
+     trino_principal = config["configurations"]["trino-env"]["trino_principal"]
++    hive_metastore_principal = config["configurations"]["config-properties"]["hive_metastore_principal"]
+     trino_keytab = config["configurations"]["trino-env"]["trino_keytab"]
+     authentication_type = "KERBEROS"
+
++Logger.info(f"============={hive_metastore_principal}")
++
+ # connectors-properties
+ trino_connectors_dir = format("{trino_conf_dir}/catalog")
+ hive_metastore_hosts = default("/clusterHostInfo/hive_metastore_hosts", [])
+@@ -299,6 +303,7 @@
+     trino_principal=trino_principal,
+     trino_keytab=trino_keytab,
+     authentication_type=authentication_type,
++    hive_metastore_principal=hive_metastore_principal,
+ )
+
+ trino_connectors_content = trino_connectors_content_inline.get_content()
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TRINO/package/templates/config.properties.j2
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TRINO/package/templates/config.properties.j2 b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TRINO/package/templates/config.properties.j2
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TRINO/package/templates/config.properties.j2	(revision 55117d54f076895ac5c62990971f219a1c955d98)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TRINO/package/templates/config.properties.j2	(date 1762823825530)
+@@ -21,14 +21,44 @@
+ http-server.https.keystore.key={{ config_properties['http-server.https.keystore.key'] }}
+ {% endif %}
+
++
++#######################################################################
++#  HTTP Authentication Configuration (Kerberos / Password / None)
++#######################################################################
+ {% if config_properties['http-server.authentication.type'] is defined %}
+-# Type of HTTP authentication (e.g., PASSWORD, NONE)
++# Type of HTTP authentication (e.g., KERBEROS, PASSWORD, NONE)
+ http-server.authentication.type={{ config_properties['http-server.authentication.type'] }}
+ {% endif %}
+
++{% if 'KERBEROS' in config_properties['http-server.authentication.type'] %}
++# -----------------------------
++# Kerberos Authentication Block
++# -----------------------------
++# Principal short name (should match keytab principal, e.g. HTTP)
++http-server.authentication.krb5.service-name={{ config_properties['http-server.authentication.krb5.service-name'] }}
++
++# Path to Kerberos keytab file
++http-server.authentication.krb5.keytab={{ config_properties['http-server.authentication.krb5.keytab'] }}
++
++# Path to krb5.conf (Ambari variable or fixed path)
++http.authentication.krb5.config={{ config_properties['http.authentication.krb5.config'] }}
++
++# Optional: fixed hostname for principal (if not using _HOST)
++{# http-server.authentication.krb5.principal-hostname={{ config_properties['http-server.authentication.krb5.principal-hostname'] }} #}
++{% endif %}
++
++{% if 'PASSWORD' in config_properties['http-server.authentication.type'] %}
++# -----------------------------
++# Password Authentication Block
++# -----------------------------
+ # Path to the password authenticator config file
+ password-authenticator.config-files={{ config_properties['password-authenticator.config-files'] }}
++{% endif %}
+
++
++#######################################################################
++#  Logging / Internal Communication / Misc
++#######################################################################
+ # Path for HTTP server request logs
+ http-server.log.path={{ config_properties['http-server.log.path'] }}
+
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/LIVY/kerberos.json
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/LIVY/kerberos.json b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/LIVY/kerberos.json
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/LIVY/kerberos.json	(revision 55117d54f076895ac5c62990971f219a1c955d98)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/LIVY/kerberos.json	(date 1762845220544)
+@@ -1,7 +1,7 @@
+ {
+     "services": [
+       {
+-        "name": "LIVY_SERVER",
++        "name": "LIVY",
+         "identities": [
+           {
+             "name": "hdfs",
+@@ -46,6 +46,13 @@
+               "livy.impersonation.enabled": "true"
+             }
+           }
++        ],
++        "components": [
++          {
++          "name": "LIVY_SERVER",
++          "identities": [
++          ]
++        }
+         ]
+       }
+     ]
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TRINO/kerberos.json
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TRINO/kerberos.json b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TRINO/kerberos.json
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TRINO/kerberos.json	(revision 55117d54f076895ac5c62990971f219a1c955d98)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TRINO/kerberos.json	(date 1762847845490)
+@@ -4,33 +4,71 @@
+       "name": "TRINO",
+       "identities": [
+         {
+-          "name": "/spnego"
+-        },
+-		{
+-              "name": "trino user",
+-              "principal": {
+-                "value": "trino@${realm}",
+-                "type": "user",
+-                "local_username": "${trino-env/trino_user}",
+-				"configuration": "trino-env/trino_principal"
+-              },
+-              "keytab": {
+-                "file": "${keytab_dir}/trino.keytab",
+-                "owner": {
+-                  "name": "${trino-env/trino_user}",
+-                  "access": "r"
+-                },
+-                "group": {
+-                  "name": "${cluster-env/user_group}",
+-                  "access": ""
+-                },
+-				"configuration": "trino-env/trino_keytab"
+-              }
+-            }
++          "name": "trino_service",
++          "principal": {
++            "value": "trino/_HOST@${realm}",
++            "type": "service",
++            "local_username": "${trino-env/trino_user}",
++            "configuration": "trino-env/trino_principal"
++          },
++          "keytab": {
++            "file": "${keytab_dir}/trino.service.keytab",
++            "owner": {
++              "name": "${trino-env/trino_user}",
++              "access": "r"
++            },
++            "group": {
++              "name": "${cluster-env/user_group}",
++              "access": ""
++            },
++            "configuration": "trino-env/trino_keytab"
++          }
++        },
++        {
++          "name": "trino_spnego",
++          "reference": "/spnego",
++          "keytab": {
++            "configuration": "config-properties/http-server.authentication.krb5.keytab"
++          }
++        },
++        {
++          "name": "trino_smokeuser",
++          "reference": "/smokeuser"
++        },
++        {
++          "name": "trino_hive_connector",
++          "reference": "/HIVE/HIVE_SERVER/hive_server_hive",
++          "principal": {
++            "configuration": "config-properties/hive_metastore_principal"
++          }
++        }
++      ],
++      "configurations": [
++        {
++          "config-properties": {
++            "http-server.authentication.type": "KERBEROS",
++            "http-server.authentication.krb5.service-name": "HTTP",
++            "http.authentication.krb5.config": "${krb5-conf/conf_dir}/krb5.conf",
++            "http-server.https.enabled": "true"
++          }
++        }
+       ],
+       "components": [
+-
++        {
++          "name": "TRINO_COORDINATOR",
++          "identities": [
++            {
++              "name": "coordinator_spnego",
++              "reference": "/TRINO/trino_spnego"
++            }
++          ]
++        },
++        {
++          "name": "TRINO_WORKER",
++          "identities": [
++          ]
++        }
+       ]
+     }
+   ]
+-}
+\ No newline at end of file
++}
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TRINO/configuration/connectors-properties.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TRINO/configuration/connectors-properties.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TRINO/configuration/connectors-properties.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TRINO/configuration/connectors-properties.xml	(revision 55117d54f076895ac5c62990971f219a1c955d98)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TRINO/configuration/connectors-properties.xml	(date 1762835761941)
+@@ -30,7 +30,7 @@
+     'fs.hadoop.enabled=true',
+ 	  {% if security_enabled %}
+     'hive.metastore.thrift.impersonation.enabled=false',
+-    'hive.metastore.service.principal={{trino_principal}}',
++    'hive.metastore.service.principal={{hive_metastore_principal}}',
+     'hive.metastore.client.principal={{trino_principal}}',
+     'hive.metastore.client.keytab={{trino_keytab}}',
+     'hive.hdfs.impersonation.enabled=false',
