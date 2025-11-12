@@ -1,0 +1,143 @@
+Subject: [PATCH] fixed：修复hdfs告警和celeborn 开启kerberos 配置丢失
+---
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HDFS/service_advisor.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HDFS/service_advisor.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HDFS/service_advisor.py
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HDFS/service_advisor.py	(revision 794cdd3ff60a9146c3bcb1694a9b37d6900acf12)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HDFS/service_advisor.py	(date 1762946265253)
+@@ -259,6 +259,9 @@
+         # dfs.datanode.du.reserved should be set to 10-15% of volume size
+         # For each host selects maximum size of the volume. Then gets minimum for all hosts.
+         # This ensures that each host will have at least one data dir with available space.
++        if not dataDirs:
++            dataDirs = ['/hadoop/hdfs/data']
++
+         reservedSizeRecommendation = 0  # kBytes
+         for host in hosts["items"]:
+             mountPoints = []
+@@ -282,10 +285,14 @@
+         self.logger.info("Class: %s, Method: %s. HDFS Datanode recommended reserved size: %d" %
+                          (self.__class__.__name__, inspect.stack()[0][3], reservedSizeRecommendation))
+
++        # 新代码（按比例，比如 10%）：
+         if reservedSizeRecommendation:
+-            reservedSizeRecommendation = max(reservedSizeRecommendation * 1024 / 8,
+-                                             1073741824)  # At least 1Gb is reserved
+-            putHDFSSiteProperty('dfs.datanode.du.reserved', reservedSizeRecommendation)  # Bytes
++            reserve_ratio = 0.10  # 想要 12.5% 就 0.125，想 5% 就 0.05；也可做成可配置
++            reserved_bytes = max(int(reservedSizeRecommendation * 1024 * reserve_ratio), 1073741824)
++            self.logger.info("Class: %s, Method: %s. HDFS DN reserved: ratio=%.3f, kb=%d, bytes=%d",
++                             self.__class__.__name__, inspect.stack()[0][3],
++                             reserve_ratio, reservedSizeRecommendation, reserved_bytes)
++            putHDFSSiteProperty('dfs.datanode.du.reserved', reserved_bytes)  # Bytes
+
+         # recommendations for "hadoop.proxyuser.*.hosts", "hadoop.proxyuser.*.groups" properties in core-site
+         self.recommendHadoopProxyUsers(configurations, services, hosts)
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/CELEBORN/package/scripts/params.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/CELEBORN/package/scripts/params.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/CELEBORN/package/scripts/params.py
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/CELEBORN/package/scripts/params.py	(revision 794cdd3ff60a9146c3bcb1694a9b37d6900acf12)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/CELEBORN/package/scripts/params.py	(date 1762944405945)
+@@ -216,13 +216,13 @@
+     default("/configurations/kerberos-env/executable_search_paths", None)
+ )
+
+-# if security_enabled:
+-#     celeborn_storage_hdfs_kerberos_principal = config["configurations"][
+-#         "celeborn-defaults"
+-#     ]["celeborn.storage.hdfs.kerberos.principal"]
+-#     celeborn_storage_hdfs_kerberos_keytab = config["configurations"][
+-#         "celeborn-defaults"
+-#     ]["celeborn.storage.hdfs.kerberos.keytab"]
++if security_enabled:
++    celeborn_storage_hdfs_kerberos_principal = config["configurations"][
++        "celeborn-defaults"
++    ]["celeborn.storage.hdfs.kerberos.principal"]
++    celeborn_storage_hdfs_kerberos_keytab = config["configurations"][
++        "celeborn-defaults"
++    ]["celeborn.storage.hdfs.kerberos.keytab"]
+
+ # for create_hdfs_directory
+ default_fs = config["configurations"]["core-site"]["fs.defaultFS"]
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/stack_advisor.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/stack_advisor.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/stack_advisor.py
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/stack_advisor.py	(revision 794cdd3ff60a9146c3bcb1694a9b37d6900acf12)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/stack_advisor.py	(date 1762937132748)
+@@ -399,37 +399,45 @@
+
+         # Initialize default 'dfs.datanode.data.dir' if needed
+         if (not hdfsSiteProperties) or ('dfs.datanode.data.dir' not in hdfsSiteProperties):
+-            dataDirs = '/hadoop/hdfs/data'
+-            putHDFSSiteProperty('dfs.datanode.data.dir', dataDirs)
++            dataDirs = ['/hadoop/hdfs/data']  # 保证是列表，不要是字符串
++            putHDFSSiteProperty('dfs.datanode.data.dir', ','.join(dataDirs))
+         else:
+-            dataDirs = hdfsSiteProperties['dfs.datanode.data.dir'].split(",")
++            dataDirs = [d.strip() for d in hdfsSiteProperties['dfs.datanode.data.dir'].split(',') if d.strip()]
+
+         # dfs.datanode.du.reserved should be set to 10-15% of volume size
+-        # For each host selects maximum size of the volume. Then gets minimum for all hosts.
+-        # This ensures that each host will have at least one data dir with available space.
+-        reservedSizeRecommendation = 0  # kBytes
++        # For each host, select the maximum-sized data volume (by total size), then take the minimum across hosts.
++        reserve_ratio = 0.10  # 10%（需要 10~15% 可改成 0.10~0.15）
++        reserved_size_kb_min_across_hosts = None
+         for host in hosts["items"]:
+-            mountPoints = []
+-            mountPointDiskAvailableSpace = []  # kBytes
++            # 收集每个挂载点的总容量（KB）/可用（KB）
++            mp_list, size_kb_list, avail_kb_list = [], [], []
+             for diskInfo in host["Hosts"]["disk_info"]:
+-                mountPoints.append(diskInfo["mountpoint"])
+-                mountPointDiskAvailableSpace.append(int(diskInfo["size"]))
++                mp_list.append(diskInfo.get("mountpoint"))
++                # Ambari agent 返回一般是 KB；如为字节需自行 /1024
++                size_kb_list.append(int(diskInfo.get("size", 0)))
++                avail_kb_list.append(int(diskInfo.get("available", 0)))
+
+-            maxFreeVolumeSizeForHost = 0  # kBytes
++            # 选出该主机上承载 dataDir 的最大总容量卷
++            max_volume_size_kb_for_host = 0
+             for dataDir in dataDirs:
+-                mp = getMountPointForDir(dataDir, mountPoints)
+-                for i in range(len(mountPoints)):
+-                    if mp == mountPoints[i]:
+-                        if mountPointDiskAvailableSpace[i] > maxFreeVolumeSizeForHost:
+-                            maxFreeVolumeSizeForHost = mountPointDiskAvailableSpace[i]
++                mp = getMountPointForDir(dataDir, mp_list)
++                for i, m in enumerate(mp_list):
++                    if mp == m:
++                        if size_kb_list[i] > max_volume_size_kb_for_host:
++                            max_volume_size_kb_for_host = size_kb_list[i]
+
+-            if not reservedSizeRecommendation or maxFreeVolumeSizeForHost and maxFreeVolumeSizeForHost < reservedSizeRecommendation:
+-                reservedSizeRecommendation = maxFreeVolumeSizeForHost
++            if max_volume_size_kb_for_host > 0:
++                reserved_kb_for_host = int(max_volume_size_kb_for_host * reserve_ratio)  # 按总容量的比例
++                if (reserved_size_kb_min_across_hosts is None or
++                        reserved_kb_for_host < reserved_size_kb_min_across_hosts):
++                    reserved_size_kb_min_across_hosts = reserved_kb_for_host
+
+-        if reservedSizeRecommendation:
+-            reservedSizeRecommendation = max(reservedSizeRecommendation * 1024,
+-                                             1073741824)  # At least 1Gb is reserved
+-            putHDFSSiteProperty('dfs.datanode.du.reserved', reservedSizeRecommendation)  # Bytes
++        if reserved_size_kb_min_across_hosts:
++            # 转换为字节，且至少保留 1GiB
++            reserved_bytes = max(reserved_size_kb_min_across_hosts * 1024, 1073741824)
++            # 可选：设置上限避免小盘被扣太多（例如最多 80GiB）
++            # reserved_bytes = min(reserved_bytes, 80 * (1024**3))
++            putHDFSSiteProperty('dfs.datanode.du.reserved', reserved_bytes)  # Bytes
+
+         # recommendations for "hadoop.proxyuser.*.hosts", "hadoop.proxyuser.*.groups" properties in core-site
+         self.recommendHadoopProxyUsers(configurations, services, hosts)

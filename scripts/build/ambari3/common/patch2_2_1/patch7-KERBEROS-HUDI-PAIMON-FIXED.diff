@@ -1,0 +1,377 @@
+Subject: [PATCH] fixed：修复kerberos开启后，hudi，paimon错误
+---
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUDI/kerberos.json
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUDI/kerberos.json b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUDI/kerberos.json
+new file mode 100644
+--- /dev/null	(date 1762911228581)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUDI/kerberos.json	(date 1762911228581)
+@@ -0,0 +1,46 @@
++{
++  "services": [
++    {
++      "name": "HUDI",
++      "identities": [
++        {
++          "name": "hudi_spnego",
++          "reference": "/spnego",
++          "principal": {
++            "configuration": "hudi-site/hudi.web.authentication.kerberos.principal"
++          },
++          "keytab": {
++            "configuration": "hudi-site/hudi.web.authentication.kerberos.keytab"
++          }
++        },
++        {
++          "name": "hudi_service",
++          "principal": {
++            "value": "hudi/_HOST@${realm}",
++            "type": "service",
++            "configuration": "hudi-site/hudi.service.principal"
++          },
++          "keytab": {
++            "file": "${keytab_dir}/hudi.service.keytab",
++            "owner": {
++              "name": "hudi",
++              "access": "r"
++            },
++            "configuration": "hudi-site/hudi.service.keytab"
++          }
++        }
++      ],
++      "components": [
++        {
++          "name": "HUDI",
++          "identities": [
++            {
++              "name": "hudi_server_identity",
++              "reference": "/HUDI/hudi_service"
++            }
++          ]
++        }
++      ]
++    }
++  ]
++}
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/PAIMON/kerberos.json
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/PAIMON/kerberos.json b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/PAIMON/kerberos.json
+new file mode 100644
+--- /dev/null	(date 1762911910046)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/PAIMON/kerberos.json	(date 1762911910046)
+@@ -0,0 +1,74 @@
++{
++  "services": [
++    {
++      "name": "PAIMON",
++      "auth_to_local_properties": [
++        "paimon-site/paimon.web.kerberos.name.rules|new_lines_escaped"
++      ],
++      "identities": [
++        {
++          "name": "paimon_service",
++          "principal": {
++            "value": "paimon/_HOST@${realm}",
++            "type": "service",
++            "local_username": "${paimon-site/paimon_user}",
++            "configuration": "paimon-site/paimon.service.principal"
++          },
++          "keytab": {
++            "file": "${keytab_dir}/paimon.service.keytab",
++            "owner": {
++              "name": "${paimon-site/paimon_user}",
++              "access": "r"
++            },
++            "group": {
++              "name": "${cluster-env/user_group}",
++              "access": ""
++            },
++            "configuration": "paimon-site/paimon.service.keytab"
++          }
++        },
++        {
++          "name": "paimon_spnego",
++          "reference": "/spnego",
++          "principal": {
++            "configuration": "paimon-site/paimon.web.authentication.kerberos.principal"
++          },
++          "keytab": {
++            "configuration": "paimon-site/paimon.web.authentication.kerberos.keytab"
++          }
++        },
++        {
++          "name": "paimon_hive_connector",
++          "reference": "/HIVE/HIVE_SERVER/hive_server_hive",
++          "principal": {
++            "configuration": "paimon-site/hive.metastore.principal"
++          }
++        },
++        {
++          "name": "paimon_smokeuser",
++          "reference": "/smokeuser"
++        }
++      ],
++      "configurations": [
++        {
++          "paimon-site": {
++            "paimon.security.authentication": "kerberos",
++            "paimon.kerberos.krb5.conf": "${krb5-conf/conf_dir}/krb5.conf",
++            "paimon.web.kerberos.name.rules": ""
++          }
++        }
++      ],
++      "components": [
++        {
++          "name": "PAIMON",
++          "identities": [
++            {
++              "name": "client_uses_service",
++              "reference": "../paimon_service"
++            }
++          ]
++        }
++      ]
++    }
++  ]
++}
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/PAIMON/package/scripts/params_linux.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/PAIMON/package/scripts/params_linux.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/PAIMON/package/scripts/params_linux.py
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/PAIMON/package/scripts/params_linux.py	(revision 3da3edfe3f5fa779355224e14cbb549f52f80bb6)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/PAIMON/package/scripts/params_linux.py	(date 1762910657106)
+@@ -18,3 +18,9 @@
+ """
+ 
+ import os
++
++from resource_management import default
++
++hive_metastore_uris = default(
++    "/configurations/hive-site/hive.metastore.uris", "thirift://localhost:8083"
++)
+\ No newline at end of file
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/PAIMON/configuration/paimon-site.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/PAIMON/configuration/paimon-site.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/PAIMON/configuration/paimon-site.xml
+new file mode 100644
+--- /dev/null	(date 1762911638625)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/PAIMON/configuration/paimon-site.xml	(date 1762911638625)
+@@ -0,0 +1,206 @@
++<?xml version="1.0"?>
++<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
++<configuration supports_adding_forbidden="true">
++
++    <!-- ==================== 基础用户与路径配置 ==================== -->
++    <property>
++        <name>paimon_user</name>
++        <display-name>Paimon User</display-name>
++        <value>paimon</value>
++        <property-type>USER</property-type>
++        <value-attributes>
++            <type>user</type>
++            <overridable>false</overridable>
++            <user-groups>
++                <property>
++                    <type>cluster-env</type>
++                    <name>user_group</name>
++                </property>
++            </user-groups>
++        </value-attributes>
++        <on-ambari-upgrade add="true"/>
++    </property>
++
++    <property>
++        <name>paimon_group</name>
++        <display-name>Paimon Group</display-name>
++        <value>hadoop</value>
++        <property-type>GROUP</property-type>
++        <description>Paimon group</description>
++        <value-attributes>
++            <type>user</type>
++        </value-attributes>
++        <on-ambari-upgrade add="true"/>
++    </property>
++
++    <property>
++        <name>paimon_log_dir</name>
++        <display-name>Paimon Log directory</display-name>
++        <value>/var/log/paimon</value>
++        <description>Directory where Paimon logs are stored.</description>
++        <value-attributes>
++            <type>directory</type>
++        </value-attributes>
++        <on-ambari-upgrade add="true"/>
++    </property>
++
++    <property>
++        <name>paimon_pid_dir</name>
++        <display-name>Paimon PID directory</display-name>
++        <value>/var/run/paimon</value>
++        <description>Directory for Paimon pid files.</description>
++        <value-attributes>
++            <type>directory</type>
++        </value-attributes>
++        <on-ambari-upgrade add="true"/>
++    </property>
++
++    <!-- ==================== Kerberos 安全配置 ==================== -->
++    <property>
++        <name>paimon.security.authentication</name>
++        <display-name>Paimon Security Authentication</display-name>
++        <value>kerberos</value>
++        <description>Authentication method: kerberos or simple.</description>
++        <on-ambari-upgrade add="true"/>
++    </property>
++
++    <property>
++        <name>paimon.kerberos.krb5.conf</name>
++        <display-name>krb5.conf Path</display-name>
++        <value>${krb5-conf/conf_dir}/krb5.conf</value>
++        <description>Path to krb5.conf managed by Ambari.</description>
++        <on-ambari-upgrade add="true"/>
++    </property>
++
++    <!-- ============ 服务级 Principal 与 Keytab（由 kerberos.json 映射写入） ============ -->
++    <property>
++        <name>paimon.service.principal</name>
++        <display-name>Paimon Service Principal</display-name>
++        <value>paimon/_HOST@EXAMPLE.COM</value>
++        <property-type>KERBEROS_PRINCIPAL</property-type>
++        <description>Service principal for Paimon service.</description>
++        <on-ambari-upgrade add="true"/>
++    </property>
++
++    <property>
++        <name>paimon.service.keytab</name>
++        <display-name>Paimon Service Keytab</display-name>
++        <value>/etc/security/keytabs/paimon.service.keytab</value>
++        <property-type>KERBEROS_KEYTAB</property-type>
++        <description>Keytab file for Paimon service principal.</description>
++        <on-ambari-upgrade add="true"/>
++    </property>
++
++    <!-- ============ Web/REST SPNEGO 配置（如有 Web 组件） ============ -->
++    <property>
++        <name>paimon.web.authentication.type</name>
++        <display-name>Paimon Web Authentication Type</display-name>
++        <value>KERBEROS</value>
++        <description>Authentication type for Paimon Web (KERBEROS or NONE).</description>
++        <on-ambari-upgrade add="true"/>
++    </property>
++
++    <property>
++        <name>paimon.web.https.enabled</name>
++        <display-name>Paimon Web HTTPS Enabled</display-name>
++        <value>true</value>
++        <property-type>BOOLEAN</property-type>
++        <description>Enable HTTPS for Paimon Web if applicable.</description>
++        <on-ambari-upgrade add="true"/>
++    </property>
++
++    <property>
++        <name>paimon.web.authentication.kerberos.principal</name>
++        <display-name>Paimon SPNEGO Principal</display-name>
++        <value>HTTP/_HOST@EXAMPLE.COM</value>
++        <property-type>KERBEROS_PRINCIPAL</property-type>
++        <description>HTTP principal for SPNEGO authentication (if Paimon has a web UI).</description>
++        <on-ambari-upgrade add="true"/>
++    </property>
++
++    <property>
++        <name>paimon.web.authentication.kerberos.keytab</name>
++        <display-name>Paimon SPNEGO Keytab</display-name>
++        <value>/etc/security/keytabs/spnego.service.keytab</value>
++        <property-type>KERBEROS_KEYTAB</property-type>
++        <description>Keytab for HTTP SPNEGO authentication.</description>
++        <on-ambari-upgrade add="true"/>
++    </property>
++
++    <property>
++        <name>paimon.web.kerberos.name.rules</name>
++        <display-name>Paimon Web Kerberos Name Rules</display-name>
++        <value></value>
++        <description>Will be dynamically composed by Ambari when auth_to_local management is enabled.</description>
++        <value-attributes>
++            <empty-value-valid>true</empty-value-valid>
++        </value-attributes>
++        <on-ambari-upgrade add="true"/>
++    </property>
++
++    <!-- ============ Hive Metastore 集成（可选；作为 Catalog 使用时） ============ -->
++    <property>
++        <name>hive.metastore.uris</name>
++        <display-name>Hive Metastore URIs</display-name>
++        <value>{{hive_metastore_uris}}</value>
++        <description>URI of Hive Metastore for Paimon catalog integration.</description>
++        <on-ambari-upgrade add="true"/>
++    </property>
++
++    <property>
++        <name>hive.metastore.sasl.enabled</name>
++        <display-name>Hive Metastore SASL Enabled</display-name>
++        <value>true</value>
++        <property-type>BOOLEAN</property-type>
++        <description>Enable SASL (Kerberos) for Hive Metastore client.</description>
++        <on-ambari-upgrade add="true"/>
++    </property>
++
++    <property>
++        <name>hive.metastore.principal</name>
++        <display-name>Hive Metastore Principal</display-name>
++        <value>hive/_HOST@EXAMPLE.COM</value>
++        <property-type>KERBEROS_PRINCIPAL</property-type>
++        <description>Hive Metastore service principal.</description>
++        <on-ambari-upgrade add="true"/>
++    </property>
++
++    <!-- 如需要单独的 HMS 客户端认证（可选）： -->
++    <property>
++        <name>hive.metastore.client.keytab</name>
++        <display-name>Hive Metastore Client Keytab</display-name>
++        <value>/etc/security/keytabs/paimon-hms.client.keytab</value>
++        <property-type>KERBEROS_KEYTAB</property-type>
++        <description>Optional keytab for Metastore client.</description>
++        <on-ambari-upgrade add="true"/>
++    </property>
++
++    <!--
++    <property>
++      <name>hive.metastore.client.principal</name>
++      <display-name>Hive Metastore Client Principal</display-name>
++      <value>paimon/_HOST@EXAMPLE.COM</value>
++      <property-type>KERBEROS_PRINCIPAL</property-type>
++      <description>Optional client principal used to connect to HMS (only if your integration requires it).</description>
++      <on-ambari-upgrade add="true"/>
++    </property>
++    -->
++
++    <!-- ============ Catalog 与仓库路径（示例） ============ -->
++    <property>
++        <name>paimon.catalog.type</name>
++        <display-name>Paimon Catalog Type</display-name>
++        <value>hms</value>
++        <description>Catalog type (e.g. hms, file, etc.).</description>
++        <on-ambari-upgrade add="true"/>
++    </property>
++
++    <property>
++        <name>paimon.catalog.warehouse</name>
++        <display-name>Paimon Warehouse Path</display-name>
++        <value>hdfs:///warehouse/paimon</value>
++        <description>Warehouse path for Paimon tables.</description>
++        <on-ambari-upgrade add="true"/>
++    </property>
++
++</configuration>

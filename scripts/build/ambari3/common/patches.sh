@@ -19,6 +19,8 @@ patch_files=(
   "/scripts/build/ambari3/common/patch2_2_1/patch4-KERBEROS-KAFKA-SOLR-HIVE-FIXED.diff"
   "/scripts/build/ambari3/common/patch2_2_1/patch5-KERBEROS-HCAT-ATLAS-FIXED.diff"
   "/scripts/build/ambari3/common/patch2_2_1/patch6-KERBEROS-LIVY-TRINO-FIXED.diff"
+  "/scripts/build/ambari3/common/patch2_2_1/patch7-KERBEROS-HUDI-PAIMON-FIXED.diff"
+  "/scripts/build/ambari3/common/patch2_2_1/patch8-KERBEROS-CELEBORN-HDFS.diff"
 )
 
 
