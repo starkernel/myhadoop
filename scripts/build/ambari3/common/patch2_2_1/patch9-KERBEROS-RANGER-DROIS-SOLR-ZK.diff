@@ -1,0 +1,297 @@
+Subject: [PATCH] fixed: 修复开启ranger后的一些不兼容问题
+---
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ZOOKEEPER/configuration/zoo.cfg.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ZOOKEEPER/configuration/zoo.cfg.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ZOOKEEPER/configuration/zoo.cfg.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ZOOKEEPER/configuration/zoo.cfg.xml	(revision 92c4e852b1cfec66c93a5b833c7c4e8251fe0a6b)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/ZOOKEEPER/configuration/zoo.cfg.xml	(date 1763002571213)
+@@ -92,7 +92,7 @@
+   </property>
+   <property>
+     <name>4lw.commands.whitelist</name>
+-    <value>ruok</value>
++    <value>mntr,conf,ruok</value>
+     <description>A list of comma separated Four Letter Words commands that user wants to use.
+       A valid Four Letter Words command must be put in this list else ZooKeeper server will not enable the command.
+       By default the whitelist only contains "srvr" command which zkServer.sh uses.
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/role_command_order.json
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/role_command_order.json b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/role_command_order.json
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/role_command_order.json	(revision 92c4e852b1cfec66c93a5b833c7c4e8251fe0a6b)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/role_command_order.json	(date 1763000415574)
+@@ -4,6 +4,6 @@
+     "RANGER_SERVICE_CHECK-SERVICE_CHECK" : ["RANGER_ADMIN-START"],
+     "RANGER_SERVICE_CHECK-SERVICE_CHECK" : ["RANGER_USERSYNC-START"],
+     "RANGER_USERSYNC-START" : ["RANGER_ADMIN-START"],
+-    "RANGER_ADMIN-START": ["ZOOKEEPER_SERVER-START", "INFRA_SOLR-START"]
++    "RANGER_ADMIN-START": ["ZOOKEEPER_SERVER-START", "SOLR_SERVER-START"]
+   }
+ }
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/package/scripts/ranger_admin.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/package/scripts/ranger_admin.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/package/scripts/ranger_admin.py
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/package/scripts/ranger_admin.py	(revision 92c4e852b1cfec66c93a5b833c7c4e8251fe0a6b)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/package/scripts/ranger_admin.py	(date 1763006859720)
+@@ -120,7 +120,7 @@
+         self.configure(env, upgrade_type=upgrade_type, setup_db=params.stack_supports_ranger_setup_db_on_start)
+ 
+         if params.stack_supports_infra_client and params.audit_solr_enabled and params.is_solrCloud_enabled:
+-            solr_cloud_util.setup_solr_client(params.config, custom_log4j=params.custom_log4j)
++            # solr_cloud_util.setup_solr_client(params.config, custom_log4j=params.custom_log4j)
+             setup_ranger_xml.setup_ranger_audit_solr()
+ 
+         setup_ranger_xml.update_password_configs()
+Index: ambari-common/src/main/python/resource_management/libraries/functions/ranger_functions_v2.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-common/src/main/python/resource_management/libraries/functions/ranger_functions_v2.py b/ambari-common/src/main/python/resource_management/libraries/functions/ranger_functions_v2.py
+--- a/ambari-common/src/main/python/resource_management/libraries/functions/ranger_functions_v2.py	(revision 92c4e852b1cfec66c93a5b833c7c4e8251fe0a6b)
++++ b/ambari-common/src/main/python/resource_management/libraries/functions/ranger_functions_v2.py	(date 1763042183916)
+@@ -178,7 +178,7 @@
+         Logger.error("Connection failed to Ranger Admin !")
+     elif is_stack_supports_ranger_kerberos and is_security_enabled:
+       ranger_lookup_user = "rangerlookup"
+-      admin_password = unicode(admin_password)
++      admin_password = str(admin_password)
+       user_resp_code = self.create_ambari_admin_user(
+         ranger_lookup_user, admin_password, format("{admin_uname}:{admin_password}")
+       )
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SOLR/package/scripts/setup_ranger_config_for_solr.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SOLR/package/scripts/setup_ranger_config_for_solr.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SOLR/package/scripts/setup_ranger_config_for_solr.py
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SOLR/package/scripts/setup_ranger_config_for_solr.py	(revision 92c4e852b1cfec66c93a5b833c7c4e8251fe0a6b)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SOLR/package/scripts/setup_ranger_config_for_solr.py	(date 1763019358101)
+@@ -175,15 +175,14 @@
+     Execute(cmd, **_cli_env())
+ 
+ 
+-def setup_ranger_collection(collection_name='ranger_audit'):
++def setup_ranger_collection(collection_name='ranger_audits'):
+     """
+     入口逻辑维持与你原来一致：
+       - 先判断是否存在；不存在则创建
+-      - 集合名明确固定为 'ranger_audit'
++      - 集合名明确固定为 'ranger_audits'
+       - 兼容开/关 Kerberos
+     """
+-    # 你明确要求使用 'ranger_audit'
+-    collection_name = 'ranger_audit'
++    collection_name = 'ranger_audits'
+ 
+     if collection_exists(collection_name):
+         Logger.debug(format("{collection_name} already setup"))
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/service_advisor.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/service_advisor.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/service_advisor.py
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/service_advisor.py	(revision 92c4e852b1cfec66c93a5b833c7c4e8251fe0a6b)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/service_advisor.py	(date 1763016466448)
+@@ -274,7 +274,7 @@
+         {'service_name': 'STORM', 'audit_file': 'ranger-storm-plugin-properties'},
+         {'service_name': 'OZONE', 'audit_file': 'ranger-ozone-plugin-properties'},
+         {'service_name': 'DORIS', 'audit_file': 'ranger-doris-plugin-properties'},
+-        {'service_name': 'SPARK3', 'audit_file': 'ranger-spark3-plugin-properties'},
++        {'service_name': 'SPARK', 'audit_file': 'ranger-spark-plugin-properties'},
+         {'service_name': 'KUDU', 'audit_file': 'ranger-kudu-plugin-properties'}
+       ]
+ 
+@@ -424,7 +424,7 @@
+       zookeeper_host_port = self.getZKHostPortString(services)
+       ranger_audit_zk_port = ''
+       if zookeeper_host_port:
+-        ranger_audit_zk_port = '{0}/{1}'.format(zookeeper_host_port, 'ranger_audits')
++        ranger_audit_zk_port = '{0}/{1}'.format(zookeeper_host_port, 'ranger_audit')
+         putRangerAdminProperty('ranger.audit.solr.zookeepers', ranger_audit_zk_port)
+     else:
+       putRangerAdminProperty('ranger.audit.solr.zookeepers', 'NONE')
+@@ -447,7 +447,7 @@
+       {'service_name': 'STORM', 'audit_file': 'ranger-storm-audit'},
+       {'service_name': 'OZONE', 'audit_file': 'ranger-ozone-audit'},
+       {'service_name': 'DORIS', 'audit_file': 'ranger-doris-audit'},
+-      {'service_name': 'SPARK3', 'audit_file': 'ranger-spark3-audit'}
++      {'service_name': 'SPARK', 'audit_file': 'ranger-spark-audit'}
+     ]
+ 
+     for item in range(len(ranger_services)):
+@@ -459,6 +459,7 @@
+             {'filename': 'ranger-env', 'configname': 'xasecure.audit.destination.hdfs', 'target_configname': 'xasecure.audit.destination.hdfs'},
+             {'filename': 'ranger-env', 'configname': 'xasecure.audit.destination.hdfs.dir', 'target_configname': 'xasecure.audit.destination.hdfs.dir'},
+             {'filename': 'ranger-env', 'configname': 'xasecure.audit.destination.solr', 'target_configname': 'xasecure.audit.destination.solr'},
++            {'filename': 'ranger-env', 'configname': 'ranger_solr_collection_name', 'target_configname': 'xasecure.audit.destination.solr.collection'},
+             {'filename': 'ranger-admin-site', 'configname': 'ranger.audit.solr.urls', 'target_configname': 'xasecure.audit.destination.solr.urls'},
+             {'filename': 'ranger-admin-site', 'configname': 'ranger.audit.solr.zookeepers', 'target_configname': 'xasecure.audit.destination.solr.zookeepers'}
+           ]
+@@ -506,7 +507,7 @@
+       {'service_name': 'STORM', 'config_type': 'ranger-storm-security'},
+       {'service_name': 'OZONE', 'config_type': 'ranger-ozone-security'},
+       {'service_name': 'DORIS', 'config_type': 'ranger-doris-security'},
+-      {'service_name': 'SPARK3', 'config_type': 'ranger-spark3-security'}
++      {'service_name': 'SPARK', 'config_type': 'ranger-spark-security'}
+     ]
+ 
+     # recommendation for ranger url for ranger-supported plugins
+@@ -573,19 +574,19 @@
+ 
+     ranger_audit_zk_port = ''
+ 
+-    if 'AMBARI_INFRA_SOLR' in servicesList and zookeeper_host_port and is_solr_cloud_enabled and not is_external_solr_cloud_enabled:
++    if 'SOLR' in servicesList and zookeeper_host_port and is_solr_cloud_enabled and not is_external_solr_cloud_enabled:
+       zookeeper_host_port = zookeeper_host_port.split(',')
+       zookeeper_host_port.sort()
+       zookeeper_host_port = ",".join(zookeeper_host_port)
+-      infra_solr_znode = '/infra-solr'
++      solr_znode = '/solr'
+ 
+-      if 'infra-solr-env' in services['configurations'] and \
+-              ('infra_solr_znode' in services['configurations']['infra-solr-env']['properties']):
+-        infra_solr_znode = services['configurations']['infra-solr-env']['properties']['infra_solr_znode']
+-        ranger_audit_zk_port = '{0}{1}'.format(zookeeper_host_port, infra_solr_znode)
++      if 'solr-env' in services['configurations'] and \
++              ('solr_znode' in services['configurations']['solr-env']['properties']):
++        solr_znode = services['configurations']['solr-env']['properties']['solr_znode']
++        ranger_audit_zk_port = '{0}{1}'.format(zookeeper_host_port, solr_znode)
+       putRangerAdminProperty('ranger.audit.solr.zookeepers', ranger_audit_zk_port)
+     elif zookeeper_host_port and is_solr_cloud_enabled and is_external_solr_cloud_enabled:
+-      ranger_audit_zk_port = '{0}/{1}'.format(zookeeper_host_port, 'ranger_audits')
++      ranger_audit_zk_port = '{0}/{1}'.format(zookeeper_host_port, 'ranger_audit')
+       putRangerAdminProperty('ranger.audit.solr.zookeepers', ranger_audit_zk_port)
+     else:
+       putRangerAdminProperty('ranger.audit.solr.zookeepers', 'NONE')
+@@ -602,7 +603,7 @@
+       {'service_name': 'ATLAS', 'audit_file': 'ranger-atlas-audit'},
+       {'service_name': 'OZONE', 'audit_file': 'ranger-ozone-audit'},
+       {'service_name': 'DORIS', 'audit_file': 'ranger-doris-audit'},
+-      {'service_name': 'SPARK3', 'audit_file': 'ranger-spark3-audit'},
++      {'service_name': 'SPARK', 'audit_file': 'ranger-spark-audit'},
+     ]
+ 
+     for item in range(len(ranger_services)):
+@@ -610,6 +611,7 @@
+         component_audit_file =  ranger_services[item]['audit_file']
+         if component_audit_file in services["configurations"]:
+           ranger_audit_dict = [
++            {'filename': 'ranger-env', 'configname': 'ranger_solr_collection_name', 'target_configname': 'xasecure.audit.destination.solr.collection'},
+             {'filename': 'ranger-admin-site', 'configname': 'ranger.audit.solr.urls', 'target_configname': 'xasecure.audit.destination.solr.urls'},
+             {'filename': 'ranger-admin-site', 'configname': 'ranger.audit.solr.zookeepers', 'target_configname': 'xasecure.audit.destination.solr.zookeepers'}
+           ]
+@@ -647,7 +649,7 @@
+       {'service_name': 'ATLAS', 'file_name': 'atlas-env', 'config_name': 'metadata_user', 'target_configname': 'ranger.plugins.atlas.serviceuser'},
+       {'service_name': 'OZONE', 'file_name': 'ozone-env', 'config_name': 'ozone_user', 'target_configname': 'ranger.plugins.ozone.serviceuser'},
+       {'service_name': 'DORIS', 'file_name': 'doris-env', 'config_name': 'doris_user', 'target_configname': 'ranger.plugins.doris.serviceuser'},
+-      {'service_name': 'SPARK3', 'file_name': 'spark3-env', 'config_name': 'spark_user', 'target_configname': 'ranger.plugins.saprk3.serviceuser'}
++      {'service_name': 'SPARK', 'file_name': 'spark-env', 'config_name': 'spark_user', 'target_configname': 'ranger.plugins.saprk.serviceuser'}
+ 
+ 
+     ]
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/configuration/ranger-env.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/configuration/ranger-env.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/configuration/ranger-env.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/configuration/ranger-env.xml	(revision 92c4e852b1cfec66c93a5b833c7c4e8251fe0a6b)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/configuration/ranger-env.xml	(date 1763019358096)
+@@ -331,7 +331,7 @@
+     <name>is_solrCloud_enabled</name>
+     <display-name>SolrCloud</display-name>
+     <description>SolrCloud uses zookeeper for distributed search and indexing</description>
+-    <value>false</value>
++    <value>true</value>
+     <value-attributes>
+       <type>value-list</type>
+       <overridable>false</overridable>
+@@ -610,10 +610,10 @@
+   </property>
+ 
+   <property>
+-    <name>ranger-spark3-plugin-enabled</name>
++    <name>ranger-spark-plugin-enabled</name>
+     <value>No</value>
+-    <display-name>Spark3 Ranger Plugin</display-name>
+-    <description>Enable Spark3 Ranger plugin</description>
++    <display-name>spark Ranger Plugin</display-name>
++    <description>Enable spark Ranger plugin</description>
+     <value-attributes>
+       <overridable>false</overridable>
+       <type>value-list</type>
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/themes/theme_version_2.json
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/themes/theme_version_2.json b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/themes/theme_version_2.json
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/themes/theme_version_2.json	(revision 92c4e852b1cfec66c93a5b833c7c4e8251fe0a6b)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/themes/theme_version_2.json	(date 1763015946496)
+@@ -935,12 +935,12 @@
+           ]
+         },
+         {
+-          "config": "ranger-env/ranger-spark3-plugin-enabled",
++          "config": "ranger-env/ranger-spark-plugin-enabled",
+           "subsection-name": "section-ranger-plugin-row1-col1",
+           "depends-on": [
+             {
+               "resource": "service",
+-              "if": "SPARK3",
++              "if": "SPARK",
+               "then": {
+                 "property_value_attributes": {
+                   "visible": true
+@@ -1786,7 +1786,7 @@
+         }
+       },
+ 	  {
+-        "config": "ranger-env/ranger-spark3-plugin-enabled",
++        "config": "ranger-env/ranger-spark-plugin-enabled",
+         "widget": {
+           "type": "toggle"
+         }
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/configuration/ranger-admin-site.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/configuration/ranger-admin-site.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/configuration/ranger-admin-site.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/configuration/ranger-admin-site.xml	(revision 92c4e852b1cfec66c93a5b833c7c4e8251fe0a6b)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/configuration/ranger-admin-site.xml	(date 1763019206377)
+@@ -182,7 +182,7 @@
+     </property>
+     <property>
+         <name>ranger.audit.solr.urls</name>
+-        <value>http://solr_host:8983/solr/ranger_audit</value>
++        <value>http://solr_host:8983/solr/ranger_audits</value>
+         <description>Solr url for audit. 请修改 solr_host</description>
+         <on-ambari-upgrade add="false"/>
+     </property>
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/DORIS/role_command_order.json
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/DORIS/role_command_order.json b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/DORIS/role_command_order.json
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/DORIS/role_command_order.json	(revision 92c4e852b1cfec66c93a5b833c7c4e8251fe0a6b)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/DORIS/role_command_order.json	(date 1763000235471)
+@@ -3,6 +3,7 @@
+     "_comment" : "dependencies for DORIS",
+     "DORIS_SERVICE_CHECK-SERVICE_CHECK" : ["DORIS_FE-START","DORIS_BE-START"],
+     "DORIS_BE-START" : ["NAMENODE-START","DORIS_FE-START"],
++    "DORIS_FE-START" : ["NAMENODE-START"],
+     "DORIS_HDFS_BROKER-START" : ["NAMENODE-START","DORIS_FE-START"],
+     "DORIS_FE_OBSERVER-START" : ["NAMENODE-START","DORIS_FE-START"]
+   }
