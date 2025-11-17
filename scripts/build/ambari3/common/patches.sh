@@ -22,6 +22,7 @@ patch_files=(
   "/scripts/build/ambari3/common/patch2_2_1/patch7-KERBEROS-HUDI-PAIMON-FIXED.diff"
   "/scripts/build/ambari3/common/patch2_2_1/patch8-KERBEROS-CELEBORN-HDFS.diff"
   "/scripts/build/ambari3/common/patch2_2_1/patch9-KERBEROS-RANGER-DROIS-SOLR-ZK.diff"
+  "/scripts/build/ambari3/common/patch2_2_1/patch10-KERBEROS-IMPALA-HIVE-HDFS.diff"
 )
 
 

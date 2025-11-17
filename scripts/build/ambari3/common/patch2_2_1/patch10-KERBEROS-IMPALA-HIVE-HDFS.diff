@@ -1,0 +1,232 @@
+Subject: [PATCH] fixed: 调整ranger、hdfs、impala间的协作问题
+---
+Index: ambari-common/src/main/python/resource_management/libraries/functions/solr_cloud_util_v2.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-common/src/main/python/resource_management/libraries/functions/solr_cloud_util_v2.py b/ambari-common/src/main/python/resource_management/libraries/functions/solr_cloud_util_v2.py
+new file mode 100644
+--- /dev/null	(date 1763107603748)
++++ b/ambari-common/src/main/python/resource_management/libraries/functions/solr_cloud_util_v2.py	(date 1763107603748)
+@@ -0,0 +1,74 @@
++#!/usr/bin/env python3
++
++from resource_management.core import shell
++from resource_management.core.logger import Logger
++from resource_management.core.exceptions import Fail
++
++__all__ = [
++    "check_znode",
++]
++
++
++def check_znode(
++    zookeeper_quorum,
++    solr_znode,
++    java64_home=None,
++    zkcli_path="/usr/bigtop/current/zookeeper-client/bin/zkCli.sh",
++):
++    """
++    轻量版 check_znode：
++    - 不再依赖 /usr/lib/ambari-infra-solr-client/solrCloudCli.sh
++    - 直接调用 zkCli.sh:  echo stat /znode | zkCli.sh -server host1:2181,...
++    - 失败抛 Fail，交给外层 @retry 处理重试
++    """
++
++    # 如果你希望强制使用指定 JDK，也可以在这里构造环境变量
++    env = {}
++    if java64_home:
++        env["JAVA_HOME"] = java64_home
++
++    cmd = 'echo "stat {znode}" | {zkcli} -server {zk_quorum}'.format(
++        znode=solr_znode,
++        zkcli=zkcli_path,
++        zk_quorum=zookeeper_quorum,
++    )
++
++    Logger.info("Checking znode with command: {0}".format(cmd))
++
++    code, out = shell.call(cmd, env=env)
++
++    Logger.info("zkCli.sh returned code={0}, output:\n{1}".format(code, out))
++
++    # 1) zkCli 本身执行失败（连不上、命令错误等）
++    if code != 0:
++        raise Fail(
++            "Failed to access ZooKeeper [{zk}] when checking znode [{znode}]. "
++            "Return code={code}, output={out}".format(
++                zk=zookeeper_quorum,
++                znode=solr_znode,
++                code=code,
++                out=out,
++            )
++        )
++
++    # 2) 能连上 ZK，但是节点不存在
++    #    一般会包含 "Node does not exist" 或者没有 stat 信息(cZxid)
++    if "Node does not exist" in out or "NO_NODE" in out:
++        raise Fail(
++            "ZNode [{znode}] does NOT exist in ZooKeeper [{zk}]".format(
++                znode=solr_znode, zk=zookeeper_quorum
++            )
++        )
++
++    # 经验上，正常 stat 输出里会有 cZxid / mZxid 这些字段
++    if "cZxid" not in out and "Created" not in out:
++        raise Fail(
++            "Unexpected zkCli output when checking znode [{znode}] in ZooKeeper "
++            "[{zk}]:\n{out}".format(znode=solr_znode, zk=zookeeper_quorum, out=out)
++        )
++
++    Logger.info(
++        "ZNode [{znode}] exists in ZooKeeper [{zk}]".format(
++            znode=solr_znode, zk=zookeeper_quorum
++        )
++    )
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/role_command_order.json
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/role_command_order.json b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/role_command_order.json
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/role_command_order.json	(revision 52848ffb451083926372b88f0eb8dc8d11ad4fd9)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/role_command_order.json	(date 1763137126153)
+@@ -4,6 +4,7 @@
+     "RANGER_SERVICE_CHECK-SERVICE_CHECK" : ["RANGER_ADMIN-START"],
+     "RANGER_SERVICE_CHECK-SERVICE_CHECK" : ["RANGER_USERSYNC-START"],
+     "RANGER_USERSYNC-START" : ["RANGER_ADMIN-START"],
+-    "RANGER_ADMIN-START": ["ZOOKEEPER_SERVER-START", "SOLR_SERVER-START"]
++    "RANGER_ADMIN-START": ["ZOOKEEPER_SERVER-START", "SOLR_SERVER-START"],
++    "RANGER_ADMIN-STOP": ["SECONDARY_NAMENODE-STOP"]
+   }
+ }
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HIVE/package/scripts/setup_ranger_hive.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HIVE/package/scripts/setup_ranger_hive.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HIVE/package/scripts/setup_ranger_hive.py
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HIVE/package/scripts/setup_ranger_hive.py	(revision 52848ffb451083926372b88f0eb8dc8d11ad4fd9)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HIVE/package/scripts/setup_ranger_hive.py	(date 1763361908544)
+@@ -123,9 +123,9 @@
+         }
+
+         if params.security_enabled:
+-            hive_ranger_plugin_config['policy.download.auth.users'] = params.hive_user
+-            hive_ranger_plugin_config['tag.download.auth.users'] = params.hive_user
+-            hive_ranger_plugin_config['policy.grantrevoke.auth.users'] = params.hive_user
++            hive_ranger_plugin_config['policy.download.auth.users'] = params.policy_combine_users
++            hive_ranger_plugin_config['tag.download.auth.users'] = params.policy_combine_users
++            hive_ranger_plugin_config['policy.grantrevoke.auth.users'] = params.policy_combine_users
+
+         custom_ranger_service_config = generate_ranger_service_config(
+             params.config['configurations']['ranger-hive-plugin-properties'])
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HIVE/package/scripts/params.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HIVE/package/scripts/params.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HIVE/package/scripts/params.py
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HIVE/package/scripts/params.py	(revision 52848ffb451083926372b88f0eb8dc8d11ad4fd9)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HIVE/package/scripts/params.py	(date 1763361866861)
+@@ -208,6 +208,12 @@
+
+ # users
+ hive_user = config['configurations']['hive-env']['hive_user']
++impala_user = config['configurations']['impala-env']['impala_user']
++
++# 如果用户存在则写成这个
++policy_combine_users = ",".join({u.strip() for u in (hive_user, impala_user) if u and u.strip()})
++
++
+
+ # is it a restart command
+ is_restart_command = False
+@@ -736,9 +742,9 @@
+     }
+
+     if security_enabled:
+-        hive_ranger_plugin_config['policy.download.auth.users'] = hive_user
+-        hive_ranger_plugin_config['tag.download.auth.users'] = hive_user
+-        hive_ranger_plugin_config['policy.grantrevoke.auth.users'] = hive_user
++        hive_ranger_plugin_config['policy.download.auth.users'] = policy_combine_users
++        hive_ranger_plugin_config['tag.download.auth.users'] = policy_combine_users
++        hive_ranger_plugin_config['policy.grantrevoke.auth.users'] = policy_combine_users
+
+     custom_ranger_service_config = generate_ranger_service_config(ranger_plugin_properties)
+     if len(custom_ranger_service_config) > 0:
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/package/scripts/setup_ranger_xml.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/package/scripts/setup_ranger_xml.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/package/scripts/setup_ranger_xml.py
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/package/scripts/setup_ranger_xml.py	(revision 52848ffb451083926372b88f0eb8dc8d11ad4fd9)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/package/scripts/setup_ranger_xml.py	(date 1763107576416)
+@@ -34,11 +34,12 @@
+ from resource_management.libraries.functions.is_empty import is_empty
+ from resource_management.core.utils import PasswordString
+ from resource_management.core.shell import as_sudo
+-from resource_management.libraries.functions import solr_cloud_util
++from resource_management.libraries.functions import solr_cloud_util, solr_cloud_util_v2
+ from ambari_commons.constants import UPGRADE_TYPE_NON_ROLLING, UPGRADE_TYPE_ROLLING
+ from resource_management.core.exceptions import ExecutionFailed
+
+
++
+ # This file contains functions used for setup/configure of Ranger Admin and Ranger Usersync.
+ # The design is to mimic what is done by the setup.sh script bundled by Ranger component currently.
+
+@@ -815,12 +816,13 @@
+ @retry(times=10, sleep_time=5, err_class=Fail)
+ def check_znode():
+     import params
+-    solr_cloud_util.check_znode(
++    solr_cloud_util_v2.check_znode(
+         zookeeper_quorum=params.zookeeper_quorum,
+         solr_znode=params.solr_znode,
+         java64_home=params.java_home)
+
+
++
+ def secure_znode(znode, jaasFile):
+     import params
+     solr_cloud_util.secure_znode(config=params.config, zookeeper_quorum=params.zookeeper_quorum,
+Index: ambari-common/src/main/python/resource_management/libraries/functions/setup_ranger_plugin_xml.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-common/src/main/python/resource_management/libraries/functions/setup_ranger_plugin_xml.py b/ambari-common/src/main/python/resource_management/libraries/functions/setup_ranger_plugin_xml.py
+--- a/ambari-common/src/main/python/resource_management/libraries/functions/setup_ranger_plugin_xml.py	(revision 52848ffb451083926372b88f0eb8dc8d11ad4fd9)
++++ b/ambari-common/src/main/python/resource_management/libraries/functions/setup_ranger_plugin_xml.py	(date 1763111035463)
+@@ -126,9 +126,9 @@
+
+         current_datetime = datetime.now()
+         Directory(format("{component_conf_dir}"),
+-                  owner=component_user,
++                  owner="root",
+                   group=component_group,
+-                  mode=0o775,
++                  mode=0o755,
+                   create_parents=True
+                   )
+
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HDFS/role_command_order.json
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HDFS/role_command_order.json b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HDFS/role_command_order.json
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HDFS/role_command_order.json	(revision 52848ffb451083926372b88f0eb8dc8d11ad4fd9)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HDFS/role_command_order.json	(date 1763359062157)
+@@ -11,7 +11,7 @@
+     "DATANODE-STOP": ["RESOURCEMANAGER-STOP", "NODEMANAGER-STOP",
+       "HISTORYSERVER-STOP", "HBASE_MASTER-STOP", "METRICS_COLLECTOR-STOP"],
+     "DATANODE-START" : ["RANGER_USERSYNC-START"],
+-    "NAMENODE-START" : ["RANGER_USERSYNC-START"]
++    "NAMENODE-START" : ["RANGER_ADMIN-START","RANGER_USERSYNC-START"]
+   },
+   "_comment" : "Dependencies that are used in HA NameNode cluster",
+   "namenode_optional_ha": {
