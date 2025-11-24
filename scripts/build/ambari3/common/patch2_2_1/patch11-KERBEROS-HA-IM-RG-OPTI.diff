@@ -1,0 +1,255 @@
+Subject: [PATCH] fixed：处理部分trino开启ranger和kerberos所带来的报错问题
+---
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TRINO/package/scripts/params.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TRINO/package/scripts/params.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TRINO/package/scripts/params.py
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TRINO/package/scripts/params.py	(revision 5e2df2c187f1481c5c259467b6cb194e1262e614)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TRINO/package/scripts/params.py	(date 1763513270583)
+@@ -270,7 +270,8 @@
+ hive_metastore_principal = ""
+ security_enabled = config["configurations"]["cluster-env"]["security_enabled"]
+ if security_enabled:
+-    trino_principal = config["configurations"]["trino-env"]["trino_principal"]
++    origin_trino_principal = default("configurations/trino-env/trino_principal", "trino/_HOST@TTBIGDATA.COM")
++    trino_principal = origin_trino_principal.replace("_HOST", hostname_lowercase)
+     hive_metastore_principal = config["configurations"]["config-properties"]["hive_metastore_principal"]
+     trino_keytab = config["configurations"]["trino-env"]["trino_keytab"]
+     authentication_type = "KERBEROS"
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HDFS/service_advisor.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HDFS/service_advisor.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HDFS/service_advisor.py
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HDFS/service_advisor.py	(revision 5e2df2c187f1481c5c259467b6cb194e1262e614)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HDFS/service_advisor.py	(date 1763522873137)
+@@ -352,23 +352,35 @@
+         nn_heapsize_limit = None
+         if (namenodeHosts is not None and len(namenodeHosts) > 0):
+             if len(namenodeHosts) > 1:
+-                nn_max_heapsize = min(convertToMegabytes(namenodeHosts[0]["Hosts"]["total_mem"]),
+-                                      convertToMegabytes(namenodeHosts[1]["Hosts"]["total_mem"])) / 1024
+-                masters_at_host = max(
+-                    self.getHostComponentsByCategories(namenodeHosts[0]["Hosts"]["host_name"], ["MASTER"], services,
+-                                                       hosts),
+-                    self.getHostComponentsByCategories(namenodeHosts[1]["Hosts"]["host_name"], ["MASTER"], services,
+-                                                       hosts))
++                nn_max_heapsize = min(
++                    convertToMegabytes(namenodeHosts[0]["Hosts"]["total_mem"]),
++                    convertToMegabytes(namenodeHosts[1]["Hosts"]["total_mem"])
++                ) / 1024
++
++                # 分别取两台 NN 所在主机上的 MASTER 组件列表
++                masters_host_0 = self.getHostComponentsByCategories(
++                    namenodeHosts[0]["Hosts"]["host_name"], ["MASTER"], services, hosts
++                )
++                masters_host_1 = self.getHostComponentsByCategories(
++                    namenodeHosts[1]["Hosts"]["host_name"], ["MASTER"], services, hosts
++                )
++
++                # 用「MASTER 数量更多」的那台主机来做后面的判断
++                masters_at_host = masters_host_0 if len(masters_host_0) >= len(masters_host_1) else masters_host_1
+             else:
+-                nn_max_heapsize = convertToMegabytes(namenodeHosts[0]["Hosts"]["total_mem"] / 1024)  # total_mem in kb
+-                masters_at_host = self.getHostComponentsByCategories(namenodeHosts[0]["Hosts"]["host_name"], ["MASTER"],
+-                                                                     services, hosts)
++                nn_max_heapsize = convertToMegabytes(
++                    namenodeHosts[0]["Hosts"]["total_mem"] / 1024
++                )  # total_mem in kb
++                masters_at_host = self.getHostComponentsByCategories(
++                    namenodeHosts[0]["Hosts"]["host_name"], ["MASTER"], services, hosts
++                )
+
+             putHdfsEnvPropertyAttribute('namenode_heapsize', 'maximum', max(nn_max_heapsize, 1024))
+
+             nn_heapsize_limit = nn_max_heapsize
+             nn_heapsize_limit -= clusterData["reservedRam"]
+             if len(masters_at_host) > 1:
++                # 如果某台主机上 MASTER 组件超过 1 个，就把 NN heap 再折半
+                 nn_heapsize_limit = convertToMegabytes(nn_heapsize_limit / 2)
+
+             putHdfsEnvProperty('namenode_heapsize', max(nn_heapsize_limit, 1024))
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HIVE/configuration/hive-env.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HIVE/configuration/hive-env.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HIVE/configuration/hive-env.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HIVE/configuration/hive-env.xml	(revision 5e2df2c187f1481c5c259467b6cb194e1262e614)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HIVE/configuration/hive-env.xml	(date 1763427480691)
+@@ -434,7 +434,7 @@
+   else
+     export HIVE_AUX_JARS_PATH="${ATLAS_HOOK_JARS}"
+   fi
+-  # normalize: drop leading/trailing colons & collapse duplicates
++  # normalize: drop leading/trailing colons and collapse duplicates
+   export HIVE_AUX_JARS_PATH="$(echo "${HIVE_AUX_JARS_PATH}" | sed 's/^://;s/:$//;s/::\+/:/g')"
+ fi
+ {% endif %}
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/IMPALA/configuration/impala-env.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/IMPALA/configuration/impala-env.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/IMPALA/configuration/impala-env.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/IMPALA/configuration/impala-env.xml	(revision 5e2df2c187f1481c5c259467b6cb194e1262e614)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/IMPALA/configuration/impala-env.xml	(date 1763450872378)
+@@ -228,7 +228,7 @@
+ IMPALA_SCRATCH_DIR={{impala_env['impala_scratch_dir']}}
+ IMPALA_HOME={{impala_home}}
+ MEM_LIMIT={{impala_env['mem_limit']}}
+-
++export IMPALA_CONF_DIR=${IMPALA_CONF_DIR:-/etc/impala/conf}
+ export IMPALA_CATALOG_ARGS=" \
+     -log_dir=${IMPALA_LOG_DIR} \
+     -state_store_host=${IMPALA_STATE_STORE_HOST} \
+@@ -297,7 +297,7 @@
+ export HBASE_CONF_DIR=${HBASE_CONF_DIR:-/etc/hbase/conf}
+ export HADOOP_CONF_DIR=${HADOOP_CONF_DIR:-/etc/hadoop/conf}
+
+-export CLASSPATH="$JAVA_HOME/lib:$JAVA_HOME/lib/tools.jar:$IMPALA_LIB_DIR:$HIVE_LIB_DIR:$HADOOP_CONF_DIR:$HIVE_CONF_DIR:$HBASE_CONF_DIR"
++export CLASSPATH="$JAVA_HOME/lib:$JAVA_HOME/lib/tools.jar:$IMPALA_LIB_DIR:$HIVE_LIB_DIR:$HADOOP_CONF_DIR:$HIVE_CONF_DIR:$HBASE_CONF_DIR:$IMPALA_CONF_DIR"
+
+ if [ -d "${JAVA_HOME}/jre/lib/amd64/server" ]; then
+     export LD_LIBRARY_PATH="${JAVA_HOME}/jre/lib/amd64/server:$IMPALA_NATIVE_DIR:$LD_LIBRARY_PATH"
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SOLR/package/scripts/setup_ranger_config_for_solr.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SOLR/package/scripts/setup_ranger_config_for_solr.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SOLR/package/scripts/setup_ranger_config_for_solr.py
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SOLR/package/scripts/setup_ranger_config_for_solr.py	(revision 5e2df2c187f1481c5c259467b6cb194e1262e614)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/SOLR/package/scripts/setup_ranger_config_for_solr.py	(date 1763438290030)
+@@ -24,15 +24,14 @@
+
+ def _cli_env():
+     """
+-    bin/solr CLI 的执行环境：
+-    - 以 solr 用户执行
+-    - 开启 Kerberos 且存在 solr-env.sh 时，注入 SOLR_INCLUDE 让 CLI 继承 JAAS/ZK-SASL
++    只返回给子进程用的环境变量字典
++    （注意：这里不再包含 user，避免和 Execute 的参数冲突）
+     """
+-    env = {"user": _g("solr_user", "solr")}
++    env = {}
+     solr_conf = _g("solr_conf", "/etc/solr/conf")
+     include = os.path.join(solr_conf, "solr-env.sh")
+     if _g("security_enabled", False) and os.path.exists(include):
+-        env["env"] = {"SOLR_INCLUDE": include}
++        env["SOLR_INCLUDE"] = include
+     return env
+
+
+@@ -123,7 +122,11 @@
+         path_q=path_q
+     )
+     try:
+-        res = get_user_call_output(cmd, **_cli_env())
++        res = get_user_call_output(
++            cmd,
++            user=_g("solr_user", "solr"),  # 这里显式指定 user
++            env=_cli_env()  # 这里传环境变量 dict
++        )
+         return _normalize_call_result(res)
+     except ExecutionFailed as e:
+         return 1, str(e)
+@@ -172,7 +175,11 @@
+         replicas=replicas
+     )
+     Logger.info(format("创建集合 {collection_name}（conf:{configset}, s:{shards}, rf:{replicas}）..."))
+-    Execute(cmd, **_cli_env())
++    Execute(
++        cmd,
++        user=_g("solr_user", "solr"),
++        environment=_cli_env()
++    )
+
+
+ def setup_ranger_collection(collection_name='ranger_audits'):
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/metainfo.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/metainfo.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/metainfo.xml	(revision 5e2df2c187f1481c5c259467b6cb194e1262e614)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/RANGER/metainfo.xml	(date 1763438531125)
+@@ -155,10 +155,10 @@
+                             <name>ranger_${stack_version}-tagsync</name>
+                             <condition>should_install_ranger_tagsync</condition>
+                         </package>
+-                        <package>
+-                            <name>ambari-infra-solr-client</name>
+-                            <condition>should_install_infra_solr_client</condition>
+-                        </package>
++<!--                        <package>-->
++<!--                            <name>ambari-infra-solr-client</name>-->
++<!--                            <condition>should_install_infra_solr_client</condition>-->
++<!--                        </package>-->
+                     </packages>
+                 </osSpecific>
+                 <osSpecific>
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HIVE/package/scripts/params.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HIVE/package/scripts/params.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HIVE/package/scripts/params.py
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HIVE/package/scripts/params.py	(revision 5e2df2c187f1481c5c259467b6cb194e1262e614)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HIVE/package/scripts/params.py	(date 1763451451450)
+@@ -208,7 +208,7 @@
+
+ # users
+ hive_user = config['configurations']['hive-env']['hive_user']
+-impala_user = config['configurations']['impala-env']['impala_user']
++impala_user = default('/configurations/impala-env/impala_user', 'impala')
+
+ # 如果用户存在则写成这个
+ policy_combine_users = ",".join({u.strip() for u in (hive_user, impala_user) if u and u.strip()})
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TRINO/package/scripts/trino_coordinator.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TRINO/package/scripts/trino_coordinator.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TRINO/package/scripts/trino_coordinator.py
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TRINO/package/scripts/trino_coordinator.py	(revision 5e2df2c187f1481c5c259467b6cb194e1262e614)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TRINO/package/scripts/trino_coordinator.py	(date 1763513773576)
+@@ -1,6 +1,7 @@
+ import sys, os, pwd, grp, signal, time
+-from resource_management import *
+ from subprocess import call
++
++from resource_management import check_process_status
+ from resource_management.libraries.script.script import Script
+ from trino_service import trino_service
+ from trino import trino
+Index: ambari-common/src/main/python/resource_management/libraries/functions/setup_ranger_plugin_xml.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-common/src/main/python/resource_management/libraries/functions/setup_ranger_plugin_xml.py b/ambari-common/src/main/python/resource_management/libraries/functions/setup_ranger_plugin_xml.py
+--- a/ambari-common/src/main/python/resource_management/libraries/functions/setup_ranger_plugin_xml.py	(revision 5e2df2c187f1481c5c259467b6cb194e1262e614)
++++ b/ambari-common/src/main/python/resource_management/libraries/functions/setup_ranger_plugin_xml.py	(date 1763453495442)
+@@ -61,11 +61,13 @@
+                         setup_plugin_keystore=True):
+     bigtop_select_version = Script.get_stack_version().replace(".", "_")
+     ranger_component_name = format('ranger_{bigtop_select_version}-{service_name}-plugin')
+-    try:
+-        from resource_management import Package
+-        Package(ranger_component_name)
+-    except KeyError:
+-        traceback.print_exc()
++
++    if "trino-plugin" not in ranger_component_name:
++        try:
++            from resource_management import Package
++            Package(ranger_component_name)
++        except KeyError:
++            traceback.print_exc()
+
+     if audit_db_is_enabled and component_driver_curl_source is not None and not component_driver_curl_source.endswith(
+             "/None"):
