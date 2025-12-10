@@ -1,0 +1,4046 @@
+Subject: [PATCH] feature ：2.2.2 相关最后优化
+---
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUE/themes/theme_hue_version_1.json
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUE/themes/theme_hue_version_1.json b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUE/themes/theme_hue_version_1.json
+new file mode 100644
+--- /dev/null	(date 1756431674000)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUE/themes/theme_hue_version_1.json	(date 1756431674000)
+@@ -0,0 +1,1762 @@
++{
++  "name":"default",
++  "description": "Default theme for Hue service",
++  "configuration": {
++    "layouts": [
++      {
++        "name": "default",
++        "tabs": [
++          {
++            "name": "hue_databases_settings",
++            "display-name": "Hue Databases",
++            "layout": {
++              "tab-columns": "2",
++              "tab-rows": "6",
++              "sections": [
++                {
++                  "name": "section-hue-metastore",
++                  "display-name": "Hue Metastore",
++                  "row-index": "0",
++                  "column-index": "0",
++                  "row-span": "1",
++                  "column-span": "2",
++                  "section-columns": "2",
++                  "section-rows": "1",
++                  "subsections": [
++                    {
++                      "name": "subsection-hue-ms-row1-col1",
++                      "row-index": "0",
++                      "column-index": "0",
++                      "row-span": "1",
++                      "column-span": "1"
++                    },
++                    {
++                      "name": "subsection-hue-ms-row1-col2",
++                      "row-index": "0",
++                      "column-index": "1",
++                      "row-span": "1",
++                      "column-span": "1"
++                    }
++                  ]
++                },
++                {
++                  "name": "section-hue-rdbms",
++    	          "display-name": "Hue RDBMS Apps",
++                  "row-index": "1",
++                  "column-index": "0",
++                  "row-span": "4",
++                  "column-span": "2",
++                  "section-columns": "2",
++                  "section-rows": "4",
++                  "subsections": [
++                    {
++                      "name": "subsection-hue-db-row1-col1",
++                      "display-name": "SQLite Configs",
++                      "row-index": "0",
++                      "column-index": "0",
++                      "row-span": "1",
++                      "column-span": "1"
++                    },
++                    {
++                      "name": "subsection-hue-db-row1-col2",
++                      "row-index": "0",
++                      "column-index": "1",
++                      "row-span": "1",
++                      "column-span": "1"
++                    },
++                    {
++                      "name": "subsection-hue-db-row2-col1",
++                      "display-name": "MySQL Configs",
++                      "row-index": "1",
++                      "column-index": "0",
++                      "row-span": "1",
++                      "column-span": "1"
++                    },
++                    {
++                      "name": "subsection-hue-db-row2-col2",
++                      "row-index": "1",
++                      "column-index": "1",
++                      "row-span": "1",
++                      "column-span": "1"
++                    },
++                    {
++                      "name": "subsection-hue-db-row3-col1",
++                      "display-name": "Oracle Configs",
++                      "row-index": "2",
++                      "column-index": "0",
++                      "row-span": "1",
++                      "column-span": "1"
++                    },
++                    {
++                      "name": "subsection-hue-db-row3-col2",
++                      "row-index": "2",
++                      "column-index": "1",
++                      "row-span": "1",
++                      "column-span": "1"
++                    },
++                    {
++                      "name": "subsection-hue-db-row4-col1",
++                      "display-name": "PostgreSQL Configs",
++                      "row-index": "3",
++                      "column-index": "0",
++                      "row-span": "1",
++                      "column-span": "1"
++                    },
++                    {
++                      "name": "subsection-hue-db-row4-col2",
++                      "row-index": "3",
++                      "column-index": "1",
++                      "row-span": "1",
++                      "column-span": "1"
++                    }
++                  ]
++                }
++              ]
++            }
++          },
++          {
++            "name": "hue_user_info",
++            "display-name": "Hue User Info",
++            "layout": {
++              "tab-columns": "1",
++              "tab-rows": "1",
++              "sections": [
++                {
++                  "name": "section-user-info",
++    	          "display-name": "Hue User Info",
++                  "row-index": "0",
++                  "column-index": "0",
++                  "row-span": "2",
++                  "column-span": "1",
++                  "section-columns": "1",
++                  "section-rows": "2",
++                  "subsections": [
++                    {
++                      "name": "subsection-hue-user-row1-col1",
++                      "row-index": "0",
++                      "column-index": "0",
++                      "row-span": "1",
++                      "column-span": "1"
++                    },
++                    {
++                      "name": "subsection-hue-user-row2-col1",
++                      "row-index": "1",
++                      "column-index": "0",
++                      "row-span": "1",
++                      "column-span": "1",
++                      "subsection-tabs": [
++                        {
++                          "name": "ldap-common-configs",
++                          "display-name": "Common Configs",
++                          "depends-on": [
++                            {
++                              "configs": [
++                                "hue-ugsync-site/SYNC_SOURCE"
++                              ],
++                              "if": "${hue-ugsync-site/SYNC_SOURCE} === ldap",
++                              "then": {
++                                "property_value_attributes": {
++                                  "visible": true
++                                }
++                              },
++                              "else": {
++                                "property_value_attributes": {
++                                  "visible": false
++                                }
++                              }
++                            }
++                          ]
++                        },
++                        {
++                          "name": "ldap-user-configs",
++                          "display-name": "User Configs",
++                          "depends-on": [
++                            {
++                              "configs": [
++                                "hue-ugsync-site/SYNC_SOURCE"
++                              ],
++                              "if": "${hue-ugsync-site/SYNC_SOURCE} === ldap",
++                              "then": {
++                                "property_value_attributes": {
++                                  "visible": true
++                                }
++                              },
++                              "else": {
++                                "property_value_attributes": {
++                                  "visible": false
++                                }
++                              }
++                            }
++                          ]
++                        },
++                        {
++                          "name": "ldap-group-configs",
++                          "display-name": "Group Configs",
++                          "depends-on": [
++                            {
++                              "configs": [
++                                "hue-ugsync-site/SYNC_SOURCE"
++                              ],
++                              "if": "${hue-ugsync-site/SYNC_SOURCE} === ldap",
++                              "then": {
++                                "property_value_attributes": {
++                                  "visible": true
++                                }
++                              },
++                              "else": {
++                                "property_value_attributes": {
++                                  "visible": false
++                                }
++                              }
++                            }
++                          ]
++                        }
++                      ],
++                      "depends-on": [
++                        {
++                          "configs": [
++                            "hue-ugsync-site/usersync.enabled"
++                          ],
++                          "if": "${hue-ugsync-site/usersync.enabled}",
++                          "then": {
++                            "property_value_attributes": {
++                              "visible": true
++                            }
++                          },
++                          "else": {
++                            "property_value_attributes": {
++                              "visible": false
++                            }
++                          }
++                        }
++                      ]
++                    }
++                  ]
++                }
++              ]
++            }
++          },
++          {
++            "name": "hue_module",
++            "display-name": "Hue Service Module",
++            "layout": {
++              "tab-columns": "1",
++              "tab-rows": "1",
++              "sections": [
++                {
++                  "name": "section-hue-module",
++                  "display-name": "Hue Service Module",
++                  "row-index": "0",
++                  "column-index": "0",
++                  "row-span": "1",
++                  "column-span": "3",
++                  "section-columns": "3",
++                  "section-rows": "1",
++                  "subsections": [
++                    {
++                      "name": "section-hue-module-row1-col1",
++                      "row-index": "0",
++                      "column-index": "0",
++                      "row-span": "1",
++                      "column-span": "1"
++                    },
++                    {
++                      "name": "section-hue-module-row1-col2",
++                      "row-index": "0",
++                      "column-index": "1",
++                      "row-span": "1",
++                      "column-span": "1"
++                    },
++                    {
++                      "name": "section-hue-module-row1-col3",
++                      "row-index": "0",
++                      "column-index": "2",
++                      "row-span": "1",
++                      "column-span": "1"
++                    }
++                  ]
++                }
++              ]
++            }
++          }
++        ]
++      }
++    ],
++    "placement": {
++      "configuration-layout": "default",
++      "configs": [
++        {
++          "config": "hue-desktop-site/DB_FLAVOR",
++          "subsection-name": "subsection-hue-ms-row1-col1"
++        },
++        {
++          "config": "hue-desktop-site/db_name",
++          "subsection-name": "subsection-hue-ms-row1-col1"
++        },
++        {
++          "config": "hue-desktop-site/db_user",
++          "subsection-name": "subsection-hue-ms-row1-col1",
++          "depends-on": [
++            {
++              "configs":[
++                "hue-desktop-site/DB_FLAVOR"
++              ],
++              "if": "${hue-desktop-site/DB_FLAVOR} === sqlite3",
++              "then": {
++                "property_value_attributes": {
++                  "visible": false
++                }
++              },
++              "else": {
++                "property_value_attributes": {
++                  "visible": true
++                }
++              }
++            }
++          ]
++        },
++        {
++          "config": "hue-desktop-site/db_password",
++          "subsection-name": "subsection-hue-ms-row1-col1",
++          "depends-on": [
++            {
++              "configs":[
++                "hue-desktop-site/DB_FLAVOR"
++              ],
++              "if": "${hue-desktop-site/DB_FLAVOR} === sqlite3",
++              "then": {
++                "property_value_attributes": {
++                  "visible": false
++                }
++              },
++              "else": {
++                "property_value_attributes": {
++                  "visible": true
++                }
++              }
++            }
++          ]
++        },
++        {
++          "config": "hue-desktop-site/db_host",
++          "subsection-name": "subsection-hue-ms-row1-col2",
++          "depends-on": [
++            {
++              "configs":[
++                "hue-desktop-site/DB_FLAVOR"
++              ],
++              "if": "${hue-desktop-site/DB_FLAVOR} === sqlite3",
++              "then": {
++                "property_value_attributes": {
++                  "visible": false
++                }
++              },
++              "else": {
++                "property_value_attributes": {
++                  "visible": true
++                }
++              }
++            }
++          ]
++        },
++        {
++          "config": "hue-desktop-site/db_port",
++          "subsection-name": "subsection-hue-ms-row1-col2",
++          "depends-on": [
++            {
++              "configs":[
++                "hue-desktop-site/DB_FLAVOR"
++              ],
++              "if": "${hue-desktop-site/DB_FLAVOR} === sqlite3",
++              "then": {
++                "property_value_attributes": {
++                  "visible": false
++                }
++              },
++              "else": {
++                "property_value_attributes": {
++                  "visible": true
++                }
++              }
++            }
++          ]
++        },
++        {
++          "config": "hue-desktop-site/db_password_script",
++          "subsection-name": "subsection-hue-ms-row1-col2",
++          "depends-on": [
++            {
++              "configs":[
++                "hue-desktop-site/DB_FLAVOR"
++              ],
++              "if": "${hue-desktop-site/DB_FLAVOR} === sqlite3",
++              "then": {
++                "property_value_attributes": {
++                  "visible": false
++                }
++              },
++              "else": {
++                "property_value_attributes": {
++                  "visible": true
++                }
++              }
++            }
++          ]
++        },
++        {
++          "config": "hue-desktop-site/db_options",
++          "subsection-name": "subsection-hue-ms-row1-col2"
++        },
++        {
++          "config": "hue-rdbms-site/sqlite_engine",
++          "subsection-name": "subsection-hue-db-row1-col1"
++        },
++        {
++          "config": "hue-rdbms-site/sqlite_nice_name",
++          "subsection-name": "subsection-hue-db-row1-col1",
++          "depends-on": [
++            {
++              "configs":[
++                "hue-rdbms-site/sqlite_engine"
++              ],
++              "if": "${hue-rdbms-site/sqlite_engine}",
++              "then": {
++                "property_value_attributes": {
++                  "visible": true
++                }
++              },
++              "else": {
++                "property_value_attributes": {
++                  "visible": false
++                }
++              }
++            }
++          ]
++        },
++        {
++          "config": "hue-rdbms-site/sqlite_name",
++          "subsection-name": "subsection-hue-db-row1-col2",
++          "depends-on": [
++            {
++              "configs":[
++                "hue-rdbms-site/sqlite_engine"
++              ],
++              "if": "${hue-rdbms-site/sqlite_engine}",
++              "then": {
++                "property_value_attributes": {
++                  "visible": true
++                }
++              },
++              "else": {
++                "property_value_attributes": {
++                  "visible": false
++                }
++              }
++            }
++          ]
++        },
++        {
++          "config": "hue-rdbms-site/sqlite_options",
++          "subsection-name": "subsection-hue-db-row1-col2",
++          "depends-on": [
++            {
++              "configs":[
++                "hue-rdbms-site/sqlite_engine"
++              ],
++              "if": "${hue-rdbms-site/sqlite_engine}",
++              "then": {
++                "property_value_attributes": {
++                  "visible": true
++                }
++              },
++              "else": {
++                "property_value_attributes": {
++                  "visible": false
++                }
++              }
++            }
++          ]
++        },
++        {
++          "config": "hue-rdbms-site/mysql_engine",
++          "subsection-name": "subsection-hue-db-row2-col1"
++        },
++        {
++          "config": "hue-rdbms-site/mysql_nice_name",
++          "subsection-name": "subsection-hue-db-row2-col1",
++          "depends-on": [
++            {
++              "configs":[
++                "hue-rdbms-site/mysql_engine"
++              ],
++              "if": "${hue-rdbms-site/mysql_engine}",
++              "then": {
++                "property_value_attributes": {
++                  "visible": true
++                }
++              },
++              "else": {
++                "property_value_attributes": {
++                  "visible": false
++                }
++              }
++            }
++          ]
++        },
++        {
++          "config": "hue-rdbms-site/mysql_user",
++          "subsection-name": "subsection-hue-db-row2-col1",
++          "depends-on": [
++            {
++              "configs":[
++                "hue-rdbms-site/mysql_engine"
++              ],
++              "if": "${hue-rdbms-site/mysql_engine}",
++              "then": {
++                "property_value_attributes": {
++                  "visible": true
++                }
++              },
++              "else": {
++                "property_value_attributes": {
++                  "visible": false
++                }
++              }
++            }
++          ]
++        },
++        {
++          "config": "hue-rdbms-site/mysql_password",
++          "subsection-name": "subsection-hue-db-row2-col1",
++          "depends-on": [
++            {
++              "configs":[
++                "hue-rdbms-site/mysql_engine"
++              ],
++              "if": "${hue-rdbms-site/mysql_engine}",
++              "then": {
++                "property_value_attributes": {
++                  "visible": true
++                }
++              },
++              "else": {
++                "property_value_attributes": {
++                  "visible": false
++                }
++              }
++            }
++          ]
++        },
++        {
++          "config": "hue-rdbms-site/mysql_name",
++          "subsection-name": "subsection-hue-db-row2-col2",
++          "depends-on": [
++            {
++              "configs":[
++                "hue-rdbms-site/mysql_engine"
++              ],
++              "if": "${hue-rdbms-site/mysql_engine}",
++              "then": {
++                "property_value_attributes": {
++                  "visible": true
++                }
++              },
++              "else": {
++                "property_value_attributes": {
++                  "visible": false
++                }
++              }
++            }
++          ]
++        },
++        {
++          "config": "hue-rdbms-site/mysql_host",
++          "subsection-name": "subsection-hue-db-row2-col2",
++          "depends-on": [
++            {
++              "configs":[
++                "hue-rdbms-site/mysql_engine"
++              ],
++              "if": "${hue-rdbms-site/mysql_engine}",
++              "then": {
++                "property_value_attributes": {
++                  "visible": true
++                }
++              },
++              "else": {
++                "property_value_attributes": {
++                  "visible": false
++                }
++              }
++            }
++          ]
++        },
++        {
++          "config": "hue-rdbms-site/mysql_port",
++          "subsection-name": "subsection-hue-db-row2-col2",
++          "depends-on": [
++            {
++              "configs":[
++                "hue-rdbms-site/mysql_engine"
++              ],
++              "if": "${hue-rdbms-site/mysql_engine}",
++              "then": {
++                "property_value_attributes": {
++                  "visible": true
++                }
++              },
++              "else": {
++                "property_value_attributes": {
++                  "visible": false
++                }
++              }
++            }
++          ]
++        },
++        {
++          "config": "hue-rdbms-site/mysql_options",
++          "subsection-name": "subsection-hue-db-row2-col2",
++          "depends-on": [
++            {
++              "configs":[
++                "hue-rdbms-site/mysql_engine"
++              ],
++              "if": "${hue-rdbms-site/mysql_engine}",
++              "then": {
++                "property_value_attributes": {
++                  "visible": true
++                }
++              },
++              "else": {
++                "property_value_attributes": {
++                  "visible": false
++                }
++              }
++            }
++          ]
++        },
++        {
++          "config": "hue-rdbms-site/oracle_engine",
++          "subsection-name": "subsection-hue-db-row3-col1"
++        },
++        {
++          "config": "hue-rdbms-site/oracle_nice_name",
++          "subsection-name": "subsection-hue-db-row3-col1",
++          "depends-on": [
++            {
++              "configs":[
++                "hue-rdbms-site/oracle_engine"
++              ],
++              "if": "${hue-rdbms-site/oracle_engine}",
++              "then": {
++                "property_value_attributes": {
++                  "visible": true
++                }
++              },
++              "else": {
++                "property_value_attributes": {
++                  "visible": false
++                }
++              }
++            }
++          ]
++        },
++        {
++          "config": "hue-rdbms-site/oracle_user",
++          "subsection-name": "subsection-hue-db-row3-col1",
++          "depends-on": [
++            {
++              "configs":[
++                "hue-rdbms-site/oracle_engine"
++              ],
++              "if": "${hue-rdbms-site/oracle_engine}",
++              "then": {
++                "property_value_attributes": {
++                  "visible": true
++                }
++              },
++              "else": {
++                "property_value_attributes": {
++                  "visible": false
++                }
++              }
++            }
++          ]
++        },
++        {
++          "config": "hue-rdbms-site/oracle_password",
++          "subsection-name": "subsection-hue-db-row3-col1",
++          "depends-on": [
++            {
++              "configs":[
++                "hue-rdbms-site/oracle_engine"
++              ],
++              "if": "${hue-rdbms-site/oracle_engine}",
++              "then": {
++                "property_value_attributes": {
++                  "visible": true
++                }
++              },
++              "else": {
++                "property_value_attributes": {
++                  "visible": false
++                }
++              }
++            }
++          ]
++        },
++        {
++          "config": "hue-rdbms-site/oracle_name",
++          "subsection-name": "subsection-hue-db-row3-col2",
++          "depends-on": [
++            {
++              "configs":[
++                "hue-rdbms-site/oracle_engine"
++              ],
++              "if": "${hue-rdbms-site/oracle_engine}",
++              "then": {
++                "property_value_attributes": {
++                  "visible": true
++                }
++              },
++              "else": {
++                "property_value_attributes": {
++                  "visible": false
++                }
++              }
++            }
++          ]
++        },
++        {
++          "config": "hue-rdbms-site/oracle_host",
++          "subsection-name": "subsection-hue-db-row3-col2",
++          "depends-on": [
++            {
++              "configs":[
++                "hue-rdbms-site/oracle_engine"
++              ],
++              "if": "${hue-rdbms-site/oracle_engine}",
++              "then": {
++                "property_value_attributes": {
++                  "visible": true
++                }
++              },
++              "else": {
++                "property_value_attributes": {
++                  "visible": false
++                }
++              }
++            }
++          ]
++        },
++        {
++          "config": "hue-rdbms-site/oracle_port",
++          "subsection-name": "subsection-hue-db-row3-col2",
++          "depends-on": [
++            {
++              "configs":[
++                "hue-rdbms-site/oracle_engine"
++              ],
++              "if": "${hue-rdbms-site/oracle_engine}",
++              "then": {
++                "property_value_attributes": {
++                  "visible": true
++                }
++              },
++              "else": {
++                "property_value_attributes": {
++                  "visible": false
++                }
++              }
++            }
++          ]
++        },
++        {
++          "config": "hue-rdbms-site/oracle_options",
++          "subsection-name": "subsection-hue-db-row3-col2",
++          "depends-on": [
++            {
++              "configs":[
++                "hue-rdbms-site/oracle_engine"
++              ],
++              "if": "${hue-rdbms-site/oracle_engine}",
++              "then": {
++                "property_value_attributes": {
++                  "visible": true
++                }
++              },
++              "else": {
++                "property_value_attributes": {
++                  "visible": false
++                }
++              }
++            }
++          ]
++        },
++        {
++          "config": "hue-rdbms-site/postgresql_engine",
++          "subsection-name": "subsection-hue-db-row4-col1"
++        },
++        {
++          "config": "hue-rdbms-site/postgresql_nice_name",
++          "subsection-name": "subsection-hue-db-row4-col1",
++          "depends-on": [
++            {
++              "configs":[
++                "hue-rdbms-site/postgresql_engine"
++              ],
++              "if": "${hue-rdbms-site/postgresql_engine}",
++              "then": {
++                "property_value_attributes": {
++                  "visible": true
++                }
++              },
++              "else": {
++                "property_value_attributes": {
++                  "visible": false
++                }
++              }
++            }
++          ]
++        },
++        {
++          "config": "hue-rdbms-site/postgresql_user",
++          "subsection-name": "subsection-hue-db-row4-col1",
++          "depends-on": [
++            {
++              "configs":[
++                "hue-rdbms-site/postgresql_engine"
++              ],
++              "if": "${hue-rdbms-site/postgresql_engine}",
++              "then": {
++                "property_value_attributes": {
++                  "visible": true
++                }
++              },
++              "else": {
++                "property_value_attributes": {
++                  "visible": false
++                }
++              }
++            }
++          ]
++        },
++        {
++          "config": "hue-rdbms-site/postgresql_password",
++          "subsection-name": "subsection-hue-db-row4-col1",
++          "depends-on": [
++            {
++              "configs":[
++                "hue-rdbms-site/postgresql_engine"
++              ],
++              "if": "${hue-rdbms-site/postgresql_engine}",
++              "then": {
++                "property_value_attributes": {
++                  "visible": true
++                }
++              },
++              "else": {
++                "property_value_attributes": {
++                  "visible": false
++                }
++              }
++            }
++          ]
++        },
++        {
++          "config": "hue-rdbms-site/postgresql_name",
++          "subsection-name": "subsection-hue-db-row4-col2",
++          "depends-on": [
++            {
++              "configs":[
++                "hue-rdbms-site/postgresql_engine"
++              ],
++              "if": "${hue-rdbms-site/postgresql_engine}",
++              "then": {
++                "property_value_attributes": {
++                  "visible": true
++                }
++              },
++              "else": {
++                "property_value_attributes": {
++                  "visible": false
++                }
++              }
++            }
++          ]
++        },
++        {
++          "config": "hue-rdbms-site/postgresql_host",
++          "subsection-name": "subsection-hue-db-row4-col2",
++          "depends-on": [
++            {
++              "configs":[
++                "hue-rdbms-site/postgresql_engine"
++              ],
++              "if": "${hue-rdbms-site/postgresql_engine}",
++              "then": {
++                "property_value_attributes": {
++                  "visible": true
++                }
++              },
++              "else": {
++                "property_value_attributes": {
++                  "visible": false
++                }
++              }
++            }
++          ]
++        },
++        {
++          "config": "hue-rdbms-site/postgresql_port",
++          "subsection-name": "subsection-hue-db-row4-col2",
++          "depends-on": [
++            {
++              "configs":[
++                "hue-rdbms-site/postgresql_engine"
++              ],
++              "if": "${hue-rdbms-site/postgresql_engine}",
++              "then": {
++                "property_value_attributes": {
++                  "visible": true
++                }
++              },
++              "else": {
++                "property_value_attributes": {
++                  "visible": false
++                }
++              }
++            }
++          ]
++        },
++        {
++          "config": "hue-rdbms-site/postgresql_options",
++          "subsection-name": "subsection-hue-db-row4-col2",
++          "depends-on": [
++            {
++              "configs":[
++                "hue-rdbms-site/postgresql_engine"
++              ],
++              "if": "${hue-rdbms-site/postgresql_engine}",
++              "then": {
++                "property_value_attributes": {
++                  "visible": true
++                }
++              },
++              "else": {
++                "property_value_attributes": {
++                  "visible": false
++                }
++              }
++            }
++          ]
++        },
++        {
++          "config": "hue-ugsync-site/usersync.enabled",
++          "subsection-name": "subsection-hue-user-row1-col1"
++        },
++        {
++          "config": "hue-ugsync-site/SYNC_SOURCE",
++          "subsection-name": "subsection-hue-user-row2-col1"
++        },
++        {
++          "config": "hue-ugsync-site/usersync.unix.minUserId",
++          "subsection-name": "subsection-hue-user-row2-col1",
++          "depends-on": [
++            {
++              "configs":[
++                "hue-ugsync-site/SYNC_SOURCE"
++              ],
++              "if": "${hue-ugsync-site/SYNC_SOURCE} === unix",
++              "then": {
++                "property_value_attributes": {
++                  "visible": true
++                }
++              },
++              "else": {
++                "property_value_attributes": {
++                  "visible": false
++                }
++              }
++            }
++          ]
++        },
++        {
++          "config": "hue-ugsync-site/usersync.unix.maxUserId",
++          "subsection-name": "subsection-hue-user-row2-col1",
++          "depends-on": [
++            {
++              "configs":[
++                "hue-ugsync-site/SYNC_SOURCE"
++              ],
++              "if": "${hue-ugsync-site/SYNC_SOURCE} === unix",
++              "then": {
++                "property_value_attributes": {
++                  "visible": true
++                }
++              },
++              "else": {
++                "property_value_attributes": {
++                  "visible": false
++                }
++              }
++            }
++          ]
++        },
++        {
++          "config": "hue-ugsync-site/usersync.unix.minGroupId",
++          "subsection-name": "subsection-hue-user-row2-col1",
++          "depends-on": [
++            {
++              "configs":[
++                "hue-ugsync-site/SYNC_SOURCE"
++              ],
++              "if": "${hue-ugsync-site/SYNC_SOURCE} === unix",
++              "then": {
++                "property_value_attributes": {
++                  "visible": true
++                }
++              },
++              "else": {
++                "property_value_attributes": {
++                  "visible": false
++                }
++              }
++            }
++          ]
++        },
++        {
++          "config": "hue-ugsync-site/usersync.unix.maxGroupId",
++          "subsection-name": "subsection-hue-user-row2-col1",
++          "depends-on": [
++            {
++              "configs":[
++                "hue-ugsync-site/SYNC_SOURCE"
++              ],
++              "if": "${hue-ugsync-site/SYNC_SOURCE} === unix",
++              "then": {
++                "property_value_attributes": {
++                  "visible": true
++                }
++              },
++              "else": {
++                "property_value_attributes": {
++                  "visible": false
++                }
++              }
++            }
++          ]
++        },
++        {
++          "config": "hue-ugsync-site/usersync.ldap.url",
++          "subsection-name": "subsection-hue-user-row2-col1",
++          "subsection-tab-name": "ldap-common-configs"
++        },
++        {
++          "config": "hue-ugsync-site/usersync.ldap.base.dn",
++          "subsection-name": "subsection-hue-user-row2-col1",
++          "subsection-tab-name": "ldap-common-configs"
++        },
++        {
++          "config": "hue-ugsync-site/usersync.ldap.bind.dn",
++          "subsection-name": "subsection-hue-user-row2-col1",
++          "subsection-tab-name": "ldap-common-configs"
++        },
++        {
++          "config": "hue-ugsync-site/usersync.ldap.bind.password",
++          "subsection-name": "subsection-hue-user-row2-col1",
++          "subsection-tab-name": "ldap-common-configs"
++        },
++        {
++          "config": "hue-ugsync-site/usersync.ldap.bind.password.script",
++          "subsection-name": "subsection-hue-user-row2-col1",
++          "subsection-tab-name": "ldap-common-configs"
++        },
++        {
++          "config": "hue-ugsync-site/usersync.ldap.user.searchfilter",
++          "subsection-name": "subsection-hue-user-row2-col1",
++          "subsection-tab-name": "ldap-user-configs"
++        },
++        {
++          "config": "hue-ugsync-site/usersync.ldap.user.name.attribute",
++          "subsection-name": "subsection-hue-user-row2-col1",
++          "subsection-tab-name": "ldap-user-configs"
++        },
++        {
++          "config": "hue-ugsync-site/usersync.ldap.group.searchenabled",
++          "subsection-name": "subsection-hue-user-row2-col1",
++          "subsection-tab-name": "ldap-group-configs"
++        },
++        {
++          "config": "hue-ugsync-site/usersync.ldap.group.searchfilter",
++          "subsection-name": "subsection-hue-user-row2-col1",
++          "subsection-tab-name": "ldap-group-configs",
++          "depends-on": [
++            {
++              "configs":[
++                "hue-ugsync-site/usersync.ldap.group.searchenabled"
++              ],
++              "if": "${hue-ugsync-site/usersync.ldap.group.searchenabled}",
++              "then": {
++                "property_value_attributes": {
++                  "visible": true
++                }
++              },
++              "else": {
++                "property_value_attributes": {
++                  "visible": false
++                }
++              }
++            }
++          ]
++        },
++        {
++          "config": "hue-ugsync-site/usersync.ldap.group.name.attribute",
++          "subsection-name": "subsection-hue-user-row2-col1",
++          "subsection-tab-name": "ldap-group-configs",
++          "depends-on": [
++            {
++              "configs":[
++                "hue-ugsync-site/usersync.ldap.group.searchenabled"
++              ],
++              "if": "${hue-ugsync-site/usersync.ldap.group.searchenabled}",
++              "then": {
++                "property_value_attributes": {
++                  "visible": true
++                }
++              },
++              "else": {
++                "property_value_attributes": {
++                  "visible": false
++                }
++              }
++            }
++          ]
++        },
++        {
++          "config": "hue-ugsync-site/usersync.ldap.group.member.attribute",
++          "subsection-name": "subsection-hue-user-row2-col1",
++          "subsection-tab-name": "ldap-group-configs",
++          "depends-on": [
++            {
++              "configs":[
++                "hue-ugsync-site/usersync.ldap.group.searchenabled"
++              ],
++              "if": "${hue-ugsync-site/usersync.ldap.group.searchenabled}",
++              "then": {
++                "property_value_attributes": {
++                  "visible": true
++                }
++              },
++              "else": {
++                "property_value_attributes": {
++                  "visible": false
++                }
++              }
++            }
++          ]
++        },
++        {
++          "config": "hue-env/hue-hdfs-module-enabled",
++          "subsection-name": "section-hue-module-row1-col1",
++          "depends-on": [
++            {
++              "resource": "service",
++              "if": "HDFS",
++              "then": {
++                "property_value_attributes": {
++                  "visible": true
++                }
++              },
++              "else": {
++                "property_value_attributes": {
++                  "visible": false
++                }
++              }
++            }
++          ]
++        },
++        {
++          "config": "hue-env/hue-yarn-module-enabled",
++          "subsection-name": "section-hue-module-row1-col1",
++          "depends-on": [
++            {
++              "resource": "service",
++              "if": "YARN",
++              "then": {
++                "property_value_attributes": {
++                  "visible": true
++                }
++              },
++              "else": {
++                "property_value_attributes": {
++                  "visible": false
++                }
++              }
++            }
++          ]
++        },
++        {
++          "config": "hue-env/hue-hive-module-enabled",
++          "subsection-name": "section-hue-module-row1-col1",
++          "depends-on": [
++            {
++              "resource": "service",
++              "if": "HIVE",
++              "then": {
++                "property_value_attributes": {
++                  "visible": true
++                }
++              },
++              "else": {
++                "property_value_attributes": {
++                  "visible": false
++                }
++              }
++            }
++          ]
++        },
++        {
++          "config": "hue-env/hue-hbase-module-enabled",
++          "subsection-name": "section-hue-module-row1-col1",
++          "depends-on": [
++            {
++              "resource": "service",
++              "if": "HBASE",
++              "then": {
++                "property_value_attributes": {
++                  "visible": true
++                }
++              },
++              "else": {
++                "property_value_attributes": {
++                  "visible": false
++                }
++              }
++            }
++          ]
++        },
++        {
++          "config": "hue-env/hue-zookeeper-module-enabled",
++          "subsection-name": "section-hue-module-row1-col2",
++          "depends-on": [
++            {
++              "resource": "service",
++              "if": "ZOOKEEPER",
++              "then": {
++                "property_value_attributes": {
++                  "visible": true
++                }
++              },
++              "else": {
++                "property_value_attributes": {
++                  "visible": false
++                }
++              }
++            }
++          ]
++        },
++        {
++          "config": "hue-env/hue-oozie-module-enabled",
++          "subsection-name": "section-hue-module-row1-col2",
++          "depends-on": [
++            {
++              "resource": "service",
++              "if": "OOZIE",
++              "then": {
++                "property_value_attributes": {
++                  "visible": true
++                }
++              },
++              "else": {
++                "property_value_attributes": {
++                  "visible": false
++                }
++              }
++            }
++          ]
++        },
++        {
++          "config": "hue-env/hue-notebook-module-enabled",
++          "subsection-name": "section-hue-module-row1-col2"
++        },
++        {
++          "config": "hue-env/hue-rdbms-module-enabled",
++          "subsection-name": "section-hue-module-row1-col2"
++        },
++        {
++          "config": "hue-env/hue-solr-module-enabled",
++          "subsection-name": "section-hue-module-row1-col3",
++          "depends-on": [
++            {
++              "resource": "service",
++              "if": "SOLR",
++              "then": {
++                "property_value_attributes": {
++                  "visible": true
++                }
++              },
++              "else": {
++                "property_value_attributes": {
++                  "visible": false
++                }
++              }
++            }
++          ]
++        },
++        {
++          "config": "hue-env/hue-pig-module-enabled",
++          "subsection-name": "section-hue-module-row1-col3",
++          "depends-on": [
++            {
++              "resource": "service",
++              "if": "PIG",
++              "then": {
++                "property_value_attributes": {
++                  "visible": true
++                }
++              },
++              "else": {
++                "property_value_attributes": {
++                  "visible": false
++                }
++              }
++            }
++          ]
++        },
++        {
++          "config": "hue-env/hue-spark-module-enabled",
++          "subsection-name": "section-hue-module-row1-col3",
++          "depends-on": [
++            {
++              "resource": "service",
++              "if": "SPARK",
++              "then": {
++                "property_value_attributes": {
++                  "visible": true
++                }
++              },
++              "else": {
++                "property_value_attributes": {
++                  "visible": false
++                }
++              }
++            }
++          ]
++        },
++        {
++          "config": "hue-env/hue-impala-module-enabled",
++          "subsection-name": "section-hue-module-row1-col3",
++          "depends-on": [
++            {
++              "resource": "service",
++              "if": "IMPALA",
++              "then": {
++                "property_value_attributes": {
++                  "visible": true
++                }
++              },
++              "else": {
++                "property_value_attributes": {
++                  "visible": false
++                }
++              }
++            }
++          ]
++        }
++      ]
++    },
++    "widgets": [
++      {
++        "config": "hue-desktop-site/DB_FLAVOR",
++        "widget": {
++          "type": "combo"
++        }
++      },
++      {
++        "config": "hue-desktop-site/db_host",
++        "widget": {
++          "type": "text-field"
++        }
++      },
++      {
++        "config": "hue-desktop-site/db_port",
++        "widget": {
++          "type": "text-field"
++        }
++      },
++      {
++        "config": "hue-desktop-site/db_name",
++        "widget": {
++          "type": "text-field"
++        }
++      },
++      {
++        "config": "hue-desktop-site/db_user",
++        "widget": {
++          "type": "text-field"
++        }
++      },
++      {
++        "config": "hue-desktop-site/db_password",
++        "widget": {
++          "type": "password"
++        }
++      },
++      {
++        "config": "hue-desktop-site/db_password_script",
++        "widget": {
++          "type": "text-field"
++        }
++      },
++      {
++        "config": "hue-desktop-site/db_options",
++        "widget": {
++          "type": "text-field"
++        }
++      },
++      {
++        "config": "hue-rdbms-site/sqlite_engine",
++        "widget": {
++          "type": "toggle"
++        }
++      },
++      {
++        "config": "hue-rdbms-site/sqlite_nice_name",
++        "widget": {
++          "type": "text-field"
++        }
++      },
++      {
++        "config": "hue-rdbms-site/sqlite_name",
++        "widget": {
++          "type": "text-field"
++        }
++      },
++      {
++        "config": "hue-rdbms-site/sqlite_options",
++        "widget": {
++          "type": "text-field"
++        }
++      },
++      {
++        "config": "hue-rdbms-site/mysql_engine",
++        "widget": {
++          "type": "toggle"
++        }
++      },
++      {
++        "config": "hue-rdbms-site/mysql_nice_name",
++        "widget": {
++          "type": "text-field"
++        }
++      },
++      {
++        "config": "hue-rdbms-site/mysql_host",
++        "widget": {
++          "type": "text-field"
++        }
++      },
++      {
++        "config": "hue-rdbms-site/mysql_port",
++        "widget": {
++          "type": "text-field"
++        }
++      },
++      {
++        "config": "hue-rdbms-site/mysql_name",
++        "widget": {
++          "type": "text-field"
++        }
++      },
++      {
++        "config": "hue-rdbms-site/mysql_user",
++        "widget": {
++          "type": "text-field"
++        }
++      },
++      {
++        "config": "hue-rdbms-site/mysql_password",
++        "widget": {
++          "type": "password"
++        }
++      },
++      {
++        "config": "hue-rdbms-site/mysql_options",
++        "widget": {
++          "type": "text-field"
++        }
++      },
++      {
++        "config": "hue-rdbms-site/oracle_engine",
++        "widget": {
++          "type": "toggle"
++        }
++      },
++      {
++        "config": "hue-rdbms-site/oracle_nice_name",
++        "widget": {
++          "type": "text-field"
++        }
++      },
++      {
++        "config": "hue-rdbms-site/oracle_host",
++        "widget": {
++          "type": "text-field"
++        }
++      },
++      {
++        "config": "hue-rdbms-site/oracle_port",
++        "widget": {
++          "type": "text-field"
++        }
++      },
++      {
++        "config": "hue-rdbms-site/oracle_name",
++        "widget": {
++          "type": "text-field"
++        }
++      },
++      {
++        "config": "hue-rdbms-site/oracle_user",
++        "widget": {
++          "type": "text-field"
++        }
++      },
++      {
++        "config": "hue-rdbms-site/oracle_password",
++        "widget": {
++          "type": "password"
++        }
++      },
++      {
++        "config": "hue-rdbms-site/oracle_options",
++        "widget": {
++          "type": "text-field"
++        }
++      },
++      {
++        "config": "hue-rdbms-site/postgresql_engine",
++        "widget": {
++          "type": "toggle"
++        }
++      },
++      {
++        "config": "hue-rdbms-site/postgresql_nice_name",
++        "widget": {
++          "type": "text-field"
++        }
++      },
++      {
++        "config": "hue-rdbms-site/postgresql_host",
++        "widget": {
++          "type": "text-field"
++        }
++      },
++      {
++        "config": "hue-rdbms-site/postgresql_port",
++        "widget": {
++          "type": "text-field"
++        }
++      },
++      {
++        "config": "hue-rdbms-site/postgresql_name",
++        "widget": {
++          "type": "text-field"
++        }
++      },
++      {
++        "config": "hue-rdbms-site/postgresql_user",
++        "widget": {
++          "type": "text-field"
++        }
++      },
++      {
++        "config": "hue-rdbms-site/postgresql_password",
++        "widget": {
++          "type": "password"
++        }
++      },
++      {
++        "config": "hue-rdbms-site/postgresql_options",
++        "widget": {
++          "type": "text-field"
++        }
++      },
++      {
++        "config": "hue-ugsync-site/usersync.enabled",
++        "widget": {
++          "type": "toggle"
++        }
++      },
++      {
++        "config": "hue-ugsync-site/SYNC_SOURCE",
++        "widget": {
++          "type": "combo"
++        }
++      },
++      {
++        "config": "hue-ugsync-site/usersync.unix.minUserId",
++        "widget": {
++          "type": "text-field"
++        }
++      },
++      {
++        "config": "hue-ugsync-site/usersync.unix.maxUserId",
++        "widget": {
++          "type": "text-field"
++        }
++      },
++      {
++        "config": "hue-ugsync-site/usersync.unix.minGroupId",
++        "widget": {
++          "type": "text-field"
++        }
++      },
++      {
++        "config": "hue-ugsync-site/usersync.unix.maxGroupId",
++        "widget": {
++          "type": "text-field"
++        }
++      },
++      {
++        "config": "hue-ugsync-site/usersync.ldap.url",
++        "widget": {
++          "type": "text-field"
++        }
++      },
++      {
++        "config": "hue-ugsync-site/usersync.ldap.base.dn",
++        "widget": {
++          "type": "text-field"
++        }
++      },
++      {
++        "config": "hue-ugsync-site/usersync.ldap.bind.dn",
++        "widget": {
++          "type": "text-field"
++        }
++      },
++      {
++        "config": "hue-ugsync-site/usersync.ldap.bind.password",
++        "widget": {
++          "type": "password"
++        }
++      },
++      {
++        "config": "hue-ugsync-site/usersync.ldap.bind.password.script",
++        "widget": {
++          "type": "text-field"
++        }
++      },
++      {
++        "config": "hue-ugsync-site/usersync.ldap.user.name.attribute",
++        "widget": {
++          "type": "text-field"
++        }
++      },
++      {
++        "config": "hue-ugsync-site/usersync.ldap.user.searchfilter",
++        "widget": {
++          "type": "text-field"
++        }
++      },
++      {
++        "config": "hue-ugsync-site/usersync.ldap.group.searchenabled",
++        "widget": {
++          "type": "toggle"
++        }
++      },
++      {
++        "config": "hue-ugsync-site/usersync.ldap.group.searchfilter",
++        "widget": {
++          "type": "text-field"
++        }
++      },
++      {
++        "config": "hue-ugsync-site/usersync.ldap.group.name.attribute",
++        "widget": {
++          "type": "text-field"
++        }
++      },
++      {
++        "config": "hue-ugsync-site/usersync.ldap.group.member.attribute",
++        "widget": {
++          "type": "text-field"
++        }
++      },
++      {
++        "config": "hue-env/hue-hdfs-module-enabled",
++        "widget": {
++          "type": "toggle"
++        }
++      },
++      {
++        "config": "hue-env/hue-yarn-module-enabled",
++        "widget": {
++          "type": "toggle"
++        }
++      },
++      {
++        "config": "hue-env/hue-hive-module-enabled",
++        "widget": {
++          "type": "toggle"
++        }
++      },
++      {
++        "config": "hue-env/hue-hbase-module-enabled",
++        "widget": {
++          "type": "toggle"
++        }
++      },
++      {
++        "config": "hue-env/hue-zookeeper-module-enabled",
++        "widget": {
++          "type": "toggle"
++        }
++      },
++      {
++        "config": "hue-env/hue-oozie-module-enabled",
++        "widget": {
++          "type": "toggle"
++        }
++      },
++      {
++        "config": "hue-env/hue-notebook-module-enabled",
++        "widget": {
++          "type": "toggle"
++        }
++      },
++      {
++        "config": "hue-env/hue-rdbms-module-enabled",
++        "widget": {
++          "type": "toggle"
++        }
++      },
++      {
++        "config": "hue-env/hue-solr-module-enabled",
++        "widget": {
++          "type": "toggle"
++        }
++      },
++      {
++        "config": "hue-env/hue-pig-module-enabled",
++        "widget": {
++          "type": "toggle"
++        }
++      },
++      {
++        "config": "hue-env/hue-spark-module-enabled",
++        "widget": {
++          "type": "toggle"
++        }
++      },
++      {
++        "config": "hue-env/hue-impala-module-enabled",
++        "widget": {
++          "type": "toggle"
++        }
++      }
++    ]
++  }
++}
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/LIVY/configuration/livy-conf.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/LIVY/configuration/livy-conf.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/LIVY/configuration/livy-conf.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/LIVY/configuration/livy-conf.xml	(revision 7457225596fd313e9ef380bf4d96527a3fbedba1)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/LIVY/configuration/livy-conf.xml	(date 1765333801788)
+@@ -38,19 +38,30 @@
+         <on-ambari-upgrade add="false"/>
+     </property>
+     <property>
++        <name>livy.server.host</name>
++        <value>8999</value>
++        <description>
++            What port to start the server on. Defaults to 8999.
++        </description>
++        <on-ambari-upgrade add="false"/>
++    </property>
++    <property>
+         <name>livy.server.session.timeout</name>
+-        <value>3600000</value>
++        <value>600000</value>
+         <description>
+-            Time in milliseconds on how long Livy will wait before timing out an idle session.
+-            Default is one hour.
++            Session 空闲超时时间，单位毫秒 (ms)。
++            超过该时间没有任何请求，Livy 会自动关闭该 session，并结束对应的 Spark Application。
++            默认值为 3600000 (1 小时)，生产环境推荐设置为 600000 (10 分钟，可根据实际情况在 5~30 分钟之间调整)。
+         </description>
+         <on-ambari-upgrade add="false"/>
+     </property>
+     <property>
+-        <name>livy.impersonation.enabled</name>
+-        <value>true</value>
++        <name>livy.server.session.timeout-check</name>
++        <value>60000</value>
+         <description>
+-            If livy should use proxy users when submitting a job.
++            Livy 检查空闲 session 的时间间隔，单位毫秒 (ms)。
++            间隔越短，超时 session 被发现和清理得越及时，但检查频率也越高。
++            默认值为 3600000 (1 小时)，推荐设置为 60000 (1 分钟)，保证超时能在较短时间内生效。
+         </description>
+         <on-ambari-upgrade add="false"/>
+     </property>
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUE/package/scripts/hue_server.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUE/package/scripts/hue_server.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUE/package/scripts/hue_server.py
+new file mode 100644
+--- /dev/null	(date 1756431674000)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUE/package/scripts/hue_server.py	(date 1756431674000)
+@@ -0,0 +1,89 @@
++#!/usr/bin/env python3
++"""
++Licensed to the Apache Software Foundation (ASF) under one
++or more contributor license agreements.  See the NOTICE file
++distributed with this work for additional information
++regarding copyright ownership.  The ASF licenses this file
++to you under the Apache License, Version 2.0 (the
++"License"); you may not use this file except in compliance
++with the License.  You may obtain a copy of the License at
++
++    http://www.apache.org/licenses/LICENSE-2.0
++
++Unless required by applicable law or agreed to in writing, software
++distributed under the License is distributed on an "AS IS" BASIS,
++WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++See the License for the specific language governing permissions and
++limitations under the License.
++
++"""
++import sys, os, pwd, grp, signal, time
++from resource_management import *
++from subprocess import call
++from resource_management.libraries.script.script import Script
++from hue_service import hue_service
++from hue import hue
++
++
++class hue_server(Script):
++  """
++  Contains the interface definitions for methods like install,
++  start, stop, status, etc. for the Hue Server
++  """
++  def install(self, env):
++    config = Script.get_config()
++    Logger.info("config['clusterHostInfo']: {0} ".format(config['clusterHostInfo']))
++    # Import properties defined in -config.xml file from params class
++    import params
++    env.set_params(params)
++    self.install_packages(env)
++    self.configure(env)
++    hue_service('hue_server', action='metastoresync', upgrade_type=None)
++
++  def configure(self, env):
++    import params
++    env.set_params(params)
++    hue(name = 'hue_server')
++
++  def start(self, env):
++    import params
++    self.configure(env)
++    hue_service('hue_server', action='start', upgrade_type=None)
++
++  def stop(self, env):
++    import params
++    env.set_params(params)
++    hue_service('hue_server', action='stop', upgrade_type=None)
++
++  def get_log_folder(self):
++    import params
++    return params.hue_log_dir
++
++  def get_user(self):
++    import params
++    return params.hue_user
++
++  def get_pid_files(self):
++    import status_params
++    return [status_params.hue_server_pid_file]
++
++  def status(self, env):
++    import status_params
++    env.set_params(status_params)
++    #use built-in method to check status using pidfile
++    check_process_status(status_params.hue_server_pid_file)
++
++  def usersync(self, env):
++    import params
++    env.set_params(params)
++    hue_service('hue_server', action='usersync', upgrade_type=None)
++
++
++  def metastoresync(self, env):
++    import params
++    env.set_params(params)
++    hue_service('hue_server', action='metastoresync', upgrade_type=None)
++
++
++if __name__ == "__main__":
++  hue_server().execute()
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUE/package/scripts/params.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUE/package/scripts/params.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUE/package/scripts/params.py
+new file mode 100644
+--- /dev/null	(date 1765353921044)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUE/package/scripts/params.py	(date 1765353921044)
+@@ -0,0 +1,283 @@
++#!/usr/bin/env python3
++"""
++Licensed to the Apache Software Foundation (ASF) under one
++or more contributor license agreements.  See the NOTICE file
++distributed with this work for additional information
++regarding copyright ownership.  The ASF licenses this file
++to you under the Apache License, Version 2.0 (the
++"License"); you may not use this file except in compliance
++with the License.  You may obtain a copy of the License at
++
++    http://www.apache.org/licenses/LICENSE-2.0
++
++Unless required by applicable law or agreed to in writing, software
++distributed under the License is distributed on an "AS IS" BASIS,
++WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++See the License for the specific language governing permissions and
++limitations under the License.
++
++"""
++import os, re
++import resource_management.libraries.functions
++from resource_management import *
++from ambari_commons.os_check import OSCheck
++from ambari_commons.str_utils import cbool, cint
++from resource_management.libraries.functions import StackFeature
++from resource_management.libraries.functions import conf_select
++from resource_management.libraries.functions import get_kinit_path
++from resource_management.libraries.functions import stack_select
++from resource_management.libraries.functions.default import default
++from resource_management.libraries.functions.format import format
++from resource_management.libraries.functions.get_stack_version import get_stack_version
++from resource_management.libraries.functions.stack_features import check_stack_feature
++from resource_management.libraries.functions.version import format_stack_version
++from resource_management.libraries.resources.hdfs_resource import HdfsResource
++from resource_management.libraries.functions.get_not_managed_resources import get_not_managed_resources
++from resource_management.libraries.script.script import Script
++import status_params
++import functools
++
++# a map of the Ambari role to the component name
++# for use with <stack-root>/current/<component>
++SERVER_ROLE_DIRECTORY_MAP = {
++    'HUE_SERVER': 'hue-server',
++}
++
++component_directory = Script.get_component_from_role(SERVER_ROLE_DIRECTORY_MAP, "HUE_SERVER")
++config = Script.get_config()
++tmp_dir = Script.get_tmp_dir()
++stack_root = Script.get_stack_root()
++
++# New Cluster Stack Version that is defined during the RESTART of a Rolling Upgrade
++version = default("/commandParams/version", None)
++stack_name = default("/hostLevelParams/stack_name", None)
++cluster_name = str(config['clusterName'])
++
++# Java home path
++java_home = config["ambariLevelParams"]["java_home"] if "java_home" in config["ambariLevelParams"] else None
++http_host = config['agentLevelParams']['hostname']
++hostname_lowercase = config['agentLevelParams']['hostname'].lower()
++http_port = config['configurations']['hue-env']['http_port']
++hue_pid_dir = config['configurations']['hue-env']['hue_pid_dir']
++hue_log_dir = config['configurations']['hue-env']['hue_log_dir']
++hue_server_pid_file = os.path.join(hue_pid_dir, 'hue-server.pid')
++hue_log_file = os.path.join(hue_log_dir, 'hue-install.log')
++hue_user = config['configurations']['hue-env']['hue_user']
++hue_group = config['configurations']['hue-env']['hue_group']
++hue_local_home_dir = os.path.expanduser("~{0}".format(hue_user))
++hue_hdfs_home_dir = format('/user/{hue_user}')
++user_group = config['configurations']['cluster-env']['user_group']
++
++# cmd = "/usr/bin/hdp-select versions"
++# hue_install_dir = '/usr/hdp/'+commands.getoutput(cmd)
++hue_install_dir = stack_root + "/current"
++hue_dir = format('{hue_install_dir}/hue')
++hue_conf_dir = format('{hue_dir}/desktop/conf')
++hue_bin_dir = format('{hue_dir}/build/env/bin')
++
++# configurations of metastore
++metastore_db_flavor = (config['configurations']['hue-desktop-ini']['DB_FLAVOR']).lower()
++metastore_db_host = config['configurations']['hue-desktop-ini']['db_host'].strip()
++metastore_db_port = str(config['configurations']['hue-desktop-ini']['db_port']).strip()
++metastore_db_name = config['configurations']['hue-desktop-ini']['db_name'].strip()
++metastore_db_user = config['configurations']['hue-desktop-ini']['db_user'].strip()
++metastore_db_password = str(config['configurations']['hue-desktop-ini']['db_password']).strip()
++# metastore_db_password_script = config['configurations']['hue-desktop-ini']['db_password_script']
++metastore_db_options = config['configurations']['hue-desktop-ini']['db_options'].strip()
++
++# configurations of security
++kinit_path_local = get_kinit_path(default('/configurations/kerberos-env/executable_search_paths', None))
++security_enabled = config['configurations']['cluster-env']['security_enabled']
++if security_enabled:
++    HTTP_principal = config['configurations']['hdfs-site']['dfs.web.authentication.kerberos.principal']
++    HTTP_keytab = config['configurations']['hdfs-site']['dfs.web.authentication.kerberos.keytab']
++    hue_principal = config['configurations']['hue-desktop-ini']['kerberos_hue_principal'].replace('_HOST',
++                                                                                                  hostname_lowercase)
++    hue_keytab = config['configurations']['hue-desktop-ini']['kerberos_hue_keytab']
++    kinit_path = kinit_path_local
++    zk_principal = config['configurations']['zookeeper-env']['zookeeper_principal_name'].replace('_HOST',
++                                                                                                 hostname_lowercase)
++    zk_keytab = config['configurations']['zookeeper-env']['zookeeper_principal_name']
++
++# configurations of HDFS
++namenode_hosts = default("/clusterHostInfo/namenode_hosts", [])
++namenode_hosts.sort()
++namenode_address = None
++if 'dfs.namenode.rpc-address' in config['configurations']['hdfs-site']:
++    namenode_rpcaddress = config['configurations']['hdfs-site']['dfs.namenode.rpc-address']
++    namenode_address = format("hdfs://{namenode_rpcaddress}")
++else:
++    namenode_address = config['configurations']['core-site']['fs.defaultFS']
++# To judge whether the namenode HA mode
++logical_name = ''
++dfs_ha_enabled = False
++dfs_ha_nameservices = default("/configurations/hdfs-site/dfs.nameservices", None)
++dfs_ha_namenode_ids = default(format("/configurations/hdfs-site/dfs.ha.namenodes.{dfs_ha_nameservices}"), None)
++dfs_ha_namemodes_ids_list = []
++if dfs_ha_namenode_ids:
++    dfs_ha_namemodes_ids_list = dfs_ha_namenode_ids.split(",")
++    dfs_ha_namenode_ids_array_len = len(dfs_ha_namemodes_ids_list)
++    if dfs_ha_namenode_ids_array_len > 1:
++        dfs_ha_enabled = True
++if dfs_ha_enabled:
++    namenode_address = format('hdfs://{dfs_ha_nameservices}')
++    logical_name = dfs_ha_nameservices
++    hdfs_httpfs_host = config['configurations']['hue-desktop-ini']['hdfs_httpfs_host']
++    # if kerberos is disabled, using HttpFS . Otherwise using WebHDFS.
++    if hdfs_httpfs_host in namenode_hosts:
++        webhdfs_url = format('http://' + hdfs_httpfs_host + ':50070/webhdfs/v1')
++    else:
++        webhdfs_url = format('http://' + namenode_hosts[0] + ':50070/webhdfs/v1')
++else:
++    dfs_namenode_http_address = config['configurations']['hdfs-site']['dfs.namenode.http-address']
++    webhdfs_url = format('http://' + dfs_namenode_http_address + '/webhdfs/v1')
++
++# if setup httpfs then use httpfs
++if 'httpfs_gateway_hosts' in config['clusterHostInfo']:
++    httpfs_server_host = config['clusterHostInfo']['httpfs_gateway_hosts'][0]
++    httpfs_server_port = config['configurations']['httpfs-env']['port']
++    webhdfs_url = format('http://' + httpfs_server_host + ':' + httpfs_server_port + '/webhdfs/v1')
++    print(webhdfs_url)
++
++hdfs_user = config['configurations']['hadoop-env']['hdfs_user']
++hadoop_bin_dir = stack_select.get_hadoop_dir('bin')
++hadoop_conf_dir = conf_select.get_hadoop_conf_dir()
++hdfs_site = config['configurations']['hdfs-site']
++default_fs = config['configurations']['core-site']['fs.defaultFS']
++dfs_type = default("/commandParams/dfs_type", "")
++hdfs_user_keytab = config['configurations']['hadoop-env']['hdfs_user_keytab']
++hdfs_principal_name = config['configurations']['hadoop-env']['hdfs_principal_name']
++kinit_path_local = get_kinit_path(default('/configurations/kerberos-env/executable_search_paths', None))
++# create partial functions with common arguments for every HdfsResource call
++# to create hdfs directory we need to call params.HdfsResource in code
++HdfsResource = functools.partial(
++    HdfsResource,
++    user=hdfs_user,
++    hdfs_resource_ignore_file='/var/lib/ambari-agent/data/.hdfs_resource_ignore',
++    security_enabled=security_enabled,
++    keytab=hdfs_user_keytab,
++    kinit_path_local=kinit_path_local,
++    hadoop_bin_dir=hadoop_bin_dir,
++    hadoop_conf_dir=hadoop_conf_dir,
++    principal_name=hdfs_principal_name,
++    hdfs_site=hdfs_site,
++    default_fs=default_fs,
++    immutable_paths=get_not_managed_resources(),
++    dfs_type=dfs_type
++)
++
++# configurations of Yarn
++resourcemanager_hosts = default("/clusterHostInfo/resourcemanager_hosts", [])
++resourcemanager_host = str(resourcemanager_hosts)
++resourcemanager_port = config['configurations']['yarn-site']['yarn.resourcemanager.address'].split(':')[-1]
++resourcemanager_ha_enabled = False
++if len(resourcemanager_hosts) > 1:
++    resourcemanager_ha_enabled = True
++if resourcemanager_ha_enabled:
++    resourcemanager_host1 = config['configurations']['yarn-site']['yarn.resourcemanager.hostname.rm1']
++    resourcemanager_host2 = config['configurations']['yarn-site']['yarn.resourcemanager.hostname.rm2']
++    resourcemanager_webapp_address1 = config['configurations']['yarn-site']['yarn.resourcemanager.webapp.address.rm1']
++    resourcemanager_webapp_address2 = config['configurations']['yarn-site']['yarn.resourcemanager.webapp.address.rm2']
++    resourcemanager_api_url1 = format('http://{resourcemanager_webapp_address1}')
++    resourcemanager_api_url2 = format('http://{resourcemanager_webapp_address2}')
++    proxy_api_url1 = resourcemanager_api_url1
++    proxy_api_url2 = resourcemanager_api_url2
++else:
++    resourcemanager_host1 = resourcemanager_hosts[0]
++    resourcemanager_webapp_address1 = config['configurations']['yarn-site']['yarn.resourcemanager.webapp.address']
++    resourcemanager_api_url1 = format('http://{resourcemanager_webapp_address1}')
++    proxy_api_url1 = resourcemanager_api_url1
++histroryserver_host = default("/clusterHostInfo/historyserver_hosts", [])
++history_server_api_url = format('http://{histroryserver_host[0]}:19888')
++slave_hosts = default("/clusterHostInfo/slave_hosts", [])
++
++# configurations of Hive and Pig
++# Hive service is depended on Pig in ambari
++hive_server_hosts = default("/clusterHostInfo/hive_server_hosts", [])
++if len(hive_server_hosts) > 0:
++    hive_server_host = config['clusterHostInfo']['hive_server_hosts'][0]
++    hive_transport_mode = config['configurations']['hive-site']['hive.server2.transport.mode']
++    if hive_transport_mode.lower() == "http":
++        hive_server_port = config['configurations']['hive-site']['hive.server2.thrift.http.port']
++    else:
++        hive_server_port = default('/configurations/hive-site/hive.server2.thrift.port', "10000")
++
++hive_metastore_hosts = default('/clusterHostInfo/hive_metastore_hosts', [])
++hive_metastore_host = hive_metastore_hosts[0] if len(hive_metastore_hosts) > 0 else None
++if hive_metastore_host:
++    hive_metastore_port = get_port_from_url(config['configurations']['hive-site']['hive.metastore.uris'])
++
++impala_hosts = default('/clusterHostInfo/impala_daemon_hosts', [])
++impala_host = impala_hosts[0] if len(impala_hosts) > 0 else None
++# impala_port = get_port_from_url(config['configurations']['hive-site']['hive.metastore.uris'])
++if impala_host:
++    if security_enabled:
++        impala_principal = config['configurations']['impala-env']['impala_daemon_kerberos_principal'].replace('_HOST',
++                                                                                                              impala_host.lower())
++
++kyuubi_hosts = default('/clusterHostInfo/kyuubi_server_hosts', [])
++kyuubi_host = kyuubi_hosts[0] if len(kyuubi_hosts) > 0 else None
++if kyuubi_host:
++    if security_enabled:
++        kyuubi_principal = config['configurations']['kyuubi-defaults']['kyuubi.kinit.principal'].replace('_HOST',
++                                                                                                         kyuubi_host.lower())
++
++# configurations of Hbase HBASE_THRIFTSERVER
++hbase_thriftserver_hosts = default("/clusterHostInfo/hbase_thriftserver_hosts", [])
++hbase_clusters = []
++hbase_cluster = ''
++if len(hbase_thriftserver_hosts) > 0:
++    for i in range(len(hbase_thriftserver_hosts)):
++        hbase_clusters.append(format("(Cluster" + str(i + 1) + "|" + hbase_thriftserver_hosts[i] + ":9090)"))
++    hbase_cluster = ",".join(hbase_clusters)
++else:
++    hbase_cluster = '(Cluster|localhost:9090)'
++hbase_conf_dir = '/etc/hbase/conf'
++# hbase_truncate_limit = config['configurations']['hue-hbase-site']['truncate_limit']
++# hbase_thrift_transport = config['configurations']['hue-hbase-site']['thrift_transport']
++
++# configurations of Zookeeper
++zookeeper_hosts = default("/clusterHostInfo/zookeeper_hosts", [])
++zookeeper_hosts.sort()
++zookeeper_client_port = default('/configurations/zoo.cfg/clientPort', None)
++zookeeper_host_ports = []
++zookeeper_host_port = ''
++zookeeper_rest_url = ''
++if len(zookeeper_hosts) > 0:
++    if zookeeper_client_port is not None:
++        for i in range(len(zookeeper_hosts)):
++            zookeeper_host_ports.append(format(zookeeper_hosts[i] + ":{zookeeper_client_port}"))
++    else:
++        for i in range(len(zookeeper_hosts)):
++            zookeeper_host_ports.append(format(zookeeper_hosts[i] + ":2181"))
++    zookeeper_host_port = ",".join(zookeeper_host_ports)
++    zookeeper_rest_url = format("http://" + zookeeper_hosts[0] + ":9998")
++
++# Ranger hosts
++ranger_admin_hosts = default("/clusterHostInfo/ranger_admin_hosts", [])
++has_ranger_admin = not len(ranger_admin_hosts) == 0
++
++hue_destop_ini_content = config['configurations']['hue-desktop-ini']['content']
++hue_desktop_log_conf_content = config['configurations']['hue-desktop-log-conf']['content']
++hue_destop_log4j_properties_content = config['configurations']['hue-desktop-log4j-properties']['content']
++
++# TTBigdata optimized
++
++spark_history_hosts = default('/clusterHostInfo/spark_jobhistoryserver_hosts', [])
++spark_history_host = spark_history_hosts[0] if len(spark_history_hosts) > 0 else None
++if spark_history_host:
++    if security_enabled:
++        spark_principal = config['configurations']['spark-defaults']['spark.history.kerberos.principal'].replace(
++            '_HOST',
++            spark_history_host.lower())
++spark_history_ui_port = default('/configurations/spark-defaults/spark.history.ui.port', '18081')
++spark_history_server_url = format('http://{spark_history_host}:{spark_history_ui_port}')
++
++spark_thrift_hosts = default('/clusterHostInfo/spark_thriftserver_hosts', [])
++spark_thrift_host = spark_thrift_hosts[0] if len(spark_thrift_hosts) > 0 else None
++spark_thrift_port = default('/configurations/spark-hive-site-override/hive.server2.thrift.port', '10016')
++
++livy_hosts = default('/clusterHostInfo/livy_server_hosts', [])
++livy_host = livy_hosts[0] if len(livy_hosts) > 0 else None
++livy_server_port = default('/configurations/livy-conf/livy.server.port', '8999')
++livy_server_url = format('http://{livy_host}:{livy_server_port}')
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/properties/stack_packages.json
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/properties/stack_packages.json b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/properties/stack_packages.json
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/properties/stack_packages.json	(revision 7457225596fd313e9ef380bf4d96527a3fbedba1)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/properties/stack_packages.json	(date 1764830360163)
+@@ -1048,7 +1048,33 @@
+             "superset"
+           ]
+         }
+-      }
++      },
++      "HUE": {
++	     "HUE": {
++          "STACK-SELECT-PACKAGE": "hue",
++          "INSTALL": [
++            "hue"
++          ],
++          "PATCH": [
++            "hue"
++          ],
++          "STANDARD": [
++            "hue"
++          ]
++        },
++		"HUE_SERVER": {
++          "STACK-SELECT-PACKAGE": "hue",
++          "INSTALL": [
++            "hue"
++          ],
++          "PATCH": [
++            "hue"
++          ],
++          "STANDARD": [
++            "hue"
++          ]
++        }
++	  }
+     },
+     "conf-select": {
+       "hadoop": [
+@@ -1288,6 +1314,13 @@
+           "current_dir": "{0}/current/superset/conf",
+           "component": "superset"
+         }
++      ],
++       "hue": [
++        {
++          "conf_dir": "/etc/hue/conf",
++          "current_dir": "{0}/current/hue/desktop/conf",
++          "component": "hue"
++        }
+       ]
+     },
+     "conf-select-patching": {
+@@ -1406,6 +1439,9 @@
+       },
+       "ATLAS": {
+         "packages": ["atlas"]
++      },
++      "HUE": {
++        "packages": ["hue"]
+       }
+     },
+     "upgrade-dependencies": {
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUE/package/scripts/hue.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUE/package/scripts/hue.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUE/package/scripts/hue.py
+new file mode 100644
+--- /dev/null	(date 1756431674000)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUE/package/scripts/hue.py	(date 1756431674000)
+@@ -0,0 +1,65 @@
++#!/usr/bin/env python3
++"""
++Licensed to the Apache Software Foundation (ASF) under one
++or more contributor license agreements.  See the NOTICE file
++distributed with this work for additional information
++regarding copyright ownership.  The ASF licenses this file
++to you under the Apache License, Version 2.0 (the
++"License"); you may not use this file except in compliance
++with the License.  You may obtain a copy of the License at
++
++    http://www.apache.org/licenses/LICENSE-2.0
++
++Unless required by applicable law or agreed to in writing, software
++distributed under the License is distributed on an "AS IS" BASIS,
++WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++See the License for the specific language governing permissions and
++limitations under the License.
++
++"""
++import os
++from ambari_commons.os_family_impl import OsFamilyFuncImpl, OsFamilyImpl
++from resource_management import *
++
++
++@OsFamilyFuncImpl(os_family=OsFamilyImpl.DEFAULT)
++def hue(name=None):
++    import params
++
++    Directory(params.hue_log_dir,
++              owner=params.hue_user,
++              create_parents=True,
++              group=params.hue_group,
++              mode=0o775
++              )
++
++    Directory(params.hue_pid_dir,
++              owner=params.hue_user,
++              create_parents=True,
++              group=params.user_group,
++              mode=0o775
++              )
++
++    File(os.path.join(params.hue_conf_dir, "hue.ini"),
++       owner=params.hue_user,
++       group=params.hue_group,
++       mode=0o755,
++       content=InlineTemplate(params.hue_destop_ini_content)
++    )
++
++    File(os.path.join(params.hue_conf_dir, "log.conf"),
++       owner=params.hue_user,
++       group=params.hue_group,
++       mode=0o755,
++       content=InlineTemplate(params.hue_desktop_log_conf_content)
++    )
++
++    File(os.path.join(params.hue_conf_dir, "log4j.properties"),
++       owner=params.hue_user,
++       group=params.hue_group,
++       mode=0o755,
++       content=InlineTemplate(params.hue_destop_log4j_properties_content)
++    )
++
++
++
+\ No newline at end of file
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUE/package/scripts/status_params.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUE/package/scripts/status_params.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUE/package/scripts/status_params.py
+new file mode 100644
+--- /dev/null	(date 1756431674000)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUE/package/scripts/status_params.py	(date 1756431674000)
+@@ -0,0 +1,35 @@
++#!/usr/bin/env python3
++"""
++Licensed to the Apache Software Foundation (ASF) under one
++or more contributor license agreements.  See the NOTICE file
++distributed with this work for additional information
++regarding copyright ownership.  The ASF licenses this file
++to you under the Apache License, Version 2.0 (the
++"License"); you may not use this file except in compliance
++with the License.  You may obtain a copy of the License at
++
++  http://www.apache.org/licenses/LICENSE-2.0
++
++Unless required by applicable law or agreed to in writing, software
++distributed under the License is distributed on an "AS IS" BASIS,
++WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++See the License for the specific language governing permissions and
++limitations under the License.
++
++Ambari Agent
++
++"""
++
++import os
++from resource_management.libraries.script import Script
++from resource_management.libraries.functions import format
++from resource_management.libraries.functions.default import default
++
++config = Script.get_config()
++
++hue_pid_dir = config['configurations']['hue-env']['hue_pid_dir']
++hue_log_dir = config['configurations']['hue-env']['hue_log_dir']
++hue_server_pid_file = os.path.join(hue_pid_dir, 'hue-server.pid')
++hue_log_file = os.path.join(hue_log_dir, 'hue-install.log')
++hue_user = config['configurations']['hue-env']['hue_user']
++hue_group = config['configurations']['hue-env']['hue_group']
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUE/package/scripts/hue_service.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUE/package/scripts/hue_service.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUE/package/scripts/hue_service.py
+new file mode 100644
+--- /dev/null	(date 1756431674000)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUE/package/scripts/hue_service.py	(date 1756431674000)
+@@ -0,0 +1,75 @@
++#!/usr/bin/env python3
++"""
++Licensed to the Apache Software Foundation (ASF) under one
++or more contributor license agreements.  See the NOTICE file
++distributed with this work for additional information
++regarding copyright ownership.  The ASF licenses this file
++to you under the Apache License, Version 2.0 (the
++"License"); you may not use this file except in compliance
++with the License.  You may obtain a copy of the License at
++
++    http://www.apache.org/licenses/LICENSE-2.0
++
++Unless required by applicable law or agreed to in writing, software
++distributed under the License is distributed on an "AS IS" BASIS,
++WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++See the License for the specific language governing permissions and
++limitations under the License.
++
++"""
++from resource_management import *
++import os
++from ambari_commons.os_family_impl import OsFamilyFuncImpl, OsFamilyImpl
++
++
++def hue_service(name, action='start', upgrade_type=None):
++    # initializing the op command variables
++    import params
++
++    hueExecEnv={'JAVA_HOME': params.java_home,
++                      'HADOOP_CONF_DIR': params.hadoop_conf_dir,
++#                      'CRYPTOGRAPHY_ALLOW_OPENSSL_102': 'True',
++                      'LD_LIBRARY_PATH': '$LD_LIBRARY_PATH:/usr/hdp/current/hue/lib-native',
++                      }
++    if action == 'start':
++      Execute("usermod -g hue hue",
++          user="root"
++        )
++      Execute(format("{hue_bin_dir}/supervisor >> {hue_log_file} 2>&1 &"),
++          environment=hueExecEnv,
++          user=params.hue_user
++        )
++      Execute ('ps -ef | grep hue | grep supervisor | grep -v grep | awk \'{print $2}\' > ' + params.hue_server_pid_file, user=params.hue_user)
++
++
++    elif action == 'stop':
++      # Kill the process of Hue
++      Execute ('ps -ef | grep hue | grep -v grep | awk  \'{print $2}\' | xargs kill -9', user=params.hue_user, ignore_failures=True)
++      File(params.hue_server_pid_file,
++        action = "delete",
++        owner = params.hue_user
++      )
++
++    elif action == 'metastoresync':
++      if params.metastore_db_flavor != 'sqlite3':
++        Execute (format("{hue_bin_dir}/hue syncdb --noinput"),
++                 environment=hueExecEnv,
++                 user=params.hue_user)
++        Execute (format("{hue_bin_dir}/hue migrate"),
++                  environment=hueExecEnv,
++                 user=params.hue_user)
++      else:
++        Logger.info("echo Hue Metastore is stored in $HUE/desktop/desktop.db >> " + params.hue_log_file)
++
++    elif action == 'usersync':
++      if params.usersync_enabled:
++        if params.usersync_source == 'unix':
++          Execute ('{0}/hue useradmin_sync_with_unix --min-uid={1} --max-uid={2} --min-gid={3} --max-gid={4}'.format(params.hue_bin_dir, params.usersync_unix_minUserId, params.usersync_unix_maxUserId, params.usersync_unix_minGroupId, params.usersync_unix_maxGroupId), environment=hueExecEnv,user=params.hue_user)
++        else:
++          Execute ('{0}/hue sync_ldap_users_and_groups'.format(params.hue_bin_dir), environment=hueExecEnv,user=params.hue_user)
++      else:
++        Logger.info("Hue UserSync is disabled >> " + params.hue_log_file)
++
++    else:
++        Logger.info( format("unknown command type: :{action}"))
++
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUE/metainfo.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUE/metainfo.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUE/metainfo.xml
+new file mode 100644
+--- /dev/null	(date 1756431674000)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUE/metainfo.xml	(date 1756431674000)
+@@ -0,0 +1,110 @@
++<?xml version="1.0"?>
++<!--
++   Licensed to the Apache Software Foundation (ASF) under one or more
++   contributor license agreements.  See the NOTICE file distributed with
++   this work for additional information regarding copyright ownership.
++   The ASF licenses this file to You under the Apache License, Version 2.0
++   (the "License"); you may not use this file except in compliance with
++   the License.  You may obtain a copy of the License at
++
++       http://www.apache.org/licenses/LICENSE-2.0
++
++   Unless required by applicable law or agreed to in writing, software
++   distributed under the License is distributed on an "AS IS" BASIS,
++   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++   See the License for the specific language governing permissions and
++   limitations under the License.
++-->
++<metainfo>
++  <schemaVersion>2.0</schemaVersion>
++  <services>
++    <service>
++      <name>HUE</name>
++      <displayName>Hue</displayName>
++      <comment>Hue is a graphical user interface to operate and develop applications for Apache Hadoop.</comment>
++      <version>4.11.0</version>
++      <selection>TECH_PREVIEW</selection>
++      <components>
++        <component>
++          <name>HUE_SERVER</name>
++          <displayName>Hue Server</displayName>
++          <category>MASTER</category>
++          <cardinality>1+</cardinality>
++          <versionAdvertised>true</versionAdvertised>
++          <commandScript>
++            <script>scripts/hue_server.py</script>
++            <scriptType>PYTHON</scriptType>
++            <timeout>1200</timeout>
++          </commandScript>
++          <customCommands>
++            <customCommand>
++              <name>UserSync</name>
++              <background>true</background>
++              <commandScript>
++                <script>scripts/hue_server.py</script>
++                <scriptType>PYTHON</scriptType>
++              </commandScript>
++            </customCommand>
++            <customCommand>
++              <name>MetastoreSync</name>
++              <background>true</background>
++              <commandScript>
++                <script>scripts/hue_server.py</script>
++                <scriptType>PYTHON</scriptType>
++              </commandScript>
++            </customCommand>
++          </customCommands>
++        </component>
++      </components>
++
++      <osSpecifics>
++        <osSpecific>
++          <osFamily>redhat9,redhat8,redhat7,amazonlinux2,redhat6,suse11,suse12,openeuler20,openeuler21,openeuler22,openeuler23,openeuler24,openeuler25,kylin10,kylin20,kylin30,uos10,uos20,anolis7,anolis8,anolis23</osFamily>
++          <packages>
++            <package>
++              <name>hue_${stack_version}</name>
++            </package>
++          </packages>
++        </osSpecific>
++        <osSpecific>
++          <osFamily>debian7,debian9,ubuntu12,ubuntu14,ubuntu16,ubuntu18,ubuntu20,ubuntu22,ubuntu24</osFamily>
++          <packages>
++            <package>
++              <name>hue-${stack_version}</name>
++            </package>
++          </packages>
++        </osSpecific>
++      </osSpecifics>
++
++      <requiredServices>
++        <service>HDFS</service>
++        <service>HTTPFS</service>
++        <service>HIVE</service>
++      </requiredServices>
++
++      <configuration-dependencies>
++        <config-type>hue-env</config-type>
++        <config-type>hue-desktop-ini</config-type>
++        <config-type>hue-desktop-log-conf</config-type>
++        <config-type>hue-desktop-log4j-properties</config-type>
++        <config-type>hadoop-env</config-type>
++        <config-type>hdfs-site</config-type>
++        <config-type>core-site</config-type>
++        <config-type>yarn-env</config-type>
++        <config-type>yarn-site</config-type>
++        <config-type>hive-site</config-type>
++        <config-type>zoo.cfg</config-type>
++        <config-type>httpfs-site</config-type>
++      </configuration-dependencies>
++      <restartRequiredAfterChange>true</restartRequiredAfterChange>
++
++
++      <quickLinksConfigurations>
++        <quickLinksConfiguration>
++          <fileName>quicklinks.json</fileName>
++          <default>true</default>
++        </quickLinksConfiguration>
++      </quickLinksConfigurations>
++    </service>
++  </services>
++</metainfo>
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUE/alerts.json
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUE/alerts.json b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUE/alerts.json
+new file mode 100644
+--- /dev/null	(date 1756431674000)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUE/alerts.json	(date 1756431674000)
+@@ -0,0 +1,32 @@
++{
++  "HUE": {
++    "service": [],
++    "HUE_SERVER": [
++      {
++        "name": "hue_webui",
++        "label": "Hue Web UI",
++        "description": "This host-level alert is triggered if the Hue Web UI is unreachable.",
++        "interval": 1,
++        "scope": "HOST",
++        "source": {
++          "type": "PORT",
++          "uri": "{{hue-env/http_port}}",
++          "default_port": 8888,
++          "reporting": {
++            "ok": {
++              "text": "TCP OK - {0:.3f}s response on port {1}"
++            },
++            "warning": {
++              "text": "TCP OK - {0:.3f}s response on port {1}",
++              "value": 1.5
++            },
++            "critical": {
++              "text": "Connection failed: {0} to {1}:{2}",
++              "value": 5
++            }
++          }
++        }
++      }
++    ]
++  }
++}
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUE/quicklinks/quicklinks.json
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUE/quicklinks/quicklinks.json b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUE/quicklinks/quicklinks.json
+new file mode 100644
+--- /dev/null	(date 1756431674000)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUE/quicklinks/quicklinks.json	(date 1756431674000)
+@@ -0,0 +1,35 @@
++{
++  "name": "default",
++  "description": "default quick links configuration",
++  "configuration": {
++    "protocol":
++    {
++      "type":"https",
++      "checks":[
++        {
++          "property":"ssl_enable",
++          "desired":"true",
++          "site":"hue-env"
++        }
++      ]
++    },
++
++    "links": [
++      {
++        "name": "hue_ui",
++        "label": "Hue WEB-UI",
++        "requires_user_name": "false",
++        "component_name": "HUE_SERVER",
++        "url":"%@://%@:%@/",
++        "port":{
++          "http_property": "hue.server.port",
++          "http_default_port": "8888",
++          "https_property": "hue.server.port",
++          "https_default_port": "8888",
++          "regex": "^(\\d+)$",
++          "site": "hue-env"
++        }
++      }
++    ]
++  }
++}
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/stack_advisor.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/stack_advisor.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/stack_advisor.py
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/stack_advisor.py	(revision 7457225596fd313e9ef380bf4d96527a3fbedba1)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/stack_advisor.py	(date 1765352177128)
+@@ -342,6 +342,69 @@
+                             "propertyName": "impala_user"
+                         }
+
++        if "HUE" in servicesList:
++            hue_user = None
++            if "hue-env" in services["configurations"] and "hue_user" in services["configurations"]["hue-env"]["properties"]:
++                hue_user = services["configurations"]["hue-env"]["properties"]["hue_user"]
++
++                hueHosts = self.getHostsWithComponent("HUE", "HUE_SERVER", services, hosts) or []
++
++                if hueHosts:
++                    hueHostNames = ",".join([hueHost["Hosts"]["host_name"] for hueHost in hueHosts])
++                else:
++                    hueHostNames = "*"
++
++                if not hue_user in users and hue_user is not None:
++                    users[hue_user] = {
++                        "propertyHosts": hueHostNames,
++                        "propertyGroups": "*",
++                        "config": "hue-env",
++                        "propertyName": "hue_user"
++                    }
++
++        if "ALLUXIO" in servicesList:
++            alluxio_user = None
++            if "alluxio-env" in services["configurations"] and "alluxio_user" in services["configurations"]["alluxio-env"]["properties"]:
++                alluxio_user = services["configurations"]["alluxio-env"]["properties"]["alluxio_user"]
++                alluxioMasterNames = "*"
++                # alluxioMasters = self.getHostsWithComponent("ALLUXIO", "ALLUXIO_MASTER", services, hosts) or []
++                #
++                # if alluxioMasters:
++                #     alluxioMasterNames = ",".join(
++                #         [alluxioMaster["Hosts"]["host_name"] for alluxioMaster in alluxioMasters]
++                #     )
++                # else:
++                #     alluxioMasterNames = "*"
++
++                if not alluxio_user in users and alluxio_user is not None:
++                    users[alluxio_user] = {
++                        "propertyHosts": alluxioMasterNames,
++                        "propertyGroups": "*",
++                        "config": "alluxio-env",
++                        "propertyName": "alluxio_user"
++                    }
++
++        if "HBASE" in servicesList:
++            hbase_user = None
++            if "hbase-env" in services["configurations"] and "hbase_user" in services["configurations"]["hbase-env"]["properties"]:
++                hbase_user = services["configurations"]["hbase-env"]["properties"]["hbase_user"]
++                hbaseMasterNames = "*"
++                # hbaseMasters = self.getHostsWithComponent("HBASE", "HBASE_MASTER", services, hosts) or []
++                #
++                # if hbaseMasters:
++                #     hbaseMasterNames = ",".join(
++                #         [hbaseMaster["Hosts"]["host_name"] for hbaseMaster in hbaseMasters]
++                #     )
++                # else:
++                #     hbaseMasterNames = "*"
++                if not hbase_user in users and hbase_user is not None:
++                    users[hbase_user] = {
++                        "propertyHosts": hbaseMasterNames,
++                        "propertyGroups": "*",
++                        "config": "hbase-env",
++                        "propertyName": "hbase_user"
++                    }
++
+         putCoreSiteProperty = self.putProperty(configurations, "core-site", services)
+         putCoreSitePropertyAttribute = self.putPropertyAttribute(configurations, "core-site")
+
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUE/configuration/hue-desktop-log4j-properties.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUE/configuration/hue-desktop-log4j-properties.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUE/configuration/hue-desktop-log4j-properties.xml
+new file mode 100644
+--- /dev/null	(date 1756431674000)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUE/configuration/hue-desktop-log4j-properties.xml	(date 1756431674000)
+@@ -0,0 +1,95 @@
++<?xml version="1.0"?>
++<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
++<!--
++/**
++ * Licensed to the Apache Software Foundation (ASF) under one
++ * or more contributor license agreements.  See the NOTICE file
++ * distributed with this work for additional information
++ * regarding copyright ownership.  The ASF licenses this file
++ * to you under the Apache License, Version 2.0 (the
++ * "License"); you may not use this file except in compliance
++ * with the License.  You may obtain a copy of the License at
++ *
++ *     http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++-->
++<configuration supports_adding_forbidden="true">
++    <property>
++        <name>content</name>
++        <description>desktop/log4j.properties</description>
++        <value>
++# Define some default values that can be overridden by system properties
++hadoop.log.dir=.
++hadoop.log.file=hadoop.log
++
++# Define the root logger to the system property "hadoop.root.logger".
++log4j.rootLogger=INFO,console, EventCounter
++
++# Logging Threshold
++log4j.threshhold=ALL
++
++#
++# Daily Rolling File Appender
++#
++
++log4j.appender.DRFA=org.apache.log4j.DailyRollingFileAppender
++log4j.appender.DRFA.File=${hadoop.log.dir}/${hadoop.log.file}
++
++# Rollver at midnight
++log4j.appender.DRFA.DatePattern=.yyyy-MM-dd
++
++# 30-day backup
++#log4j.appender.DRFA.MaxBackupIndex=30
++log4j.appender.DRFA.layout=org.apache.log4j.PatternLayout
++
++# Pattern format: Date LogLevel LoggerName LogMessage
++log4j.appender.DRFA.layout.ConversionPattern=%d{ISO8601} %p %c: %m%n
++# Debugging Pattern format
++#log4j.appender.DRFA.layout.ConversionPattern=%d{ISO8601} %-5p %c{2} (%F:%M(%L)) - %m%n
++
++
++#
++# console
++# Add "console" to rootlogger above if you want to use this
++#
++
++log4j.appender.console=org.apache.log4j.ConsoleAppender
++log4j.appender.console.target=System.err
++log4j.appender.console.layout=org.apache.log4j.PatternLayout
++log4j.appender.console.layout.ConversionPattern=%d{yy/MM/dd HH:mm:ss} %p %c{2}: %m%n
++
++#
++# Rolling File Appender
++#
++
++#log4j.appender.RFA=org.apache.log4j.RollingFileAppender
++#log4j.appender.RFA.File=${hadoop.log.dir}/${hadoop.log.file}
++
++# Logfile size and and 30-day backups
++#log4j.appender.RFA.MaxFileSize=1MB
++#log4j.appender.RFA.MaxBackupIndex=30
++
++#log4j.appender.RFA.layout=org.apache.log4j.PatternLayout
++#log4j.appender.RFA.layout.ConversionPattern=%d{ISO8601} %-5p %c{2} - %m%n
++#log4j.appender.RFA.layout.ConversionPattern=%d{ISO8601} %-5p %c{2} (%F:%M(%L)) - %m%n
++
++#
++# Event Counter Appender
++# Sends counts of logging messages at different severity levels to Hadoop
++# Metrics.
++#
++log4j.appender.EventCounter=org.apache.hadoop.metrics.jvm.EventCounter
++
++        </value>
++        <value-attributes>
++            <type>content</type>
++        </value-attributes>
++        <on-ambari-upgrade add="true"/>
++    </property>
++</configuration>
+\ No newline at end of file
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUE/configuration/hue-desktop-log-conf.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUE/configuration/hue-desktop-log-conf.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUE/configuration/hue-desktop-log-conf.xml
+new file mode 100644
+--- /dev/null	(date 1756431674000)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUE/configuration/hue-desktop-log-conf.xml	(date 1756431674000)
+@@ -0,0 +1,117 @@
++<?xml version="1.0"?>
++<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
++<!--
++/**
++ * Licensed to the Apache Software Foundation (ASF) under one
++ * or more contributor license agreements.  See the NOTICE file
++ * distributed with this work for additional information
++ * regarding copyright ownership.  The ASF licenses this file
++ * to you under the Apache License, Version 2.0 (the
++ * "License"); you may not use this file except in compliance
++ * with the License.  You may obtain a copy of the License at
++ *
++ *     http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++-->
++<configuration supports_adding_forbidden="true">
++    <property>
++        <name>content</name>
++        <description>desktop/log.conf</description>
++        <value>
++##########################################
++# To change the log leve, edit the `level' field.
++# Choices are: DEBUG, INFO, WARNING, ERROR, CRITICAL
++#
++# The logrotation limit is set at 5MB per file for a total of 5 copies.
++# I.e. 25MB for each set of logs.
++##########################################
++[handler_logfile]
++level=INFO
++class=handlers.RotatingFileHandler
++formatter=default
++args=('%LOG_DIR%/%PROC_NAME%.log', 'a', 5000000, 5)
++
++##########################################
++# Please do not change the settings below
++##########################################
++
++[logger_root]
++handlers=logfile,errorlog
++
++[logger_access]
++handlers=accesslog
++qualname=access
++
++[logger_django_auth_ldap]
++handlers=accesslog
++qualname=django_auth_ldap
++
++[logger_kazoo_client]
++level=INFO
++handlers=errorlog
++qualname=kazoo.client
++
++[logger_djangosaml2]
++level=INFO
++handlers=errorlog
++qualname=djangosaml2
++
++[logger_django_db]
++level=DEBUG
++handlers=errorlog
++qualname=django.db.backends
++
++[logger_boto]
++level=ERROR
++handlers=errorlog
++qualname=boto
++
++# The logrotation limit is set at 5MB per file for a total of 5 copies.
++# I.e. 25MB for each set of logs.
++[handler_accesslog]
++class=handlers.RotatingFileHandler
++level=DEBUG
++propagate=True
++formatter=access
++args=('%LOG_DIR%/access.log', 'a', 5000000, 5)
++
++# All errors go into error.log
++[handler_errorlog]
++class=handlers.RotatingFileHandler
++level=ERROR
++formatter=default
++args=('%LOG_DIR%/error.log', 'a', 5000000, 5)
++
++[formatter_default]
++class=desktop.log.formatter.Formatter
++format=[%(asctime)s] %(module)-12s %(levelname)-8s %(message)s
++datefmt=%d/%b/%Y %H:%M:%S %z
++
++[formatter_access]
++class=desktop.log.formatter.Formatter
++format=[%(asctime)s] %(levelname)-8s %(message)s
++datefmt=%d/%b/%Y %H:%M:%S %z
++
++[loggers]
++keys=root,access,django_auth_ldap,kazoo_client,djangosaml2,django_db,boto
++
++[handlers]
++keys=logfile,accesslog,errorlog
++
++[formatters]
++keys=default,access
++
++
++        </value>
++        <value-attributes>
++            <type>content</type>
++        </value-attributes>
++        <on-ambari-upgrade add="true"/>
++    </property>
++</configuration>
+\ No newline at end of file
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUE/configuration/hue-desktop-ini.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUE/configuration/hue-desktop-ini.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUE/configuration/hue-desktop-ini.xml
+new file mode 100644
+--- /dev/null	(date 1765353560624)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUE/configuration/hue-desktop-ini.xml	(date 1765353560624)
+@@ -0,0 +1,657 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
++
++<!--
++/**
++ * Licensed to the Apache Software Foundation (ASF) under one
++ * or more contributor license agreements.  See the NOTICE file
++ * distributed with this work for additional information
++ * regarding copyright ownership.  The ASF licenses this file
++ * to you under the Apache License, Version 2.0 (the
++ * "License"); you may not use this file except in compliance
++ * with the License.  You may obtain a copy of the License at
++ *
++ *     http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++-->
++<configuration>
++
++  <property>
++    <name>DB_FLAVOR</name>
++    <value>postgresql_psycopg2</value>
++    <display-name>DB FLAVOR</display-name>
++    <description>The database type to be used (mysql/oracle/postgresql_psycopg2/sqlite3)</description>
++    <value-attributes>
++      <overridable>false</overridable>
++    </value-attributes>
++    <on-ambari-upgrade add="true"/>
++  </property>
++
++  <property>
++    <name>db_host</name>
++    <value>postgresql-hue</value>
++    <display-name>Hue Metastore Host</display-name>
++    <description>Database host</description>
++    <value-attributes>
++      <overridable>false</overridable>
++      <empty-value-valid>true</empty-value-valid>
++    </value-attributes>
++    <on-ambari-upgrade add="true"/>
++  </property>
++
++  <property>
++    <name>db_port</name>
++    <value>5432</value>
++    <display-name>Hue Metastore Port</display-name>
++    <description>Hue Metastore Database Port</description>
++    <value-attributes>
++      <overridable>false</overridable>
++      <empty-value-valid>true</empty-value-valid>
++    </value-attributes>
++    <on-ambari-upgrade add="true"/>
++  </property>
++
++  <property>
++    <name>db_name</name>
++    <value>hue</value>
++    <display-name>Database Name</display-name>
++    <description>Database name</description>
++    <value-attributes>
++      <overridable>false</overridable>
++      <empty-value-valid>true</empty-value-valid>
++    </value-attributes>
++    <on-ambari-upgrade add="true"/>
++  </property>
++
++  <property>
++    <name>db_user</name>
++    <value>hue</value>
++    <display-name>Database Username</display-name>
++    <description>Database username used for the Hue schema</description>
++    <value-attributes>
++      <overridable>false</overridable>
++      <empty-value-valid>true</empty-value-valid>
++    </value-attributes>
++    <on-ambari-upgrade add="true"/>
++  </property>
++
++  <property>
++    <name>db_password</name>
++    <value>hue</value>
++    <property-type>PASSWORD</property-type>
++    <display-name>Database Password</display-name>
++    <description>Database password for the Hue schema</description>
++    <value-attributes>
++      <type>password</type>
++      <overridable>false</overridable>
++      <empty-value-valid>true</empty-value-valid>
++    </value-attributes>
++    <on-ambari-upgrade add="true"/>
++  </property>
++
++  <property>
++    <name>db_password</name>
++    <value>hue</value>
++    <display-name>Database Password</display-name>
++    <description>Database password for the Hue schema</description>
++    <value-attributes>
++      <type>password</type>
++      <overridable>false</overridable>
++      <empty-value-valid>true</empty-value-valid>
++    </value-attributes>
++    <property-type>PASSWORD</property-type>
++  </property>
++
++  <property>
++    <name>db_options</name>
++    <value>{}</value>
++    <display-name>Database Options</display-name>
++    <description>Database Options</description>
++    <on-ambari-upgrade add="true"/>
++  </property>
++  <property>
++    <name>hdfs_httpfs_host</name>
++    <value></value>
++    <display-name>hdfs_httpfs_host</display-name>
++    <description>when enable hdfs ha,set this values, if this value is empty,default choose first, it will not work.</description>
++    <on-ambari-upgrade add="true"/>
++    <value-attributes>
++      <empty-value-valid>true</empty-value-valid>
++    </value-attributes>
++  </property>
++  <!-- Kerberos configuration properties -->
++  <property>
++    <name>kerberos_hue_keytab</name>
++    <value>/etc/security/keytabs/hue.service.keytab</value>
++    <display-name>Kerberos Hue Keytab</display-name>
++    <description>Path to Hue's Kerberos keytab file.</description>
++    <value-attributes>
++      <empty-value-valid>true</empty-value-valid>
++    </value-attributes>
++    <on-ambari-upgrade add="true"/>
++  </property>
++  <property>
++    <name>kerberos_hue_principal</name>
++    <value>hue/_HOST@EXAMPLE.COM</value>
++    <display-name>Kerberos Hue Principal</display-name>
++    <description>Kerberos principal name for Hue</description>
++    <property-type>KERBEROS_PRINCIPAL</property-type>
++    <value-attributes>
++      <empty-value-valid>true</empty-value-valid>
++    </value-attributes>
++    <on-ambari-upgrade add="true"/>
++  </property>
++
++  <property>
++    <name>content</name>
++    <description>Hue Configure File</description>
++    <value>
++# Hue configuration file
++# ===================================
++#
++# For complete documentation about the contents of this file, run
++#   $ (hue_root)/build/env/bin/hue config_help
++#
++# All .ini files under the current directory are treated equally.  Their
++# contents are merged to form the Hue configuration, which can
++# can be viewed on the Hue at
++#   http://(hue_host):(port)/dump_config
++
++
++###########################################################################
++# General configuration for core Desktop features (authentication, etc)
++###########################################################################
++
++[desktop]
++
++  secret_key=941c6e219ae081990eb432b9bd6f169e7ff72b84d6c1a5382f6470a4130c747c
++  http_host=0.0.0.0
++  http_port={{http_port}}
++  time_zone=Asia/Shanghai
++  django_debug_mode=false
++  http_500_debug_mode=false
++  gunicorn_work_class=gthread
++  app_blacklist=sqoop,pig,oozie,search,rdbms,security
++
++
++  [[django_admins]]
++  [[custom]]
++  [[auth]]
++
++
++  # Configuration options for connecting to LDAP and Active Directory
++  # -------------------------------------------------------------------
++  [[ldap]]
++    [[[users]]]
++    [[[groups]]]
++    [[[ldap_servers]]]
++
++
++
++  # Configuration options for specifying the Source Version Control.
++  # ----------------------------------------------------------------
++  [[vcs]]
++
++  [[database]]
++  {% if metastore_db_flavor != 'sqlite3' %}
++    engine={{metastore_db_flavor}}
++    host={{metastore_db_host}}
++    port={{metastore_db_port}}
++    user={{metastore_db_user}}
++    password={{metastore_db_password}}
++    name={{metastore_db_name}}
++    options={{metastore_db_options}}
++  {% endif %}
++
++  # Configuration options for specifying the Desktop session.
++  # For more info, see https://docs.djangoproject.com/en/1.4/topics/http/sessions/
++  # ------------------------------------------------------------------------
++  [[session]]
++
++
++  # Configuration options for connecting to an external SMTP server
++  # ------------------------------------------------------------------------
++  [[smtp]]
++    host=localhost
++    port=25
++    user=
++    password=
++    tls=no
++
++  # Configuration options for KNOX integration for secured CDPD cluster
++  # ------------------------------------------------------------------------
++  [[knox]]
++
++    # This is a list of hosts that knox proxy requests can come from
++    ## knox_proxyhosts=server1.domain.com,server2.domain.com
++    # List of Kerberos principal name which is allowed to impersonate others
++    ## knox_principal=knox1,knox2
++    # Comma separated list of strings representing the ports that the Hue server can trust as knox port.
++    ## knox_ports=80,8443
++
++  # Configuration options for Kerberos integration for secured Hadoop clusters
++  # ------------------------------------------------------------------------
++  [[kerberos]]
++    krb5_renewlifetime_enabled=false
++  {% if security_enabled %}
++    hue_keytab={{hue_keytab}}
++    hue_principal={{hue_principal}}
++    kinit_path={{kinit_path_local}}
++  {% endif %}
++
++  # Configuration options for using OAuthBackend (Core) login
++  # ------------------------------------------------------------------------
++  [[oauth]]
++
++  # Configuration options for using OIDCBackend (Core) login for SSO
++  # ------------------------------------------------------------------------
++  [[oidc]]
++
++
++  # Configuration options for Metrics
++  # ------------------------------------------------------------------------
++  [[metrics]]
++
++
++  # Configuration options for Slack
++  # ------------------------------------------------------------------------
++  [[slack]]
++
++
++
++  # Configuration options for the request Tracing
++  # ------------------------------------------------------------------------
++  [[tracing]]
++
++
++  # Configuration options for the Task Server
++  # ------------------------------------------------------------------------
++  [[task_server]]
++
++
++   # Settings for the Google Cloud lib
++   # ------------------------------------------------------------------------
++  [[gc_accounts]]
++    [[[default]]]
++
++  ## Configuration for RAZ service integration
++  # ------------------------------------------------------------------------
++
++
++###########################################################################
++# Settings to configure the snippets available in the Notebook
++###########################################################################
++
++[notebook]
++  [[interpreters]]
++    [[[hive]]]
++      name=Hive
++      interface=hiveserver2
++    [[[impala]]]
++      name=Impala
++      interface=hiveserver2
++    [[[sparksql]]]
++      name=Spark SQL
++      interface=hiveserver2
++    #   interface=livy
++    [[[mysql]]]
++       name = Doris
++       interface=sqlalchemy
++       ## https://docs.sqlalchemy.org/en/latest/dialects/mysql.html
++       options='{"url": "mysql://root:@datanode01:9030/?charset=utf8"}'
++       ## options='{"url": "mysql://${USER}:${PASSWORD}@localhost:3306/hue"}'
++
++
++
++###########################################################################
++# Settings to configure your Analytics Dashboards
++###########################################################################
++
++[dashboard]
++
++  [[engines]]
++
++
++###########################################################################
++# Settings to configure your Hadoop cluster.
++###########################################################################
++
++[hadoop]
++
++  # Configuration for HDFS NameNode
++  # ------------------------------------------------------------------------
++  [[hdfs_clusters]]
++    [[[default]]]
++      fs_defaultfs={{namenode_address}}
++      {% if dfs_ha_enabled %}
++      logical_name=hdfs://{{logical_name}}
++      {% endif %}
++      webhdfs_url={{webhdfs_url}}
++      {% if security_enabled %}
++      security_enabled={{security_enabled}}
++      {% endif %}
++
++      hadoop_conf_dir={{hadoop_conf_dir}}
++
++  # Configuration for YARN (MR2)
++  # ------------------------------------------------------------------------
++  [[yarn_clusters]]
++
++    [[[default]]]
++      resourcemanager_host={{resourcemanager_host1}}
++      resourcemanager_port={{resourcemanager_port}}
++      submit_to=True
++      {% if resourcemanager_ha_enabled %}
++      logical_name={{logical_name}}
++      {% endif %}
++
++      {% if security_enabled %}
++      security_enabled={{security_enabled}}
++      {% endif %}
++
++      resourcemanager_api_url={{resourcemanager_api_url1}}
++
++      proxy_api_url={{proxy_api_url1}}
++
++      history_server_api_url={{history_server_api_url}}
++
++      spark_history_server_url={{spark_history_server_url}}
++    {% if resourcemanager_ha_enabled %}
++    [[[ha]]]
++      logical_name={{logical_name}}
++      submit_to=True
++      resourcemanager_api_url={{resourcemanager_api_url2}}
++      resourcemanager_host={{resourcemanager_host2}}
++      resourcemanager_port={{resourcemanager_port}}
++      proxy_api_url={{proxy_api_url2}}
++      history_server_api_url={{history_server_api_url}}
++      spark_history_server_url={{spark_history_server_url}}
++    {% endif %}
++
++###########################################################################
++# Settings to configure Beeswax with Hive
++###########################################################################
++
++[beeswax]
++  hive_server_host={{hive_server_host}}
++  hive_server_port={{hive_server_port}}
++
++  hive_metastore_host={{hive_metastore_host}}
++
++  hive_metastore_port={{hive_metastore_port}}
++
++  hive_conf_dir=/etc/hive/conf
++  use_sasl=true
++
++  [[ssl]]
++
++
++###########################################################################
++# Settings to configure Metastore
++###########################################################################
++
++[metastore]
++
++###########################################################################
++# Settings to configure Impala
++###########################################################################
++
++[impala]
++  server_host={{impala_host}}
++  {% if security_enabled %}
++  impala_principal={{impala_principal}}
++  {% endif %}
++
++  {% if security_enabled %}
++  impersonation_enabled=true
++  {% endif %}
++
++  {% if security_enabled %}
++  use_sasl=true
++  {% endif %}
++
++
++  [[ssl]]
++
++
++###########################################################################
++# Settings to configure the Spark application.
++###########################################################################
++
++[spark]
++  livy_server_url={{livy_server_url}}
++  {% if security_enabled %}
++  security_enabled=true
++  {% endif %}
++
++  csrf_enabled=true
++
++  sql_server_host={{spark_thrift_host}}
++
++  sql_server_port={{spark_thrift_port}}
++
++  {% if security_enabled %}
++  sql_server_principal={{spark_principal}}
++  {% endif %}
++  use_sasl=true
++
++###########################################################################
++# Settings to configure the Oozie app
++###########################################################################
++
++[oozie]
++
++###########################################################################
++# Settings to configure the Filebrowser app
++###########################################################################
++
++[filebrowser]
++
++###########################################################################
++# Settings to configure Pig
++###########################################################################
++
++[pig]
++
++
++###########################################################################
++# Settings to configure Sqoop2
++###########################################################################
++
++[sqoop]
++
++
++###########################################################################
++# Settings to configure Proxy
++###########################################################################
++
++[proxy]
++
++
++
++###########################################################################
++# Settings to configure HBase Browser
++###########################################################################
++
++[hbase]
++
++  hbase_clusters={{hbase_cluster}}
++  hbase_conf_dir=/etc/hbase/conf
++
++
++
++###########################################################################
++# Settings to configure Solr Search
++###########################################################################
++
++[search]
++
++
++###########################################################################
++# Settings to configure Solr API lib
++###########################################################################
++
++[libsolr]
++
++
++
++###########################################################################
++# Settings to configure the Data Import Wizard
++###########################################################################
++
++[indexer]
++
++
++
++###########################################################################
++# Settings to configure Job Designer
++###########################################################################
++
++[jobsub]
++
++
++###########################################################################
++# Settings to configure Job Browser.
++###########################################################################
++
++[jobbrowser]
++  [[query_store]]
++
++
++###########################################################################
++# Settings to configure Sentry / Security App.
++###########################################################################
++
++[security]
++
++
++###########################################################################
++# Settings to configure the Zookeeper application.
++###########################################################################
++
++[zookeeper]
++
++  [[clusters]]
++
++    [[[default]]]
++      host_ports={{zookeeper_host_port}}
++      {% if security_enabled %}
++      principal_name={{zk_principal}}
++      {% endif %}
++
++
++###########################################################################
++# Settings for the User Admin application
++###########################################################################
++
++[useradmin]
++
++  [[password_policy]]
++
++
++###########################################################################
++# Settings to configure liboozie
++###########################################################################
++
++[liboozie]
++
++
++###########################################################################
++# Settings for the AWS lib
++###########################################################################
++
++[aws]
++
++  [[aws_accounts]]
++
++###########################################################################
++# Settings for the Azure lib
++###########################################################################
++[azure]
++  [[azure_accounts]]
++    [[[default]]]
++
++  [[adls_clusters]]
++    [[[default]]]
++
++  [[abfs_clusters]]
++    [[[default]]]
++
++###########################################################################
++# Settings for the Sentry lib
++###########################################################################
++
++[libsentry]
++
++
++
++###########################################################################
++# Settings to configure the ZooKeeper Lib
++###########################################################################
++
++[libzookeeper]
++
++
++###########################################################################
++# Settings for the RDBMS application
++###########################################################################
++
++[librdbms]
++  [[databases]]
++
++
++###########################################################################
++# Settings to configure SAML
++###########################################################################
++
++[libsaml]
++
++###########################################################################
++# Settings to configure OAuth
++###########################################################################
++
++[liboauth]
++
++
++###########################################################################
++# Settings to configure Kafka
++###########################################################################
++
++[kafka]
++
++  [[kafka]]
++
++
++###########################################################################
++# Settings to configure Metadata
++###########################################################################
++
++[metadata]
++
++  [[manager]]
++
++  [[optimizer]]
++
++
++  [[catalog]]
++
++
++  # Deprecated by [[catalog]]
++  [[navigator]]
++
++  [[prometheus]]
++
++    </value>
++    <value-attributes>
++      <type>content</type>
++      <show-property-name>false</show-property-name>
++    </value-attributes>
++    <on-ambari-upgrade add="true"/>
++  </property>
++</configuration>
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUE/configuration/hue-env.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUE/configuration/hue-env.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUE/configuration/hue-env.xml
+new file mode 100644
+--- /dev/null	(date 1756431674000)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUE/configuration/hue-env.xml	(date 1756431674000)
+@@ -0,0 +1,93 @@
++<?xml version="1.0"?>
++<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
++<!--
++/**
++ * Licensed to the Apache Software Foundation (ASF) under one
++ * or more contributor license agreements.  See the NOTICE file
++ * distributed with this work for additional information
++ * regarding copyright ownership.  The ASF licenses this file
++ * to you under the Apache License, Version 2.0 (the
++ * "License"); you may not use this file except in compliance
++ * with the License.  You may obtain a copy of the License at
++ *
++ *     http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++-->
++<configuration supports_adding_forbidden="true">
++    <property>
++        <name>hue_user</name>
++        <display-name>Hue User</display-name>
++        <value>hue</value>
++        <property-type>USER</property-type>
++        <value-attributes>
++            <type>user</type>
++            <overridable>false</overridable>
++            <user-groups>
++                <property>
++                    <type>cluster-env</type>
++                    <name>user_group</name>
++                </property>
++                <property>
++                    <type>hue-env</type>
++                    <name>hue_group</name>
++                </property>
++            </user-groups>
++        </value-attributes>
++        <on-ambari-upgrade add="true"/>
++    </property>
++    <property>
++        <name>hue_group</name>
++        <display-name>Hue Group</display-name>
++        <value>hue</value>
++        <property-type>GROUP</property-type>
++        <description>hue group</description>
++        <value-attributes>
++            <type>user</type>
++        </value-attributes>
++        <on-ambari-upgrade add="true"/>
++    </property>
++    <property>
++        <name>hue_log_dir</name>
++        <display-name>Hue Log directory</display-name>
++        <value>/var/log/hue</value>
++        <description>Hue Log Dir</description>
++        <value-attributes>
++            <type>directory</type>
++        </value-attributes>
++        <on-ambari-upgrade add="true"/>
++    </property>
++
++   <property>
++    <name>hue_pid_dir</name>
++    <value>/var/run/hue</value>
++    <display-name>Hue Pid Dir</display-name>
++    <description>Dir containing process ID file</description>
++    <value-attributes>
++      <type>directory</type>
++      <overridable>false</overridable>
++      <editable-only-at-install>true</editable-only-at-install>
++    </value-attributes>
++    <on-ambari-upgrade add="true"/>
++  </property>
++
++ <property>
++    <name>http_host</name>
++    <value>{{http_host}}</value>
++    <display-name>HTTP Host</display-name>
++    <description>Webserver listens on this address</description>
++  </property>
++
++  <property>
++    <name>http_port</name>
++    <value>8888</value>
++    <display-name>HTTP Post</display-name>
++    <description>Webserver listens on this port</description>
++  </property>
++
++</configuration>
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUE/role_command_order.json
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUE/role_command_order.json b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUE/role_command_order.json
+new file mode 100644
+--- /dev/null	(date 1756431674000)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUE/role_command_order.json	(date 1756431674000)
+@@ -0,0 +1,6 @@
++{
++  "general_deps" : {
++    "_comment" : "dependencies for HUE",
++    "HUE_SERVER-START" : ["ZOOKEEPER_SERVER-START","NAMENODE-START","RESOURCEMANAGER-START","HIVE_METASTORE-START","HIVE_SERVER-START","HBASE_MASTER-START","IMPALA_DAEMON-START","HTTPFS_GATEWAY-START"]
++  }
++}
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUE/service_advisor.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUE/service_advisor.py b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUE/service_advisor.py
+new file mode 100644
+--- /dev/null	(date 1756431674000)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUE/service_advisor.py	(date 1756431674000)
+@@ -0,0 +1,197 @@
++#!/usr/bin/env ambari-python-wrap
++"""
++Licensed to the Apache Software Foundation (ASF) under one
++or more contributor license agreements.  See the NOTICE file
++distributed with this work for additional information
++regarding copyright ownership.  The ASF licenses this file
++to you under the Apache License, Version 2.0 (the
++"License"); you may not use this file except in compliance
++with the License.  You may obtain a copy of the License at
++
++    http://www.apache.org/licenses/LICENSE-2.0
++
++Unless required by applicable law or agreed to in writing, software
++distributed under the License is distributed on an "AS IS" BASIS,
++WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++See the License for the specific language governing permissions and
++limitations under the License.
++"""
++
++# Python imports
++import importlib.util
++import os
++import traceback
++import re
++import socket
++import fnmatch
++
++
++from resource_management.core.logger import Logger
++
++SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
++STACKS_DIR = os.path.join(SCRIPT_DIR, '../../../../../stacks/')
++PARENT_FILE = os.path.join(STACKS_DIR, 'service_advisor.py')
++
++try:
++  if "BASE_SERVICE_ADVISOR" in os.environ:
++    PARENT_FILE = os.environ["BASE_SERVICE_ADVISOR"]
++  with open(PARENT_FILE, 'rb') as fp:
++    spec = importlib.util.spec_from_file_location('service_advisor', PARENT_FILE)
++    service_advisor = importlib.util.module_from_spec(spec)
++    spec.loader.exec_module(service_advisor)
++except Exception as e:
++  traceback.print_exc()
++  print("Failed to load parent")
++
++
++class HueServiceAdvisor(service_advisor.ServiceAdvisor):
++
++  def __init__(self, *args, **kwargs):
++    self.as_super = super(HueServiceAdvisor, self)
++    self.as_super.__init__(*args, **kwargs)
++
++    # Always call these methods
++    self.modifyMastersWithMultipleInstances()
++    self.modifyCardinalitiesDict()
++    self.modifyHeapSizeProperties()
++    self.modifyNotValuableComponents()
++    self.modifyComponentsNotPreferableOnServer()
++    self.modifyComponentLayoutSchemes()
++
++  def modifyMastersWithMultipleInstances(self):
++    """
++    Modify the set of masters with multiple instances.
++    Must be overriden in child class.
++    """
++    # Nothing to do
++    pass
++
++  def modifyCardinalitiesDict(self):
++    """
++    Modify the dictionary of cardinalities.
++    Must be overriden in child class.
++    """
++    # Nothing to do
++    pass
++
++  def modifyHeapSizeProperties(self):
++    """
++    Modify the dictionary of heap size properties.
++    Must be overriden in child class.
++    """
++    pass
++
++  def modifyNotValuableComponents(self):
++    """
++    Modify the set of components whose host assignment is based on other services.
++    Must be overriden in child class.
++    """
++    # Nothing to do
++    pass
++
++  def modifyComponentsNotPreferableOnServer(self):
++    """
++    Modify the set of components that are not preferable on the server.
++    Must be overriden in child class.
++    """
++    # Nothing to do
++    pass
++
++  def modifyComponentLayoutSchemes(self):
++    """
++    Modify layout scheme dictionaries for components.
++    The scheme dictionary basically maps the number of hosts to
++    host index where component should exist.
++    Must be overriden in child class.
++    """
++
++   # Nothing to do
++    pass
++
++
++  def getServiceComponentLayoutValidations(self, services, hosts):
++    """
++    Get a list of errors.
++    Must be overriden in child class.
++    """
++
++    return self.getServiceComponentCardinalityValidations(services, hosts, "HUE")
++
++  def getServiceConfigurationRecommendations(self, configurations, clusterData, services, hosts):
++    """
++    Entry point.
++    Must be overriden in child class.
++    """
++    # Logger.info("Class: %s, Method: %s. Recommending Service Configurations." %
++    #            (self.__class__.__name__, inspect.stack()[0][3]))
++
++    recommender = HueRecommender()
++    recommender.recommendHueConfigurationsFromHDP33(configurations, clusterData, services, hosts)
++
++
++  # def getServiceConfigurationRecommendationsForSSO(self, configurations, clusterData, services, hosts):
++  #   """
++  #   Entry point.
++  #   Must be overriden in child class.
++  #   """
++  #   recommender = HueRecommender()
++  #   recommender.recommendConfigurationsForSSO(configurations, clusterData, services, hosts)
++
++  def getServiceConfigurationsValidationItems(self, configurations, recommendedDefaults, services, hosts):
++    """
++    Entry point.
++    Validate configurations for the service. Return a list of errors.
++    The code for this function should be the same for each Service Advisor.
++    """
++    # Logger.info("Class: %s, Method: %s. Validating Configurations." %
++    #            (self.__class__.__name__, inspect.stack()[0][3]))
++
++    return []
++
++  @staticmethod
++  def isKerberosEnabled(services, configurations):
++    """
++    Determines if security is enabled by testing the value of core-site/hadoop.security.authentication enabled.
++    If the property exists and is equal to "kerberos", then is it enabled; otherwise is it assumed to be
++    disabled.
++
++    :type services: dict
++    :param services: the dictionary containing the existing configuration values
++    :type configurations: dict
++    :param configurations: the dictionary containing the updated configuration values
++    :rtype: bool
++    :return: True or False
++    """
++    if configurations and "core-site" in configurations and \
++            "hadoop.security.authentication" in configurations["core-site"]["properties"]:
++      return configurations["core-site"]["properties"]["hadoop.security.authentication"].lower() == "kerberos"
++    elif services and "core-site" in services["configurations"] and \
++            "hadoop.security.authentication" in services["configurations"]["core-site"]["properties"]:
++      return services["configurations"]["core-site"]["properties"]["hadoop.security.authentication"].lower() == "kerberos"
++    else:
++      return False
++
++
++class HueRecommender(service_advisor.ServiceAdvisor):
++  """
++  Hue Recommender suggests properties when adding the service for the first time or modifying configs via the UI.
++  """
++
++  def __init__(self, *args, **kwargs):
++    self.as_super = super(HueRecommender, self)
++    self.as_super.__init__(*args, **kwargs)
++
++  def recommendHueConfigurationsFromHDP33(self, configurations, clusterData, services, hosts):
++    """
++    Recommend configurations for this service based on HDP 3.3.
++    """
++
++    if configurations and "httpfs-site" in configurations:
++      putHttpsSiteProperty = self.putProperty(configurations, "httpfs-site", services)
++      putHttpssitePropertyAttribute = self.putPropertyAttribute(configurations, "httpfs-site")
++
++      putHttpsSiteProperty("httpfs.proxyuser.hue.groups", "*")
++      putHttpsSiteProperty("httpfs.proxyuser.hue.hosts", "*")
++
++
++
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUE/kerberos.json
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUE/kerberos.json b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUE/kerberos.json
+new file mode 100644
+--- /dev/null	(date 1756431674000)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/HUE/kerberos.json	(date 1756431674000)
+@@ -0,0 +1,40 @@
++{
++  "services": [
++    {
++      "name": "HUE",
++      "identities": [
++        {
++          "name": "/spnego"
++        }
++      ],
++      "components": [
++        {
++          "name": "HUE_SERVER",
++          "identities": [
++            {
++              "name": "hue_kerberos",
++              "principal": {
++                "value": "hue/_HOST@${realm}",
++                "type": "service",
++                "configuration": "hue-desktop-ini/kerberos_hue_principal",
++                "local_username": "${hue-env/hue_user}"
++              },
++              "keytab": {
++                "file": "${keytab_dir}/hue.service.keytab",
++                "owner": {
++                  "name": "${hue-env/hue_user}",
++                  "access": "r"
++                },
++                "group": {
++                  "name": "${cluster-env/user_group}",
++                  "access": "r"
++                },
++                "configuration": "hue-desktop-ini/kerberos_hue_keytab"
++              }
++            }
++          ]
++        }
++      ]
++    }
++  ]
++}

@@ -24,6 +24,9 @@ patch_files=(
   "/scripts/build/ambari3/common/patch2_2_1/patch9-KERBEROS-RANGER-DROIS-SOLR-ZK.diff"
   "/scripts/build/ambari3/common/patch2_2_1/patch10-KERBEROS-IMPALA-HIVE-HDFS.diff"
   "/scripts/build/ambari3/common/patch2_2_1/patch11-KERBEROS-HA-IM-RG-OPTI.diff"
+   # 2.2.2
+  "/scripts/build/ambari3/common/patch2_2_2/patch0-ALLUXIO-HUE-SUP.diff"
+  "/scripts/build/ambari3/common/patch2_2_2/patch1-WEBCHECK-UI-FIXED.diff"
 )
 
 
