@@ -49,6 +49,7 @@ REPOS=(
   "apache-snapshots|https://repository.apache.org/content/repositories/snapshots/"
   "cdh-snapshots|https://repository.cloudera.com/content/repositories/snapshots"
   "aliyun-jindodata|https://jindodata-binary.oss-cn-shanghai.aliyuncs.com/mvn-repo/"
+  "shibboleth-releases|https://build.shibboleth.net/maven/releases/"
 )
 
 # Function to check if a repository exists
