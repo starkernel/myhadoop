@@ -28,6 +28,7 @@ patch_files=(
   "/scripts/build/ambari3/common/patch2_2_2/patch0-ALLUXIO-HUE-SUP.diff"
   "/scripts/build/ambari3/common/patch2_2_2/patch1-WEBCHECK-UI-FIXED.diff"
   "/scripts/build/ambari3/common/patch2_2_2/patch2-KNOX-ARCH-OPTIMIZED.diff"
+  "/scripts/build/ambari3/common/patch2_2_2/patch3-TRINO-KERBEROS-STATUS-FIXED.diff"
 )
 
 

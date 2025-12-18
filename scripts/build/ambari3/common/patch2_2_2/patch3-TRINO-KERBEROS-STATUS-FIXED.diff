@@ -1,0 +1,53 @@
+Subject: [PATCH] fixed：修复默认的错误
+---
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TRINO/configuration/config-properties.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TRINO/configuration/config-properties.xml b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TRINO/configuration/config-properties.xml
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TRINO/configuration/config-properties.xml	(revision 8a6047cde2cd8665ae335fbb7352366099e1b892)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TRINO/configuration/config-properties.xml	(date 1765976843644)
+@@ -281,7 +281,7 @@
+ 
+     <property>
+         <name>web-ui.authentication.type</name>
+-        <value>NONE</value>
++        <value>FORM</value>
+         <description>
+             Web UI 的认证方式（用于浏览器访问 Trino Web UI）。
+             常用可选值：FORM（表单登录）、FIXED（固定用户/免登录）、CERTIFICATE（证书）、KERBEROS（单点登录）、JWT、OAUTH2。
+Index: ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TRINO/package/templates/config.properties.j2
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TRINO/package/templates/config.properties.j2 b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TRINO/package/templates/config.properties.j2
+--- a/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TRINO/package/templates/config.properties.j2	(revision 8a6047cde2cd8665ae335fbb7352366099e1b892)
++++ b/ambari-server/src/main/resources/stacks/BIGTOP/3.2.0/services/TRINO/package/templates/config.properties.j2	(date 1765977872211)
+@@ -45,6 +45,9 @@
+ 
+ # Optional: fixed hostname for principal (if not using _HOST)
+ {# http-server.authentication.krb5.principal-hostname={{ config_properties['http-server.authentication.krb5.principal-hostname'] }} #}
++
++http-server.process-forwarded={{ config_properties['http-server.process-forwarded'] }}
++
+ {% endif %}
+ 
+ {% if 'PASSWORD' in config_properties['http-server.authentication.type'] %}
+@@ -87,6 +90,11 @@
+ plugin.dir={{ config_properties['plugin.dir'] }}
+ 
+ 
+-http-server.process-forwarded={{ config_properties['http-server.process-forwarded'] }}
+ 
+-web-ui.authentication.type={{ config_properties['web-ui.authentication.type'] }}
+\ No newline at end of file
++
++{% if config_properties['coordinator'] == 'true' %}
++  {% if config_properties['web-ui.authentication.type'] is defined
++        and config_properties['web-ui.authentication.type']|upper != 'NONE' %}
++web-ui.authentication.type={{ config_properties['web-ui.authentication.type']|upper }}
++  {% endif %}
++{% endif %}
+\ No newline at end of file
