@@ -29,6 +29,8 @@ patch_files=(
   "/scripts/build/ambari3/common/patch2_2_2/patch1-WEBCHECK-UI-FIXED.diff"
   "/scripts/build/ambari3/common/patch2_2_2/patch2-KNOX-ARCH-OPTIMIZED.diff"
   "/scripts/build/ambari3/common/patch2_2_2/patch3-TRINO-KERBEROS-STATUS-FIXED.diff"
+  "/scripts/build/ambari3/common/patch2_2_2/patch4-RANGER-PIPLINE-FIXED.diff"
+  "/scripts/build/ambari3/common/patch2_2_2/patch5-KNOX-HIVE-SUP-FIXED.diff"
 )
 
 

@@ -1,0 +1,119 @@
+Subject: [PATCH] fixed： 修复ranger admin 启动bug
+---
+Index: ambari-common/src/main/python/resource_management/libraries/functions/solr_cloud_util_v2.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-common/src/main/python/resource_management/libraries/functions/solr_cloud_util_v2.py b/ambari-common/src/main/python/resource_management/libraries/functions/solr_cloud_util_v2.py
+--- a/ambari-common/src/main/python/resource_management/libraries/functions/solr_cloud_util_v2.py	(revision 77ec0a88d5012b51a317a6fde4d2fdc0aa92437d)
++++ b/ambari-common/src/main/python/resource_management/libraries/functions/solr_cloud_util_v2.py	(revision 4803fff3faaedb9f477e7d93627f30357051517c)
+@@ -1,8 +1,12 @@
+ #!/usr/bin/env python3
+ 
+-from resource_management.core import shell
++import os
++import shlex
++import uuid
++
+ from resource_management.core.logger import Logger
+ from resource_management.core.exceptions import Fail
++from resource_management.core.resources.system import Execute
+ 
+ __all__ = [
+     "check_znode",
+@@ -10,10 +14,10 @@
+ 
+ 
+ def check_znode(
+-    zookeeper_quorum,
+-    solr_znode,
+-    java64_home=None,
+-    zkcli_path="/usr/bigtop/current/zookeeper-client/bin/zkCli.sh",
++        zookeeper_quorum,
++        solr_znode,
++        java64_home=None,
++        zkcli_path="/usr/bigtop/current/zookeeper-client/bin/zkCli.sh",
+ ):
+     """
+     轻量版 check_znode：
+@@ -27,33 +31,66 @@
+     if java64_home:
+         env["JAVA_HOME"] = java64_home
+ 
+-    cmd = 'echo "stat {znode}" | {zkcli} -server {zk_quorum}'.format(
+-        znode=solr_znode,
+-        zkcli=zkcli_path,
+-        zk_quorum=zookeeper_quorum,
++    # NOTE:
++    # - Ubuntu 上用 shell.call + 管道有时会卡住（zkCli 进入交互模式不退出）
++    # - 这里最小改造为使用 Execute，并且给 zkCli 额外输入 quit，确保退出
++    # - 同时把输出重定向到临时文件，方便后续解析判断
++    out_file = "/tmp/zkcli_stat_{0}.out".format(uuid.uuid4().hex)
++
++    # 仍然保持“echo stat ... | zkCli.sh ...”这个思路，但用 printf 追加 quit，避免卡住
++    inner = "printf 'stat {znode}\\nquit\\n' | {zkcli} -server {zk_quorum}".format(
++        znode=shlex.quote(solr_znode),
++        zkcli=shlex.quote(zkcli_path),
++        zk_quorum=shlex.quote(zookeeper_quorum),
++    )
++
++    # 合并 stderr，且加一个外层超时兜底（有网络/认证问题时防止无限等待）
++    cmd = "/usr/bin/timeout 15s bash -lc {inner} > {out} 2>&1".format(
++        inner=shlex.quote(inner + " 2>&1"),
++        out=shlex.quote(out_file),
+     )
+ 
+     Logger.info("Checking znode with command: {0}".format(cmd))
+ 
+-    code, out = shell.call(cmd, env=env)
+-
+-    Logger.info("zkCli.sh returned code={0}, output:\n{1}".format(code, out))
+-
+-    # 1) zkCli 本身执行失败（连不上、命令错误等）
+-    if code != 0:
++    try:
++        # Execute 失败会直接抛异常（非 0 返回码/超时等）
++        Execute(cmd, environment=env, logoutput=True, timeout=20)
++    except Exception as e:
++        # 1) zkCli 本身执行失败（连不上、命令错误等）
++        #    Execute 会抛异常，这里尽量把输出带上，方便定位
++        out = ""
++        if os.path.exists(out_file):
++            try:
++                with open(out_file, "r", encoding="utf-8", errors="ignore") as f:
++                    out = f.read()
++            except Exception:
++                out = ""
+         raise Fail(
+             "Failed to access ZooKeeper [{zk}] when checking znode [{znode}]. "
+-            "Return code={code}, output={out}".format(
++            "Error={err}, output={out}".format(
+                 zk=zookeeper_quorum,
+                 znode=solr_znode,
+-                code=code,
++                err=str(e),
+                 out=out,
+             )
+         )
+ 
++    # 读取输出
++    out = ""
++    try:
++        with open(out_file, "r", encoding="utf-8", errors="ignore") as f:
++            out = f.read()
++    finally:
++        try:
++            os.remove(out_file)
++        except Exception:
++            pass
++
++    Logger.info("zkCli.sh output:\n{0}".format(out))
++
+     # 2) 能连上 ZK，但是节点不存在
+     #    一般会包含 "Node does not exist" 或者没有 stat 信息(cZxid)
+-    if "Node does not exist" in out or "NO_NODE" in out:
++    if "Node does not exist" in out or "NO_NODE" in out or "KeeperErrorCode = NoNode" in out:
+         raise Fail(
+             "ZNode [{znode}] does NOT exist in ZooKeeper [{zk}]".format(
+                 znode=solr_znode, zk=zookeeper_quorum
