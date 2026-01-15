@@ -18,89 +18,152 @@
 
 ## 最新公告
 
-## 🚀 ambari-env 2.2.1 发布｜Kerberos 策略全面优化
+### 🚀 ambari-env 2.2.2 正式发布
 
-大家好，我是 **小饕**，也是 **TTBigdata 团队的创始人**。
-今天👉 **`ambari-env 2.2.1` 小版本正式发布**
+**一次迟到，但不敷衍的版本升级**
 
-这次更新主要面向 **需要在 Ambari 环境中启用 Kerberos 的同学**，尤其是从 2.x 升级到 3.x 后遇到各种莫名问题的用户。
+大家好，我是 **小饕**。
 
-## 一、本次更新了啥？
+先向大家正式道个歉 🙇‍♂️
+**ambari-env 2.2.2** 原计划在 **2025 年 12 月底发布**，但最终还是选择了延期。
 
-最近有小伙伴反馈，在 **Ambari 2.8.0** 中 Kerberos 可以正常开启，但 **升级到 Ambari 3.0.0 后却无法启用**。
+延期不是因为“没做完”，而是因为：
 
-排查后发现：
-由于历史版本迁移中存在疏漏，与 **Kerberos 认证相关的部分逻辑从 2.x 向 3.x 的迁移并未完整适配**，
-导致 **2.2.0 及之前的 ambari-env 版本中** 存在以下影响：
+> **我不太想交付一个“能跑，但不稳”的版本。**
 
-* 开启 Kerberos 时失败
-* 不同组件的 kinit 无法兑换凭证
-* 组件 Start/Stop 后拓扑顺序混乱
-* 无法正常添加或移除组件
-* zkMigration 在 JDK 判定过程中报错
-
-这些问题在生产环境中都非常痛苦，因此我们在 2.2.1 中进行了集中修复。
+在反复验证、回滚、重构之后，今天，这个版本终于可以和大家正式见面了。
 
 
 
-## 二、本次更新的核心优化内容
+### 📦 本次正式发布的版本
 
-### 1. 完整适配 Ranger + Kerberos 的双认证场景
+![image-20260112215819076](https://img.janettr.com/825d479c3326c72bb6c0be19b8654a4e-d5fbcc.png)
 
-很多集群都要求 Ranger 与 Kerberos 同时启用。
-旧版本下两者会互相干扰，2.2.1 已对相关流程进行了修复和补全。
+![image-20260112215850671](https://img.janettr.com/bd3d32f55f5edcad3356a4c56fa8d3d6-c39e24.png)
 
-### 2. 修复 Ambari 3.0.0 下多处历史问题
+![image-20260112215910114](https://img.janettr.com/ac7a79a0f67f9227badf4b01028fe918-2ca146.png)
 
-包括但不限于：
+本次 **ambari-env 2.2.2**，已在以下环境中完成完整验证并正式发布：
 
-* 启用 Kerberos 后组件无法正常 Add/Delete
-* 部分组件回滚、启动时拓扑顺序错乱
-* 部分服务的 kinit 无法正确兑换凭证
-* zkMigration 中 JDK 判断异常导致初始化失败
-* 极少数组件因 Kerberos 模板缺失而报错
+* **Rocky Linux 8.10**
+* **Kylin v10**
+* **Ubuntu 22.04**
 
-同时补充了各类 Kerberos 模板、流程中的缺失字段与兼容逻辑。
-
-![image-20251128152823108](https://img.janettr.com/872211a09bfff67d59a782a219e05a4b-6f2ed5.png)
-
-### 3. 更完善的组件级 Kerberos 适配
-
-针对不同组件的 krb5 配置、principal、keytab 使用方式进行校准，
-确保在 2.2.1 版本中可以顺利与上游 Ambari 3.x 匹配。
-
-更多变更内容可查看更新页：
-👉 [https://doc.janettr.com/update](https://doc.janettr.com/update)
-
-## 三、成功启用 Kerberos 的界面展示
-
-以下是升级到 2.2.1 后成功启用 Kerberos 的示例环境（测试环境组件未全部安装，仅用于展示效果）：
-
-![image-20251128153904571](https://img.janettr.com/d1fc4fa649ba8d327a3878abe3e4e031-6e1394.png)
+相较上一版本，我们不仅修复问题，更**新增了 3 个关键组件**，让整体能力真正补齐。
 
 
 
-## 四、配套教程：如何正确开启/关闭 Kerberos？
+### ✨ 新增组件说明
 
-网上关于 **Ambari 开启 Kerberos 的实战资料很少**，很多同学都是踩坑之后才知道顺序的重要性。
+本次新增并正式支持的组件包括：
 
-因此我们同步整理了：
+* **Alluxio**
+* **Knox**
+* **Hue**
 
-* 开启流程（含 UI + 实际流程解读）
-* 关闭流程
-* 关键参数说明
-* 常见错误的排查方式
-* 各组件的 Kerberos 适配说明
+这三个组件并不是“为了凑数”，而是围绕一个明确目标：
 
-教程地址如下：
-👉 [https://doc.janettr.com/install/kerberos/](https://doc.janettr.com/install/kerberos/)
+> **在开启 Kerberos 的前提下，打通 Web UI 访问链路，让平台形成真正闭环。**
 
-![image-20251128154054661](https://img.janettr.com/8c415a6709ade9dae61997635b6cacb7-b80de6.png)
+在 Kerberos 启用后，Knox 现在已经可以稳定代理各类组件 Web UI，
+**从访问、鉴权到可视化，终于完整走通了。**
 
 
 
+### 📋 具体更新清单
 
-------
+#### 🆕 新增（Features）
+
+* `[feat]` 新增并适配 **Alluxio 2.9.4** 组件
+* `[feat]` 新增并适配 **Hue 4.11.0** 组件
+* `[feat]` 新增并适配 **Knox 2.1.0** 组件
+* `[feat]` 优化 **Trino** 默认配置，并对 Web UI 主题样式进行定制化调整
+* `[feat]` 深度改造 **Knox**
+
+    * 在 `home/default` 中新增对 **Trino 474** 版本的支持
+    * 补充 Trino 专属 Icon，提升页面识别度
+
+
+#### ⚙️ 优化（Optimized）
+
+* `[optimized]` 优化 **Hive 在 Kerberos + Ranger 强审计** 场景下
+  `managed` 表必须由 `hive` 用户操作的问题，现已支持 **自定义用户**
+* `[optimized]` 调整 **Hue 默认用户所属组策略**
+* `[optimized]` 兼容 **HBase 未安装** 场景，修复 Knox 安装阶段报错
+* `[optimized]` 优化 **Knox 默认转发规则**，减少冗余配置
+* `[optimized]` 丰富 **Knox Web 页面功能**
+
+    * 登出按钮
+    * 默认展开拓扑
+* `[optimized]` 优化 **ResourceManager HA** 场景下 Knox 代理重定向空白问题
+* `[optimized]` 修复 **Ranger** 环境下 **Impala** 用户默认缺失问题
+* `[optimized]` 安装阶段组件描述统一中文化并重新排序
+* `[optimized]` 优化 `nn_max_heapsize` 内存评估精度
+* `[optimized]` 新增 **Livy 自检等待时间** 配置项
+* `[optimized]` 调整 **Livy 默认 idle 时间** 为 **10 分钟**
+* `[optimized]` 优化多组件 **启停拓扑逻辑**
+* `[optimized]` 安装 **Hue** 时自动补齐 Hadoop Proxy 配置
+
+
+#### 🐞 修复（Fix）
+
+* `[fix]` 修复 **Alluxio** 在 Ubuntu 系统下安装失败问题
+* `[fix]` 修复 **Kerberos 关闭 + Hadoop HA** 场景下 `service_check` 异常
+* `[fix]` 修复 **Ranger Admin 校验 Solr** 在 Ubuntu 下的管道阻塞问题
+* `[fix]` 修复 **Web UI 检查** 在 Python 3 环境下的兼容性问题
+* `[fix]` 修复 Kerberos 场景下 **Trino HTTPS / Web UI** 访问异常
+* `[fix]` 调整 **Livy Session** 默认存活时间为 **600000 ms**
+* `[fix]` 修复 **Spark Executor / History UI** 日志经 Knox 访问异常
+* `[fix]` 修复 **Standby NameNode** 场景下文件系统访问失效问题
+* `[fix]` 修复 **ResourceManager HA** 场景下 Knox 转发日志异常
+
+
+#### 🗑️ 移除（Delete）
+
+* `[delete]` 暂时移除 **trino-plugin** 支持
+* `[delete]` 尝试性移除 **infra Solr** 组件
+
+
+### 🧩 安装体验优化（新手更友好）
+
+![8fe0965499ee9e992dd57c843a14d7de](https://img.janettr.com/e3788ea147adca8a977b8f72eb8fbee5-3c41ad.jpg)
+
+除了功能本身，这一版在**安装体验**上也做了明显优化：
+
+* 安装流程更清晰
+* 校验步骤更集中
+* 报错提示更可读
+* 新手也能顺着流程完成部署
+
+### 🔐 Knox 能力补充与扩展
+
+![image-20251231134637841](https://img.janettr.com/bed899ec1a0fa9189cd6d0e7433b6a99-6445ff.png)
+
+Knox 在本版本中，不再只是“能用”，而是：
+
+* 能代理更多组件
+* 能适配 Kerberos
+* 能处理 HA 场景
+* 能作为统一 Web 入口长期使用
+
+
+### 🛠️ 安装流程补充说明
+
+![image-20251231134728739](https://img.janettr.com/ab1e401b863a968eedf198aa2291ebc9-338cf9.png)
+
+![image-20251231134826597](https://img.janettr.com/ca00e6437bb0738d11d9418795ec844b-cb566e.png)
+
+针对部署过程中**最容易踩坑的节点**，我们补充了完整说明，避免“装到一半才发现问题”。
+
+
+### 📚 常见报错集中维护中
+
+![image-20251231135020087](https://img.janettr.com/b772d4a706156db329b06395b9ce3386-9bf4c7.png)
+
+目前常见报错已进入集中整理阶段，后续会持续补充文档与解决方案。
+
+
+
 
 ## 📚 项目简介
 
