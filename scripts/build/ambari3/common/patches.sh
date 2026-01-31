@@ -33,6 +33,7 @@ patch_files=(
   "/scripts/build/ambari3/common/patch2_2_2/patch5-KNOX-HIVE-SUP-FIXED.diff"
    # 2.2.3
   "/scripts/build/ambari3/common/patch2_2_3/patch0-FIRST-OPTI.diff"
+  "/scripts/build/ambari3/common/patch2_2_3/patch1-KNOX-OPTI-SUP.diff"
 
 )
 
