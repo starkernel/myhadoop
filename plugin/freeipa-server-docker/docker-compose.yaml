@@ -1,0 +1,46 @@
+version: "3.8"
+services:
+  freeipa:
+    image: ${FREEIPA_IMAGE}
+    hostname: ${IPA_FQDN}
+    container_name: ${CONTAINER_NAME}
+    network_mode: host
+
+    extra_hosts:
+      - "${IPA_FQDN}:${IPA_HOST_IP}"
+
+    volumes:
+      - ${CGROUP_MOUNT}
+      - ${IPA_DATA_DIR}:/data
+
+    tmpfs:
+      - /run
+      - /var/cache
+      - /tmp
+
+    environment:
+      - PASSWORD=${IPA_PASSWORD}
+      - IPA_SERVER_IP=${IPA_SERVER_IP}
+      - IPA_SERVER_HOSTNAME=${IPA_FQDN}
+
+    dns:
+      - ${IPA_DNS}
+
+    command:
+      - ipa-server-install
+      - --unattended
+      - --realm=${IPA_REALM}
+      - --domain=${IPA_DOMAIN}
+      - --hostname=${IPA_FQDN}
+      - --setup-dns
+      - --ds-password=${IPA_DS_PASSWORD}
+      - --admin-password=${IPA_ADMIN_PASSWORD}
+      - --auto-forwarders
+
+    healthcheck:
+      test: ["CMD", "bash", "-lc", "${HEALTHCHECK_CMD}"]
+      interval: ${HEALTHCHECK_INTERVAL}
+      timeout: ${HEALTHCHECK_TIMEOUT}
+      retries: ${HEALTHCHECK_RETRIES}
+
+    restart: unless-stopped
