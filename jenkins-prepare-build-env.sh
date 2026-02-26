@@ -24,27 +24,32 @@ echo "✓ centos1 容器运行中"
 # 等待容器初始化完成（检查 yum 锁）
 echo ""
 echo "→ 等待容器初始化完成..."
-MAX_WAIT=300  # 最多等待 5 分钟
+MAX_WAIT=600  # 最多等待 10 分钟（下载 JDK 等需要时间）
 WAITED=0
 while [ $WAITED -lt $MAX_WAIT ]; do
-    # 检查是否有 yum 进程在运行
-    if docker exec centos1 bash -c "! pgrep -x yum > /dev/null 2>&1"; then
-        echo "✓ 容器初始化完成"
-        break
+    # 检查是否有 yum/curl/wget 进程在运行
+    if docker exec centos1 bash -c "! pgrep -x yum > /dev/null 2>&1 && ! pgrep -x curl > /dev/null 2>&1 && ! pgrep -x wget > /dev/null 2>&1"; then
+        # 检查 SSH 服务是否启动（表示初始化完成）
+        if docker exec centos1 pgrep -x sshd > /dev/null 2>&1; then
+            echo "✓ 容器初始化完成（SSH 服务已启动）"
+            break
+        fi
     fi
     
-    if [ $((WAITED % 10)) -eq 0 ]; then
+    if [ $((WAITED % 30)) -eq 0 ]; then
         echo "等待容器初始化... 已等待 ${WAITED}s"
+        # 显示当前进度
+        docker logs centos1 2>&1 | grep "##.*end" | tail -1 | sed 's/.*##/  最近完成: /'
     fi
     
-    sleep 2
-    WAITED=$((WAITED + 2))
+    sleep 5
+    WAITED=$((WAITED + 5))
 done
 
 if [ $WAITED -ge $MAX_WAIT ]; then
     echo "✗ 容器初始化超时"
     echo "当前运行的进程："
-    docker exec centos1 ps aux | grep yum
+    docker exec centos1 ps aux | grep -E "(yum|curl|wget)" | grep -v grep
     exit 1
 fi
 
