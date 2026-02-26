@@ -12,7 +12,7 @@ services:
     environment:
       - NEXUS_SECURITY_RANDOMPASSWORD=false
       - NEXUS_ADMIN_PASSWORD=admin123
-      - INSTALL4J_ADD_VM_PARAMS=-Xms4g -Xmx8g
+      - INSTALL4J_ADD_VM_PARAMS=-Xms4g -Xmx8g -Djava.util.prefs.systemRoot=/nexus-data/.java/.systemPrefs -Djava.util.prefs.userRoot=/nexus-data/.java/.userPrefs
     restart: always
     entrypoint: /scripts/system/before/nexus/add_proxy.sh
     healthcheck:
