@@ -72,7 +72,9 @@ cd $BASE_DIR/$PYTHON_SRC_DIR
 
 if ! command -v python3.7 &> /dev/null; then
     echo "Installing Python $PYTHON_VERSION..."
-    ./configure --enable-optimizations
+    # 不使用 --enable-optimizations 以加快编译速度
+    # PGO 优化会运行完整测试套件，耗时 30-60 分钟
+    ./configure --prefix=/usr/local
     make -j$(nproc)
     sudo make altinstall
 else
