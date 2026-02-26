@@ -60,7 +60,7 @@ enabled=1
 gpgcheck=0
 [yum-public-mariadb]
 name=YUM Public Repository (CentOS 7 MariaDB)
-baseurl=http://$1:8081/repository/yum-public/yum/10.11.10/centos7-amd64/
+baseurl=http://$1:8081/repository/yum-aliyun-mariadb/
 enabled=1
 gpgcheck=0
 EOF
@@ -104,7 +104,7 @@ EOF
 
 # ========== 各系统初始化操作函数 ==========
 init_centos7() {
-  rm -rf /etc/yum.repos.d/CentOS* /etc/yum.repos.d/epel* /etc/yum.repos.d/ambari-bigtop*
+  rm -rf /etc/yum.repos.d/CentOS* /etc/yum.repos.d/epel* /etc/yum.repos.d/ambari-bigtop* /etc/yum.repos.d/docker-ce*
   yum clean all
   echo "执行 CentOS 7 初始化脚本"
   yum -y install centos-release-scl centos-release-scl-rh openssh-server passwd sudo net-tools unzip wget git || true
@@ -183,7 +183,18 @@ init_rocky8() {
 
 # ========== 主流程 ==========
 rm_init_repos() {
-  NEXUS_IP=$(cat /scripts/system/before/nexus/.lock)
+  # 从 Docker Compose 网络中获取 Nexus IP
+  # 方法1: 使用容器名称（推荐，因为在同一个 Docker 网络中）
+  NEXUS_IP="nexus"
+  
+  # 方法2: 如果需要实际 IP，可以通过 getent 或 ping 获取
+  # NEXUS_IP=$(getent hosts nexus | awk '{ print $1 }')
+  
+  # 方法3: 兼容旧的 .lock 文件方式
+  if [ -f "/scripts/system/before/nexus/.lock" ]; then
+    NEXUS_IP=$(cat /scripts/system/before/nexus/.lock)
+  fi
+  
   echo "读取nexus 服务器地址：$NEXUS_IP"
 
   OS_ID=$(grep -oP '^ID="?(\w+)"?' /etc/os-release | cut -d= -f2 | tr -d '"')

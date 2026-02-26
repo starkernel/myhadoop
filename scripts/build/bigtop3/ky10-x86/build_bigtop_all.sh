@@ -22,7 +22,14 @@ set -e
 
 echo "############## ONE_KEY_BUILD for ambari 3.0 start #############"
 
-export NEXUS_URL=$(cat /scripts/system/before/nexus/.lock)
+# 从 Docker Compose 网络中获取 Nexus IP
+export NEXUS_URL="nexus"
+
+# 兼容旧的 .lock 文件方式
+if [ -f "/scripts/system/before/nexus/.lock" ]; then
+    export NEXUS_URL=$(cat /scripts/system/before/nexus/.lock)
+fi
+
 export NEXUS_USERNAME="admin"
 export NEXUS_PASSWORD="admin123"
 echo $NEXUS_URL

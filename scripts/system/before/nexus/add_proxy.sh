@@ -19,9 +19,7 @@
 set -ex
 echo "############## ADD NEXUS_PROXY start #############"
 
-LOCK_FILE="/scripts/system/before/nexus/.lock"
 NEXUS_LOG="/nexus-data/log/nexus.log"
-rm -rf "$LOCK_FILE"
 
 # Start Nexus
 /opt/sonatype/start-nexus-repository-manager.sh &
@@ -53,8 +51,7 @@ bash /scripts/system/after/nexus/setup_npm_proxy.sh
 # 设置apt 仓库
 bash /scripts/system/after/nexus/setup_apt_proxy.sh
 
-# 将本机ip写入到
-cat /etc/hosts | grep -v '^#' | grep -v '127.0.0.1' | grep -E '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+' | awk '{print $1}' >> /scripts/system/before/nexus/.lock
+echo "Nexus proxy setup completed successfully"
 
 wait $nexus_pid
 echo "############## ADD NEXUS_PROXY end #############"

@@ -85,7 +85,14 @@ init_ubuntu22() {
 
 # ========== 主流程 ==========
 rm_init_repos() {
-  NEXUS_IP=$(cat /scripts/system/before/nexus/.lock)
+  # 从 Docker Compose 网络中获取 Nexus IP
+  NEXUS_IP="nexus"
+  
+  # 兼容旧的 .lock 文件方式
+  if [ -f "/scripts/system/before/nexus/.lock" ]; then
+    NEXUS_IP=$(cat /scripts/system/before/nexus/.lock)
+  fi
+  
   echo "读取nexus 服务器地址：$NEXUS_IP"
 
   OS_ID=$(grep -oP '^ID="?(\w+)"?' /etc/os-release | cut -d= -f2 | tr -d '"')
