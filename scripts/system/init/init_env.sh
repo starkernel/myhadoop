@@ -107,7 +107,7 @@ init_centos7() {
   rm -rf /etc/yum.repos.d/CentOS* /etc/yum.repos.d/epel* /etc/yum.repos.d/ambari-bigtop* /etc/yum.repos.d/docker-ce*
   yum clean all
   echo "执行 CentOS 7 初始化脚本"
-  yum -y install centos-release-scl centos-release-scl-rh openssh-server passwd sudo net-tools unzip wget git || true
+  yum -y install centos-release-scl centos-release-scl-rh openssh-server passwd sudo net-tools unzip wget git patch || true
   rm -rf /etc/yum.repos.d/CentOS*
 }
 

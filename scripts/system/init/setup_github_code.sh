@@ -37,20 +37,31 @@ for TARGET_DIR in "${!REPOS[@]}"; do
   # 提取仓库名称
   REPO_NAME=$(basename -s .git "$REPO_URL")
 
-  # 检查目标目录是否存在
-  if [ -d "$TARGET_DIR" ]; then
-    echo "目录已存在: $TARGET_DIR"
+  # 检查目标目录是否存在且不为空
+  if [ -d "$TARGET_DIR" ] && [ "$(ls -A $TARGET_DIR 2>/dev/null)" ]; then
+    echo "目录已存在且不为空: $TARGET_DIR，跳过克隆"
   else
     echo "正在处理仓库: $REPO_NAME"
-    echo "目录不存在，正在检出仓库到 $TARGET_DIR..."
-    # 检出仓库
-    git clone -b "$BRANCH_VERSION" "$REPO_URL" "$TARGET_DIR"
-    if [ $? -eq 0 ]; then
+    echo "正在检出仓库到 $TARGET_DIR..."
+    # 使用浅克隆减少下载量，并且失败不退出
+    git clone --depth 1 -b "$BRANCH_VERSION" "$REPO_URL" "$TARGET_DIR" || {
+      echo "警告: 仓库检出失败: $TARGET_DIR (可能是网络问题，继续启动容器)"
+      # 创建空目录标记，避免下次重复尝试
+      mkdir -p "$TARGET_DIR"
+    }
+    
+    if [ -d "$TARGET_DIR/.git" ]; then
       echo "仓库检出成功: $TARGET_DIR"
     else
-      echo "仓库检出失败: $TARGET_DIR"
-      exit 1
+      echo "警告: 仓库未完全克隆: $TARGET_DIR"
     fi
   fi
 done
+
+# 创建符号链接，解决路径不匹配问题
+if [ -d "/opt/modules/ambari3" ] && [ ! -L "/opt/modules/ambari" ]; then
+  echo "创建符号链接: /opt/modules/ambari -> /opt/modules/ambari3"
+  ln -sf /opt/modules/ambari3 /opt/modules/ambari
+fi
+
 echo "############## SETUP GITHUB_CODE_DOWNLOAD end #############"
