@@ -16,10 +16,11 @@ services:
     restart: always
     entrypoint: /scripts/system/before/nexus/add_proxy.sh
     healthcheck:
-      test: [ "CMD-SHELL", "test -f /scripts/system/before/nexus/.lock" ]
+      test: [ "CMD-SHELL", "curl -f http://localhost:8081/ || exit 1" ]
       interval: 30s
       timeout: 10s
-      retries: 10
+      retries: 20
+      start_period: 120s
     networks:
       ambari-env-network:
         ipv4_address: 172.20.0.2
