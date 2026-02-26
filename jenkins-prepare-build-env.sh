@@ -79,7 +79,7 @@ docker exec centos1 bash -c "
 # 验证关键工具
 echo ""
 echo "→ 验证构建工具..."
-docker exec centos1 bash -c "
+docker exec centos1 bash -l -c "
     echo '检查 Java...'
     java -version 2>&1 | head -1 || echo '✗ Java 未安装'
     

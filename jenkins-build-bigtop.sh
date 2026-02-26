@@ -39,7 +39,8 @@ echo "========================================="
 echo ""
 
 # 注意：不使用 -it 参数，因为 Jenkins 不是 TTY
-docker exec centos1 bash /scripts/build/onekey_build.sh
+# 使用 -l 参数启动登录 shell，这样会自动加载 /etc/profile 中的环境变量
+docker exec centos1 bash -l /scripts/build/onekey_build.sh
 
 BUILD_EXIT_CODE=$?
 
