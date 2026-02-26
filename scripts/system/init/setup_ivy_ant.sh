@@ -37,7 +37,8 @@ download_if_not_exists() {
     local file=$2
     if [ ! -f "$file" ]; then
         echo "正在下载 $file..."
-        wget -q "$url" -O "$file"
+        # 使用 curl 代替 wget，支持 SOCKS5 代理
+        curl -L -o "$file" "$url"
     else
         echo "$file 已存在，跳过下载。"
     fi
@@ -77,16 +78,18 @@ configure_env_variable() {
 download_if_not_exists "$ANT_URL" "$ANT_TAR"
 download_if_not_exists "$IVY_URL" "$IVY_TAR"
 
-# 解压 Ant 和 Ivy（如果解压失败，重新下载）
+# 解压 Ant 和 Ivy（如果解压失败，删除文件并重新下载）
 if ! extract_if_not_exists "$ANT_TAR" "$ANT_DIR"; then
-    echo "重新下载 Ant..."
-    wget -q "$ANT_URL" -O "$ANT_TAR"
+    echo "Ant 解压失败，删除并重新下载..."
+    rm -f "$ANT_TAR"
+    curl -L -o "$ANT_TAR" "$ANT_URL"
     extract_if_not_exists "$ANT_TAR" "$ANT_DIR"
 fi
 
 if ! extract_if_not_exists "$IVY_TAR" "$IVY_DIR"; then
-    echo "重新下载 Ivy..."
-    wget -q "$IVY_URL" -O "$IVY_TAR"
+    echo "Ivy 解压失败，删除并重新下载..."
+    rm -f "$IVY_TAR"
+    curl -L -o "$IVY_TAR" "$IVY_URL"
     extract_if_not_exists "$IVY_TAR" "$IVY_DIR"
 fi
 
