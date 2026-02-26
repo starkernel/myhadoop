@@ -18,22 +18,48 @@ if ! docker ps | grep -q centos1; then
         docker logs centos1 --tail 100
         exit 1
     }
-    echo "等待容器完全启动..."
-    sleep 10
 fi
 echo "✓ centos1 容器运行中"
 
-# 安装必要的构建工具（包括 patch）
+# 等待容器初始化完成（检查 yum 锁）
+echo ""
+echo "→ 等待容器初始化完成..."
+MAX_WAIT=300  # 最多等待 5 分钟
+WAITED=0
+while [ $WAITED -lt $MAX_WAIT ]; do
+    # 检查是否有 yum 进程在运行
+    if docker exec centos1 bash -c "! pgrep -x yum > /dev/null 2>&1"; then
+        echo "✓ 容器初始化完成"
+        break
+    fi
+    
+    if [ $((WAITED % 10)) -eq 0 ]; then
+        echo "等待容器初始化... 已等待 ${WAITED}s"
+    fi
+    
+    sleep 2
+    WAITED=$((WAITED + 2))
+done
+
+if [ $WAITED -ge $MAX_WAIT ]; then
+    echo "✗ 容器初始化超时"
+    echo "当前运行的进程："
+    docker exec centos1 ps aux | grep yum
+    exit 1
+fi
+
+# 安装必要的构建工具（包括 patch 和 which）
 echo ""
 echo "→ 安装构建工具..."
 docker exec centos1 bash -c "
     set -e
     echo '安装 patch 和其他构建工具...'
-    yum install -y patch git wget curl tar gzip bzip2 unzip || true
+    yum install -y patch git wget curl tar gzip bzip2 unzip which || true
     
     echo '验证工具安装...'
-    which patch && echo '✓ patch 已安装' || echo '✗ patch 安装失败'
-    which git && echo '✓ git 已安装' || echo '✗ git 安装失败'
+    command -v patch && echo '✓ patch 已安装' || echo '✗ patch 安装失败'
+    command -v git && echo '✓ git 已安装' || echo '✗ git 安装失败'
+    command -v which && echo '✓ which 已安装' || echo '✗ which 安装失败'
 "
 
 # 检查并修复 Ambari 源码目录
@@ -41,7 +67,7 @@ echo ""
 echo "→ 检查 Ambari 源码..."
 docker exec centos1 bash -c "
     # 检查 ambari3 目录
-    if [ -d /opt/modules/ambari3 ]; then
+    if [ -d /opt/modules/ambari3 ] && [ -n \"\$(ls -A /opt/modules/ambari3 2>/dev/null)\" ]; then
         echo '✓ 发现 /opt/modules/ambari3 目录'
         
         # 创建符号链接到 ambari（如果不存在）
@@ -49,10 +75,10 @@ docker exec centos1 bash -c "
             echo '创建符号链接: /opt/modules/ambari -> /opt/modules/ambari3'
             ln -sf /opt/modules/ambari3 /opt/modules/ambari
         fi
-    elif [ -d /opt/modules/ambari ]; then
+    elif [ -d /opt/modules/ambari ] && [ -n \"\$(ls -A /opt/modules/ambari 2>/dev/null)\" ]; then
         echo '✓ 发现 /opt/modules/ambari 目录'
     else
-        echo '✗ Ambari 源码目录不存在'
+        echo '✗ Ambari 源码目录不存在或为空'
         echo ''
         echo '提示: 容器启动时会自动从 GitHub 克隆代码'
         echo '如果克隆失败，可以手动克隆：'

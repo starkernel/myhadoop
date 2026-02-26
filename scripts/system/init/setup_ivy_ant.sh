@@ -49,7 +49,11 @@ extract_if_not_exists() {
     local dir=$2
     if [ ! -d "$dir" ]; then
         echo "正在解压 $file..."
-        sudo tar -xzf "$file" -C /opt/modules
+        if ! sudo tar -xzf "$file" -C /opt/modules; then
+            echo "解压失败，文件可能损坏，删除并重新下载..."
+            rm -f "$file"
+            return 1
+        fi
     else
         echo "$dir 已存在，跳过解压。"
     fi
@@ -73,9 +77,18 @@ configure_env_variable() {
 download_if_not_exists "$ANT_URL" "$ANT_TAR"
 download_if_not_exists "$IVY_URL" "$IVY_TAR"
 
-# 解压 Ant 和 Ivy
-extract_if_not_exists "$ANT_TAR" "$ANT_DIR"
-extract_if_not_exists "$IVY_TAR" "$IVY_DIR"
+# 解压 Ant 和 Ivy（如果解压失败，重新下载）
+if ! extract_if_not_exists "$ANT_TAR" "$ANT_DIR"; then
+    echo "重新下载 Ant..."
+    wget -q "$ANT_URL" -O "$ANT_TAR"
+    extract_if_not_exists "$ANT_TAR" "$ANT_DIR"
+fi
+
+if ! extract_if_not_exists "$IVY_TAR" "$IVY_DIR"; then
+    echo "重新下载 Ivy..."
+    wget -q "$IVY_URL" -O "$IVY_TAR"
+    extract_if_not_exists "$IVY_TAR" "$IVY_DIR"
+fi
 
 # 配置环境变量
 configure_env_variable "ANT_HOME" "$ANT_DIR"
