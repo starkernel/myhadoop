@@ -12,7 +12,11 @@ services:
     environment:
       - NEXUS_SECURITY_RANDOMPASSWORD=false
       - NEXUS_ADMIN_PASSWORD=admin123
-      - INSTALL4J_ADD_VM_PARAMS=-Xms4g -Xmx8g -Djava.util.prefs.systemRoot=/nexus-data/.java/.systemPrefs -Djava.util.prefs.userRoot=/nexus-data/.java/.userPrefs
+      - INSTALL4J_ADD_VM_PARAMS=-Xms4g -Xmx8g -Djava.util.prefs.systemRoot=/nexus-data/.java/.systemPrefs -Djava.util.prefs.userRoot=/nexus-data/.java/.userPrefs -Dhttp.proxyHost=172.17.0.1 -Dhttp.proxyPort=1080 -Dhttps.proxyHost=172.17.0.1 -Dhttps.proxyPort=1080 -Dhttp.nonProxyHosts=localhost|127.0.0.1|172.20.0.*|nexus
+      # 使用宿主机代理加速下载
+      - HTTP_PROXY=socks5://172.17.0.1:1080
+      - HTTPS_PROXY=socks5://172.17.0.1:1080
+      - NO_PROXY=localhost,127.0.0.1,172.20.0.0/24,nexus
     restart: always
     entrypoint: /scripts/system/before/nexus/add_proxy.sh
     healthcheck:
@@ -48,6 +52,14 @@ services:
       - ./common/etc/yum.repos.d:/etc/yum.repos.d
       - ./common/conf:/opt/modules/conf
       - ./common/data/mvn:/root/.m2
+    environment:
+      # 使用宿主机代理加速下载
+      - HTTP_PROXY=socks5://172.17.0.1:1080
+      - HTTPS_PROXY=socks5://172.17.0.1:1080
+      - http_proxy=socks5://172.17.0.1:1080
+      - https_proxy=socks5://172.17.0.1:1080
+      - NO_PROXY=localhost,127.0.0.1,172.20.0.0/24,nexus,centos1,centos2,centos3
+      - no_proxy=localhost,127.0.0.1,172.20.0.0/24,nexus,centos1,centos2,centos3
       - ./common/data/rpm-package:/data/rpm-package
     entrypoint: /scripts/master.sh
     depends_on:
