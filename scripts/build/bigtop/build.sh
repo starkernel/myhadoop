@@ -86,17 +86,34 @@ copy_files=(
   "/scripts/build/bigtop/patch/child_patch/patch2-LIVY-COMPILE-FAST.diff:$CHILD_PATH/livy"
 )
 
-# 定义一个函数来复制文件
+# 定义一个函数来复制文件并检测更新
 copy_file() {
   local source_file=$1
   local destination_path=$2
-  if [ -f "$source_file" ]; then
-    cp -v "$source_file" "$destination_path"
-    echo "文件：$source_file 已成功复制到 $destination_path"
-  else
+  local filename=$(basename "$source_file")
+  local dest_file="$destination_path/$filename"
+  
+  if [ ! -f "$source_file" ]; then
     echo "文件：$source_file 不存在"
     exit 1
   fi
+  
+  # 检测目标文件是否存在且与源文件不同
+  if [ -f "$dest_file" ]; then
+    if ! cmp -s "$source_file" "$dest_file"; then
+      echo "检测到 $filename 已更新，清理相关构建缓存..."
+      # 提取组件名称（如 hadoop, flink 等）
+      local component=$(basename "$destination_path")
+      local build_dir="$PROJECT_PATH/build/$component"
+      if [ -d "$build_dir" ]; then
+        echo "清理 $component 的构建目录: $build_dir"
+        rm -rf "$build_dir"
+      fi
+    fi
+  fi
+  
+  cp -v "$source_file" "$destination_path"
+  echo "文件：$source_file 已成功复制到 $destination_path"
 }
 
 # 遍历数组并复制每个文件
