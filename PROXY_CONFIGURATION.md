@@ -22,11 +22,17 @@
 
 #### 1. Shell 环境变量（curl, wget, git 等）
 ```bash
-HTTP_PROXY=socks5://172.17.0.1:1080
-HTTPS_PROXY=socks5://172.17.0.1:1080
-http_proxy=socks5://172.17.0.1:1080
-https_proxy=socks5://172.17.0.1:1080
+HTTP_PROXY=socks5h://172.17.0.1:1080
+HTTPS_PROXY=socks5h://172.17.0.1:1080
+http_proxy=socks5h://172.17.0.1:1080
+https_proxy=socks5h://172.17.0.1:1080
 ```
+
+**注意**: 使用 `socks5h://` 而不是 `socks5://`，区别在于：
+- `socks5://` - 客户端本地解析 DNS，然后通过代理连接
+- `socks5h://` - 通过代理服务器解析 DNS（远程 DNS 解析）
+
+在某些网络环境中，本地 DNS 解析可能被限制，使用 `socks5h://` 可以避免 DNS 解析问题。
 
 #### 2. Java 系统属性（Maven, Gradle, Nexus）
 ```bash
@@ -142,8 +148,8 @@ netstat -tlnp | grep 1080
 **Git 需要额外配置 SOCKS5 代理**:
 ```bash
 docker exec centos1 bash -c "
-  git config --global http.proxy socks5://172.17.0.1:1080
-  git config --global https.proxy socks5://172.17.0.1:1080
+  git config --global http.proxy socks5h://172.17.0.1:1080
+  git config --global https.proxy socks5h://172.17.0.1:1080
 "
 ```
 
@@ -180,8 +186,8 @@ docker exec centos1 bash -c "
 
 ```yaml
 # environment:
-#   - HTTP_PROXY=socks5://172.17.0.1:1080
-#   - HTTPS_PROXY=socks5://172.17.0.1:1080
+#   - HTTP_PROXY=socks5h://172.17.0.1:1080
+#   - HTTPS_PROXY=socks5h://172.17.0.1:1080
 ```
 
 然后重启容器：

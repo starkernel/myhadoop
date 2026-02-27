@@ -119,46 +119,23 @@ docker logs centos1 2>&1 | grep "##.*end"
 
 ## 问题 4: pip 安装失败 - SOCKS 代理依赖缺失
 
-### 症状
-```
-ERROR: Could not install packages due to an EnvironmentError: Missing dependencies for SOCKS support.
-```
+**错误**: `ERROR: Could not install packages due to an EnvironmentError: Missing dependencies for SOCKS support.`
 
-### 原因
-- 容器配置了 SOCKS5 代理环境变量
-- pip 尝试使用 SOCKS5 代理下载包，但缺少 `PySocks` 依赖包
-- 这是一个"鸡生蛋"问题：需要 PySocks 才能通过 SOCKS5 代理下载包，但下载 PySocks 本身也需要 SOCKS5 支持
+**原因**: pip 缺少 PySocks 包来支持 SOCKS5 代理
 
-### 解决方案
-已在以下脚本中添加自动修复逻辑：
-- `scripts/system/init/setup_virtual_env.sh` (CentOS 7)
-- `scripts/system/init/ubuntu2204/setup_virtual_env.sh` (Ubuntu 22.04)
-- `scripts/system/init/kylin10/setup_virtual_env.sh` (Kylin V10)
+**修复**: 已在 setup_virtual_env.sh 脚本中添加 PySocks 自动安装逻辑
 
-修复逻辑：
-1. 首先尝试安装 PySocks（支持 SOCKS5 代理）
-2. 如果失败，临时禁用代理环境变量重试
-3. PySocks 安装成功后，再安装 virtualenv
-4. 如果 virtualenv 安装失败，同样临时禁用代理重试
+## 问题 5: Maven 构建失败 - GitHub 访问超时
 
-### 手动修复（如果自动修复失败）
-```bash
-# 方式 1: 先安装 PySocks
-docker exec centos1 bash -c "
-  HTTP_PROXY='' HTTPS_PROXY='' pip3.7 install PySocks
-  pip3.7 install virtualenv
-"
+**错误**: `Could not download https://github.com/yarnpkg/yarn/releases/download/v0.23.2/yarn-v0.23.2.tar.gz: Connection timed out`
 
-# 方式 2: 完全禁用代理安装
-docker exec centos1 bash -c "
-  HTTP_PROXY='' HTTPS_PROXY='' http_proxy='' https_proxy='' pip3.7 install virtualenv
-"
-```
+**原因**: 使用 `socks5://` 时本地 DNS 解析可能被限制
 
-### 详细文档
-参见 [PIP_SOCKS_PROXY_FIX.md](PIP_SOCKS_PROXY_FIX.md)
+**修复**: 已将代理协议改为 `socks5h://`（远程 DNS 解析）
 
-## 问题 5: 容器初始化完成标志
+**应用修复**: `docker-compose down && docker-compose up -d`
+
+## 问题 6: 容器初始化完成标志
 
 ### 如何判断初始化完成
 
@@ -179,7 +156,7 @@ docker logs centos1 2>&1 | tail -1
 ./check-container-ready.sh
 ```
 
-## 问题 6: 手动修复损坏的下载
+## 问题 7: 手动修复损坏的下载
 
 ### 删除损坏的文件
 ```bash
@@ -196,7 +173,7 @@ docker exec centos1 bash -c "
 docker-compose restart centos1
 ```
 
-## 问题 7: 跳过某些组件
+## 问题 8: 跳过某些组件
 
 如果某些组件不需要，可以注释掉 `scripts/master.sh` 中的相应行：
 
@@ -263,6 +240,7 @@ docker exec -it centos1 bash
 
 ## 更新日志
 
+- 2026-02-27: 修复 SOCKS5 代理 DNS 解析问题（socks5:// → socks5h://）
 - 2026-02-27: 修复 pip SOCKS5 代理依赖问题（PySocks 缺失导致 virtualenv 安装失败）
 - 2026-02-26: 修复 wget 不支持 SOCKS5 问题，改用 curl
 - 2026-02-26: 添加解压失败自动重新下载逻辑
