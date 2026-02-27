@@ -102,8 +102,17 @@ else
     pip3.7 install -i $PIP_INDEX --upgrade "pip==$PIP_VERSION" setuptools wheel
 fi
 
+# 先安装 PySocks 以支持 SOCKS5 代理，如果失败则临时禁用代理
+pip3.7 install -i $PIP_INDEX PySocks || {
+    echo "Failed to install PySocks with proxy, trying without proxy..."
+    HTTP_PROXY="" HTTPS_PROXY="" http_proxy="" https_proxy="" pip3.7 install -i $PIP_INDEX PySocks
+}
+
 # 安装 virtualenv (锁版本，兼容 py3.7)
-pip3.7 install -i $PIP_INDEX "virtualenv==$VIRTUALENV_VERSION"
+pip3.7 install -i $PIP_INDEX "virtualenv==$VIRTUALENV_VERSION" || {
+    echo "Failed to install virtualenv with proxy, trying without proxy..."
+    HTTP_PROXY="" HTTPS_PROXY="" http_proxy="" https_proxy="" pip3.7 install -i $PIP_INDEX "virtualenv==$VIRTUALENV_VERSION"
+}
 
 # 创建虚拟环境
 if [ ! -d $VIRTUALENV_DIR ]; then

@@ -86,6 +86,18 @@ fi
 
 pip3.7 install virtualenv
 
+# 先安装 PySocks 以支持 SOCKS5 代理，如果失败则临时禁用代理
+pip3.7 install PySocks || {
+    echo "Failed to install PySocks with proxy, trying without proxy..."
+    HTTP_PROXY="" HTTPS_PROXY="" http_proxy="" https_proxy="" pip3.7 install PySocks
+}
+
+# 安装 virtualenv
+pip3.7 install virtualenv || {
+    echo "Failed to install virtualenv with proxy, trying without proxy..."
+    HTTP_PROXY="" HTTPS_PROXY="" http_proxy="" https_proxy="" pip3.7 install virtualenv
+}
+
 if [ ! -d $VIRTUALENV_DIR ]; then
     echo "Creating virtual environment..."
     python3.7 -m venv $VIRTUALENV_DIR

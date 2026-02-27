@@ -117,7 +117,48 @@ docker exec centos1 bash -c "
 docker logs centos1 2>&1 | grep "##.*end"
 ```
 
-## 问题 4: 容器初始化完成标志
+## 问题 4: pip 安装失败 - SOCKS 代理依赖缺失
+
+### 症状
+```
+ERROR: Could not install packages due to an EnvironmentError: Missing dependencies for SOCKS support.
+```
+
+### 原因
+- 容器配置了 SOCKS5 代理环境变量
+- pip 尝试使用 SOCKS5 代理下载包，但缺少 `PySocks` 依赖包
+- 这是一个"鸡生蛋"问题：需要 PySocks 才能通过 SOCKS5 代理下载包，但下载 PySocks 本身也需要 SOCKS5 支持
+
+### 解决方案
+已在以下脚本中添加自动修复逻辑：
+- `scripts/system/init/setup_virtual_env.sh` (CentOS 7)
+- `scripts/system/init/ubuntu2204/setup_virtual_env.sh` (Ubuntu 22.04)
+- `scripts/system/init/kylin10/setup_virtual_env.sh` (Kylin V10)
+
+修复逻辑：
+1. 首先尝试安装 PySocks（支持 SOCKS5 代理）
+2. 如果失败，临时禁用代理环境变量重试
+3. PySocks 安装成功后，再安装 virtualenv
+4. 如果 virtualenv 安装失败，同样临时禁用代理重试
+
+### 手动修复（如果自动修复失败）
+```bash
+# 方式 1: 先安装 PySocks
+docker exec centos1 bash -c "
+  HTTP_PROXY='' HTTPS_PROXY='' pip3.7 install PySocks
+  pip3.7 install virtualenv
+"
+
+# 方式 2: 完全禁用代理安装
+docker exec centos1 bash -c "
+  HTTP_PROXY='' HTTPS_PROXY='' http_proxy='' https_proxy='' pip3.7 install virtualenv
+"
+```
+
+### 详细文档
+参见 [PIP_SOCKS_PROXY_FIX.md](PIP_SOCKS_PROXY_FIX.md)
+
+## 问题 5: 容器初始化完成标志
 
 ### 如何判断初始化完成
 
@@ -138,7 +179,7 @@ docker logs centos1 2>&1 | tail -1
 ./check-container-ready.sh
 ```
 
-## 问题 5: 手动修复损坏的下载
+## 问题 6: 手动修复损坏的下载
 
 ### 删除损坏的文件
 ```bash
@@ -155,7 +196,7 @@ docker exec centos1 bash -c "
 docker-compose restart centos1
 ```
 
-## 问题 6: 跳过某些组件
+## 问题 7: 跳过某些组件
 
 如果某些组件不需要，可以注释掉 `scripts/master.sh` 中的相应行：
 
@@ -222,6 +263,7 @@ docker exec -it centos1 bash
 
 ## 更新日志
 
+- 2026-02-27: 修复 pip SOCKS5 代理依赖问题（PySocks 缺失导致 virtualenv 安装失败）
 - 2026-02-26: 修复 wget 不支持 SOCKS5 问题，改用 curl
 - 2026-02-26: 添加解压失败自动重新下载逻辑
 - 2026-02-26: 添加容器就绪检查脚本
