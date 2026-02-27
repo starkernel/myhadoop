@@ -20,7 +20,7 @@ set -ex
 
 echo "############## SETUP BUILD_ENV start #############"
 
-CMAKE_URL="https://ghfast.top/https://github.com/Kitware/CMake/releases/download/v3.30.0/cmake-3.30.0-linux-x86_64.sh"
+CMAKE_URL="https://ghfast.top/https://github.com/Kitware/CMake/releases/download/v3.17.5/cmake-3.17.5-linux-x86_64.sh"
 CMAKE="/opt/modules/cmake3.sh"
 CMAKE_HOME_PATH="/opt/modules/cmake3"
 mkdir -p "/opt/modules/cmake3"
@@ -74,6 +74,10 @@ packages=(
 yum -y install "${packages[@]}"
 # 卸载旧的cmake
 yum -y remove cmake cmake3
+
+# 先安装系统默认的 cmake 作为备用
+yum -y install cmake
+
 # 启动gcc 高版本
 source /opt/rh/devtoolset-7/enable
 
@@ -100,10 +104,26 @@ configure_cmake_home() {
 if [ -f "$CMAKE" ]; then
   echo "cmake3 file exists: $CMAKE"
 else
-  curl -o "$CMAKE" "$CMAKE_URL"
-  bash "$CMAKE" --skip-license --prefix="$CMAKE_HOME_PATH"
-  configure_cmake_home
-  echo "cmake3 安装完毕#"
+  echo "Downloading cmake 3.17.5..."
+  if curl -o "$CMAKE" "$CMAKE_URL"; then
+    echo "Installing cmake 3.17.5..."
+    bash "$CMAKE" --skip-license --prefix="$CMAKE_HOME_PATH"
+    configure_cmake_home
+    echo "cmake3 安装完毕"
+  else
+    echo "Failed to download cmake 3.17.5, trying alternative installation..."
+    # 尝试使用 EPEL 源安装 cmake3
+    if yum -y install epel-release && yum -y install cmake3; then
+      echo "cmake3 installed via yum"
+      # 创建符号链接
+      mkdir -p "$CMAKE_HOME_PATH/bin"
+      ln -sf /usr/bin/cmake3 "$CMAKE_HOME_PATH/bin/cmake"
+      configure_cmake_home
+    else
+      echo "Warning: Using system cmake $(cmake --version 2>/dev/null || echo 'not found')"
+      echo "Note: Hadoop 3.3.4 requires CMake 3.1+, system cmake may be too old"
+    fi
+  fi
 fi
 
 echo "############## SETUP BULID_ENV end #############"
