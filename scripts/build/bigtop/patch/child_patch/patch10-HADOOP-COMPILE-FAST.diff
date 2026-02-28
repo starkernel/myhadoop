@@ -71,7 +71,6 @@ index da1113fc..5c7d5bfc 100644
                  <configuration>
 -                  <arguments>install</arguments>
 +                  <arguments>install --verbose --ignore-engines</arguments>
-+                  <npmRegistryURL>https://registry.npmmirror.com/</npmRegistryURL>
 +                  <yarnInheritsProxyConfigFromMaven>false</yarnInheritsProxyConfigFromMaven>
 +                  <environmentVariables>
 +                    <SASS_BINARY_SITE>https://ghfast.top/https://github.com/sass/node-sass/releases/download/</SASS_BINARY_SITE>
@@ -79,6 +78,13 @@ index da1113fc..5c7d5bfc 100644
                  </configuration>
                </execution>
                <execution>
+diff --git a/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-ui/src/main/webapp/.yarnrc b/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-ui/src/main/webapp/.yarnrc
+new file mode 100644
+index 00000000..e2c2f91e
+--- /dev/null
++++ b/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-ui/src/main/webapp/.yarnrc
+@@ -0,0 +1 @@
++registry "https://registry.npmmirror.com/"
 diff --git a/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-ui/src/main/webapp/bower-shrinkwrap.json b/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-ui/src/main/webapp/bower-shrinkwrap.json
 index ffe38059..22f95fbc 100644
 --- a/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-ui/src/main/webapp/bower-shrinkwrap.json
