@@ -56,7 +56,7 @@ index da1113fc..5c7d5bfc 100644
                  </goals>
                  <configuration>
 -                  <nodeVersion>${nodejs.version}</nodeVersion>
-+                  <nodeVersion>v16.20.2</nodeVersion>
++                  <nodeVersion>v12.22.12</nodeVersion>
                    <yarnVersion>${yarnpkg.version}</yarnVersion>
 +                  <nodeDownloadRoot>https://cdn.npmmirror.com/binaries/node/</nodeDownloadRoot>
 +                  <yarnDownloadRoot>
