@@ -78,6 +78,7 @@ index da1113fc..5c7d5bfc 100644
 +                  </environmentVariables>
                  </configuration>
                </execution>
+               <execution>
 diff --git a/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-ui/src/main/webapp/bower-shrinkwrap.json b/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-ui/src/main/webapp/bower-shrinkwrap.json
 index ffe38059..22f95fbc 100644
 --- a/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-ui/src/main/webapp/bower-shrinkwrap.json
