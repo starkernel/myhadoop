@@ -7,7 +7,7 @@ index 0b2f6f17..b5962247 100644
      <json-smart.version>2.4.7</json-smart.version>
      <nimbus-jose-jwt.version>9.8.1</nimbus-jose-jwt.version>
 -    <nodejs.version>v12.22.1</nodejs.version>
-+    <nodejs.version>v16.20.2</nodejs.version>
++    <nodejs.version>v12.22.12</nodejs.version>
      <yarnpkg.version>v1.22.5</yarnpkg.version>
      <apache-ant.version>1.10.11</apache-ant.version>
    </properties>
@@ -56,7 +56,7 @@ index da1113fc..5c7d5bfc 100644
                  </goals>
                  <configuration>
 -                  <nodeVersion>${nodejs.version}</nodeVersion>
-+                  <nodeVersion>v16.20.2</nodeVersion>
++                  <nodeVersion>v12.22.12</nodeVersion>
                    <yarnVersion>${yarnpkg.version}</yarnVersion>
 +                  <nodeDownloadRoot>https://cdn.npmmirror.com/binaries/node/</nodeDownloadRoot>
 +                  <yarnDownloadRoot>
@@ -73,7 +73,7 @@ index da1113fc..5c7d5bfc 100644
 +                  <arguments>install --verbose --ignore-engines</arguments>
 +                  <yarnInheritsProxyConfigFromMaven>false</yarnInheritsProxyConfigFromMaven>
 +                  <environmentVariables>
-+                    <SASS_BINARY_SITE>https://ghfast.top/https://github.com/sass/node-sass/releases/download/</SASS_BINARY_SITE>
++                    <SASS_BINARY_SITE>https://cdn.npmmirror.com/binaries/node-sass/</SASS_BINARY_SITE>
 +                    <NPM_CONFIG_REGISTRY>https://registry.npmmirror.com/</NPM_CONFIG_REGISTRY>
 +                  </environmentVariables>
                  </configuration>

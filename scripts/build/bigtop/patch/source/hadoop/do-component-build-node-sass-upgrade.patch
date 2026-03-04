@@ -1,0 +1,19 @@
+--- do-component-build.orig2024-02-28 00:00:00.000000000 +0800
++++ do-component-build2024-02-28 00:00:00.000000000 +0800
+@@ -157,6 +157,18 @@
+ # rm -rf hadoop-yarn-ui  yarn lock
+ rm -rf ./hadoop-yarn-project/hadoop-yarn/hadoop-yarn-ui/src/main/webapp/yarn.lock
+ 
++# Upgrade node-sass to v7.0.3 for Node.js v16 compatibility
++YARN_UI_PACKAGE_JSON="./hadoop-yarn-project/hadoop-yarn/hadoop-yarn-ui/src/main/webapp/package.json"
++if [ -f "$YARN_UI_PACKAGE_JSON" ]; then
++    echo "=========================================="
++    echo "Upgrading node-sass to 7.0.3 for Node.js v16 compatibility"
++    echo "=========================================="
++    sed -i 's/"node-sass": "[^"]*"/"node-sass": "^7.0.3"/' "$YARN_UI_PACKAGE_JSON"
++    echo "✓ Updated node-sass version in package.json"
++    grep "node-sass" "$YARN_UI_PACKAGE_JSON" || echo "⚠ Warning: node-sass not found in package.json"
++fi
++
+ # Build artifacts
+ mvn -X $BUNDLE_SNAPPY -Pdist -Pnative -Psrc -Pyarn-ui -Dtar ${MAVEN_OPTS} install ${EXTRA_GOALS} "$@"

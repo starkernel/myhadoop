@@ -135,7 +135,15 @@ docker logs centos1 2>&1 | grep "##.*end"
 
 **应用修复**: `docker-compose down && docker-compose up -d`
 
-## 问题 6: 容器初始化完成标志
+## 问题 6: Bigtop 构建失败 - 缺少 cmake
+
+**错误**: `Cannot run program "cmake": error=2, No such file or directory`
+
+**原因**: Hadoop 编译需要 cmake 来构建 native 组件，但容器中未安装
+
+**修复**: 已在构建脚本中添加 cmake 自动安装检查
+
+## 问题 7: 容器初始化完成标志
 
 ### 如何判断初始化完成
 
@@ -156,7 +164,7 @@ docker logs centos1 2>&1 | tail -1
 ./check-container-ready.sh
 ```
 
-## 问题 7: 手动修复损坏的下载
+## 问题 8: 手动修复损坏的下载
 
 ### 删除损坏的文件
 ```bash
@@ -173,7 +181,7 @@ docker exec centos1 bash -c "
 docker-compose restart centos1
 ```
 
-## 问题 8: 跳过某些组件
+## 问题 9: 跳过某些组件
 
 如果某些组件不需要，可以注释掉 `scripts/master.sh` 中的相应行：
 
@@ -240,6 +248,7 @@ docker exec -it centos1 bash
 
 ## 更新日志
 
+- 2026-02-27: 修复 Bigtop 构建缺少 cmake 问题，添加自动安装检查
 - 2026-02-27: 修复 SOCKS5 代理 DNS 解析问题（socks5:// → socks5h://）
 - 2026-02-27: 修复 pip SOCKS5 代理依赖问题（PySocks 缺失导致 virtualenv 安装失败）
 - 2026-02-26: 修复 wget 不支持 SOCKS5 问题，改用 curl

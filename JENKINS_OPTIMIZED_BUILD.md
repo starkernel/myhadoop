@@ -50,9 +50,132 @@ chmod +x jenkins-build-bigtop-optimized.sh
 - ✓ Poll SCM: `H/30 * * * *` (每 30 分钟检查一次代码变更)
 - 或使用 GitHub webhook 触发
 
+**Build Environment：**
+- ✓ Delete workspace before build starts (可选，确保干净环境)
+- ✓ Add timestamps to the Console Output (推荐)
+
 **Post-build Actions：**
 - ✓ Archive the artifacts: `**/*.rpm` (保存构建产物)
 - ✓ E-mail Notification (构建失败时发送邮件)
+
+### 3. Jenkins Pipeline 配置（推荐）
+
+如果使用 Pipeline Job，可以获得更好的可视化和控制：
+
+```groovy
+pipeline {
+    agent any
+    
+    options {
+        timestamps()
+        timeout(time: 8, unit: 'HOURS')
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+        disableConcurrentBuilds()  // 避免并发构建冲突
+    }
+    
+    environment {
+        // Jenkins 环境变量会自动传递给脚本
+        WORKSPACE = "${WORKSPACE}"
+    }
+    
+    stages {
+        stage('准备环境') {
+            steps {
+                echo "检查 Docker 环境..."
+                sh 'docker --version'
+                sh 'docker-compose --version'
+            }
+        }
+        
+        stage('Bigtop 构建') {
+            steps {
+                script {
+                    echo "开始 Bigtop 组件构建（支持断点续传）"
+                    sh '''
+                        chmod +x jenkins-build-bigtop-optimized.sh
+                        ./jenkins-build-bigtop-optimized.sh
+                    '''
+                }
+            }
+        }
+    }
+    
+    post {
+        always {
+            // 收集构建产物
+            archiveArtifacts artifacts: '**/rpm-package/**/*.rpm', allowEmptyArchive: true
+            
+            // 显示构建摘要
+            script {
+                sh '''
+                    echo "========================================="
+                    echo "构建产物统计："
+                    docker exec centos1 bash -c "find /data/rpm-package -name '*.rpm' | wc -l" || echo "0"
+                    echo "========================================="
+                '''
+            }
+        }
+        success {
+            echo "✓ 构建成功！所有组件已完成。"
+        }
+        failure {
+            echo "✗ 构建失败！下次运行将自动从失败组件继续。"
+            // 可选：发送通知
+            // emailext subject: "构建失败: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+            //          body: "查看详情: ${env.BUILD_URL}",
+            //          to: "your-email@example.com"
+        }
+    }
+}
+```
+
+### 4. 环境要求
+
+确保 Jenkins 环境满足以下条件：
+
+- **Docker 权限**：Jenkins 用户需要有 Docker 执行权限
+  ```bash
+  # 将 jenkins 用户加入 docker 组
+  sudo usermod -aG docker jenkins
+  sudo systemctl restart jenkins
+  ```
+
+- **磁盘空间**：建议至少 100GB 可用空间
+  ```bash
+  df -h /var/lib/docker
+  ```
+
+- **内存**：建议至少 8GB RAM（构建过程中 Gradle 会占用较多内存）
+
+- **超时设置**：完整构建可能需要 4-8 小时，确保 Jenkins Job 超时设置足够
+
+### 5. 脚本特性（Jenkins 优化）
+
+优化版脚本针对 Jenkins 环境做了以下增强：
+
+1. **自动检测 Jenkins 环境**
+   - 检测 `$JENKINS_HOME` 变量
+   - 自动设置 `PYTHONUNBUFFERED=1` 确保 Python 输出实时显示
+   - 设置 `GRADLE_OPTS` 使用 plain console 输出
+
+2. **实时日志输出**
+   - 使用 `stdbuf -oL -eL` 禁用输出缓冲
+   - 确保构建日志实时显示在 Jenkins Console Output
+   - 避免长时间无输出导致 Jenkins 认为构建卡死
+
+3. **容器健康检查**
+   - 启动容器后验证其是否真正就绪
+   - 最多等待 60 秒，超时则显示容器日志
+   - 避免容器未就绪就开始构建导致失败
+
+4. **失败时自动显示错误日志**
+   - 构建失败时自动输出最后 50 行错误日志
+   - 无需手动进入容器查看日志
+   - 方便在 Jenkins Console Output 中直接定位问题
+
+5. **显示 Workspace 路径**
+   - 输出 `$WORKSPACE` 变量，方便调试
+   - 确认脚本在正确的目录执行
 
 ## 使用场景
 

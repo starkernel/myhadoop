@@ -3,11 +3,24 @@
 # 用途: 在 Jenkins 环境中执行 Bigtop 构建，支持组件级断点续传
 set -eo pipefail
 
+# Jenkins 环境变量检测
+if [ -n "$JENKINS_HOME" ]; then
+    echo "检测到 Jenkins 环境: $JENKINS_HOME"
+    # 确保输出实时显示（禁用缓冲）
+    export PYTHONUNBUFFERED=1
+    export GRADLE_OPTS="${GRADLE_OPTS} -Dorg.gradle.console=plain"
+fi
+
+# Gradle 内存配置（支持大型项目如 Flink）
+export GRADLE_OPTS="${GRADLE_OPTS} -Xms2g -Xmx8g -XX:MaxMetaspaceSize=1g -XX:+HeapDumpOnOutOfMemoryError"
+echo "Gradle 内存配置: 最大堆 8GB, Metaspace 1GB"
+
 echo "========================================="
 echo "Bigtop CI 构建（组件级断点续传）"
 echo "时间: $(date '+%Y-%m-%d %H:%M:%S')"
 echo "Jenkins Job: ${JOB_NAME:-未知}"
 echo "Build Number: ${BUILD_NUMBER:-未知}"
+echo "Workspace: ${WORKSPACE:-$(pwd)}"
 echo "========================================="
 
 # 定义 Bigtop 核心组件列表（按构建顺序）
@@ -50,13 +63,30 @@ echo "→ 检查容器状态..."
 if ! docker ps | grep -q centos1; then
     echo "✗ centos1 容器未运行，尝试启动..."
     docker-compose up -d centos1
+    echo "等待容器启动..."
     sleep 15
-    if ! docker ps | grep -q centos1; then
-        echo "✗ 容器启动失败"
+    
+    # 验证容器是否真正就绪
+    max_wait=60
+    waited=0
+    while [ $waited -lt $max_wait ]; do
+        if docker ps | grep -q centos1 && docker exec centos1 echo "ready" >/dev/null 2>&1; then
+            echo "✓ 容器已就绪"
+            break
+        fi
+        echo "等待容器就绪... ($waited/$max_wait 秒)"
+        sleep 5
+        waited=$((waited + 5))
+    done
+    
+    if [ $waited -ge $max_wait ]; then
+        echo "✗ 容器启动超时"
+        docker logs centos1 --tail 50
         exit 1
     fi
+else
+    echo "✓ centos1 容器运行中"
 fi
-echo "✓ centos1 容器运行中"
 
 # 分析构建状态
 echo ""
@@ -171,7 +201,8 @@ if [ "$BUILD_SUCCESS" = true ]; then
             docker exec centos1 bash -c "echo '$component' > /tmp/bigtop_current_component"
             
             # 执行组件构建（捕获失败但不立即退出）
-            if docker exec centos1 bash -l -c "cd /opt/modules/bigtop && ./gradlew ${component}-pkg 2>&1 | tee gradle_${component}.log"; then
+            # 使用 stdbuf 确保输出实时显示（Jenkins 环境）
+            if docker exec centos1 bash -l -c "cd /opt/modules/bigtop && stdbuf -oL -eL ./gradlew ${component}-pkg 2>&1 | tee gradle_${component}.log"; then
                 COMPONENT_END=$(date +%s)
                 COMPONENT_DURATION=$((COMPONENT_END - COMPONENT_START))
                 echo "✓ $component 构建完成 (耗时: ${COMPONENT_DURATION}s / $(($COMPONENT_DURATION / 60))m)"
@@ -280,6 +311,9 @@ else
     echo "失败信息："
     if [ -n "$FAILED_COMPONENT" ]; then
         echo "  失败组件: $FAILED_COMPONENT"
+        echo ""
+        echo "最近的错误日志（最后 50 行）："
+        docker exec centos1 bash -c "if [ -f /opt/modules/bigtop/gradle_${FAILED_COMPONENT}.log ]; then tail -50 /opt/modules/bigtop/gradle_${FAILED_COMPONENT}.log; fi" || true
     fi
     echo ""
     echo "Jenkins 故障排查："

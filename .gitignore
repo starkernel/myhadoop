@@ -1,6 +1,30 @@
-/scripts/extend/*
-/scripts/extend/system/*
-/scripts/extend/
-/scripts/extend3/
-/.idea/*
-/common/data
+# 备份目录
+bigtop-rpms-backup-*/
+ambari-rpms/
+
+# 临时脚本
+fix-gradle-memory.sh
+monitor-build-progress.sh
+do_component_build_fixed.sh
+fix_flink_do_component_build.sh
+fix_and_build_flink.sh
+fix_flink_pom.sh
+watch_flink_final.sh
+monitor_flink.sh
+
+# Python 脚本（已在容器内）
+fix_pom_simple.py
+
+# 备份文件
+*.backup
+*.bak
+
+# 日志文件
+*.log
+
+# Bigtop RPM 备份
+bigtop-rpms-backup-*/
+
+# 临时文件
+*.log
+*.tmp
