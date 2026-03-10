@@ -73,6 +73,9 @@ if [ "$BUILD_SUCCESS" = true ]; then
     echo "========================================="
     echo "[2/4] Bigtop 增量构建"
     echo "========================================="
+    echo "注: Flink 修复在 build.sh 中自动执行"
+    echo "注: Hive 修复在 do-component-build 中自动执行"
+    echo ""
     
     # 检查已完成的组件
     echo "→ 检查已完成的组件..."
@@ -99,6 +102,8 @@ if [ "$BUILD_SUCCESS" = true ]; then
     echo ""
     echo "→ 开始 Bigtop 构建（Gradle 会自动跳过已完成任务）"
     echo "  完整日志: /opt/modules/bigtop/gradle_build.log"
+    echo "  注: Flink 修复在 build.sh 中自动执行"
+    echo "  注: Hive 修复在 do-component-build 中自动执行"
     echo ""
     
     BIGTOP_START=$(date +%s)

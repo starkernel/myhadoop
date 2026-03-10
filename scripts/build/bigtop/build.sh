@@ -43,6 +43,8 @@ RPM_PACKAGE="/data/rpm-package/bigtop"
 original_directory=$(pwd)
 cd "$PROJECT_PATH"
 git checkout .
+bash /scripts/build/bigtop/fix-flink.sh
+bash /scripts/build/bigtop/fix-hive-complete.sh
 cd "$original_directory"
 
 
